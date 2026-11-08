@@ -2,7 +2,7 @@
 
 [繁體中文](README.md) · [AI game-making guide](docs/AI-GAME-WORKFLOW.en.md) · [中文製作教學](docs/AI-GAME-WORKFLOW.zh-TW.md)
 
-Inkblade is a playable browser game about Zhong Kui recovering stolen names from a false mountain god. Fight a wolf pack, a swordsman and a mountain monster in a short story campaign, or choose a single opponent. It is a third-person 3D action prototype, not a VR headset application or an AAA production.
+Inkblade is a playable browser game about Zhong Kui recovering stolen names from a false mountain god. Fight a wolf pack, a swordsman and a mountain monster in a short story campaign, or choose a single opponent. It is a third-person 3D action game prototype.
 
 ![Gameplay animation](docs/gameplay.gif)
 
@@ -33,11 +33,11 @@ WASD / arrows move. Tap **J** or left click for a sword combo; hold for a heavy 
 
 | Part | Tools used | Result |
 | --- | --- | --- |
-| Visual direction | OpenAI image generation; fal Nano Banana 2.1 | Character and scene reference images |
-| Character meshes | Tripo H3.1 through fal | Four textured GLB meshes for the hero, monster, swordsman and wolf |
+| Visual direction | GPT Image; Nano Banana 2.1 | Character and scene reference images |
+| Character meshes | Tripo H3.1 | Four textured GLB meshes for the hero, monster, swordsman and wolf |
 | Sound and voices | Higgsfield: ElevenLabs Music, ElevenLabs speech and Mirelo; Kenney CC0 for selected effects | Two music loops, game effects and 37 voiced lines; 35 character lines were later directed for stronger emotion |
 | Game and animation | JavaScript and Three.js 0.187.0 | WebGL rendering, runtime rigs, procedural poses, combat, enemy AI, campaign, UI and audio integration |
 
-Meshy Rigging was tried, but its deformed output was not used in gameplay. Flux 3 Max and Blender were not used. The movements are procedural, not motion capture. The references to other action games are design study, not copied game assets.
+Character movement is driven by procedural animation in the game. The references to other action games informed the combat design.
 
 See the [step-by-step guide](docs/AI-GAME-WORKFLOW.en.md) for the actual production workflow, test gates and the difference between generated assets and working game systems. The four shipped character meshes contain their textures; no cloud media service is called while playing. Generated media follows its provider's terms. Kenney audio licenses are included in `dist/assets/audio/`.
