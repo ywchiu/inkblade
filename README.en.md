@@ -14,6 +14,8 @@ Inkblade is a playable third-person 3D action prototype inspired by Zhong Kui an
 | --- | --- |
 | ![3D story scene with Zhong Kui and wolves](docs/gameplay-story.png) | ![Movement stick and three action buttons on mobile](docs/gameplay-mobile.png) |
 
+The online game runs on Cloudflare Pages, serving the files in `dist/` and redeploying when GitHub `main` changes. Before publishing, we resized the four playable character textures to 2048 pixels, used WebP and simplified their meshes. Their combined model files fell from about 55 MB to 9.7 MB.
+
 ## Story and modes
 
 The stolen names have trapped the villagers' spirits in the mountains. Zhong Kui follows the trail through a bamboo forest, meets wolves bound by a curse, and faces the swordsman Shen Hanzhou, who has his own reason to guard the road. At the end waits a mountain monster claiming to protect the village. Dialogue, battle cries and an in-game journal carry the story.
