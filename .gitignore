@@ -1,0 +1,28 @@
+node_modules/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+*.key
+id_rsa*
+id_ed25519*
+
+# Local generation history may contain account identifiers and private media URLs.
+art/audio/
+art/direction/*.json
+art/direction/roster/*.json
+
+# Historical QA captures are large and may include transient service metadata.
+docs/screenshots/
+docs/*.json
+docs/verification.md
+
+# Superseded test meshes; the playable and preview meshes remain in dist/assets.
+dist/assets/hero/demon-queller-rigged.glb
+dist/assets/hero/demon-queller-walk-original.glb
+dist/assets/hero/walk-armature.glb
+dist/assets/hero/run-armature.glb

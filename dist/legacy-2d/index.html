@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e9e4d7">
+<meta name="description" content="墨刃：水墨武俠格鬥。化身執墨人，挑戰山間妖獸與劍客。">
+<title>墨刃 · INKBLADE</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23a23d32'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-size='44' fill='%23f0e9d8'%3E墨%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="paper-grain" aria-hidden="true"></div>
+<header class="topbar">
+  <a class="brand" href="./" aria-label="墨刃首頁"><span class="brand-seal">墨</span><span>墨刃 <small>INKBLADE</small></span></a>
+  <span class="edition">山海試煉 <i></i> 水墨格鬥</span>
+  <nav aria-label="遊戲設定"><button id="sound" class="icon-button" aria-label="開啟音效" aria-pressed="false">音效 <span>關</span></button><button id="help" class="icon-button">招式譜 <span>?</span></button></nav>
+</header>
+<main>
+<section class="game-shell" aria-label="墨刃對戰場景">
+  <canvas id="scene" tabindex="0" aria-label="水墨格鬥遊戲。使用 A D 移動，J 攻擊，K 格擋，L 閃避，空白鍵跳躍，I 施放大招。"></canvas>
+  <div id="hud" class="hud" hidden>
+    <div class="fighter-info"><div class="fighter-label"><span>執墨人</span><small>THE WANDERER</small><b id="player-hp">100</b></div><div class="health"><div id="player-health"></div></div><div class="qi"><div id="qi-fill"></div></div><div class="qi-label">墨氣 <span id="qi-text">0 / 100</span></div></div>
+    <div class="round"><span id="round-count">壹</span><small id="round-label">竹影試煉</small><button id="pause" aria-label="暫停遊戲">Ⅱ</button></div>
+    <div class="fighter-info enemy-info"><div class="fighter-label"><b id="enemy-hp">100</b><small id="enemy-subtitle">THE INK WOLF</small><span id="enemy-name">墨狼</span></div><div class="health enemy-health"><div id="enemy-health"></div></div><p id="enemy-intent">保持距離，觀察起手</p></div>
+  </div>
+  <div class="landscape-caption" id="landscape-caption"><span>第一卷</span><div></div><span>竹影 · 山嵐</span></div>
+  <section id="title-screen" class="title-screen">
+    <p class="eyebrow"><span></span> 一筆入江湖，一刃破山海</p>
+    <h1>墨<span>刃</span><b class="title-seal">山海<br>試煉</b></h1>
+    <p class="english-title">I N K B L A D E</p>
+    <p class="intro">以墨為刃，與山海異獸交鋒。<br>在一招一式之間，寫下你的江湖。</p>
+    <button id="start" class="primary-button">入 畫 <span>開始試煉</span><b>↗</b></button>
+    <button id="practice" class="text-button">自由切磋 <span>選擇你的對手 →</span></button>
+    <p class="start-note">鍵盤 / 觸控操作 <i>·</i> 三場試煉</p>
+  </section>
+  <div id="combat-message" class="combat-message" aria-live="polite"></div>
+  <div id="combo" class="combo" hidden><b>0</b><span>連擊</span></div>
+  <div class="scene-footer"><span><i></i> 風過竹林，墨起無聲。</span><span>水墨格鬥原型 <b>壹 · 〇</b></span></div>
+  <div class="keyboard-hint" aria-hidden="true"><span>A D <b>移動</b></span><span>J <b>連擊</b></span><span>K <b>格擋</b></span><span>L <b>閃避</b></span><span>SPACE <b>跳躍</b></span><span>I <b>絕技</b></span></div>
+  <div id="touch-controls" class="touch-controls" hidden aria-label="觸控操作">
+    <div><button data-key="a" aria-label="向左移動">←</button><button data-key="d" aria-label="向右移動">→</button><button data-key=" " aria-label="跳躍">躍</button></div>
+    <div><button data-key="k">擋</button><button data-key="l">閃</button><button data-key="j" class="touch-attack">斬</button><button data-key="i">墨</button></div>
+  </div>
+  <section id="overlay" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="overlay-title"><div class="modal"><button id="close-overlay" class="close-button" aria-label="關閉">×</button><p id="overlay-kicker" class="eyebrow">INKBLADE</p><h2 id="overlay-title"></h2><div id="overlay-body"></div><div id="overlay-actions"></div></div></section>
+</section>
+<section class="under-scene">
+  <div class="chapter-heading"><span class="chapter-number">01 — 03</span><h2>山海有靈，皆可一戰。</h2><p>三位對手，三種破局之道。</p></div>
+  <div class="opponents" aria-label="對手圖鑑">
+    <button class="opponent-card" data-enemy="0"><span class="card-mark">狼</span><span class="card-content"><small>壹 · 竹林</small><strong>墨狼</strong><span>迅疾撲咬 · 閃避反擊</span></span><span class="card-arrow">↗</span></button>
+    <button class="opponent-card" data-enemy="1"><span class="card-mark">劍</span><span class="card-content"><small>貳 · 古寺</small><strong>無相劍客</strong><span>連環劍勢 · 格擋破招</span></span><span class="card-arrow">↗</span></button>
+    <button class="opponent-card" data-enemy="2"><span class="card-mark">山</span><span class="card-content"><small>參 · 山門</small><strong>山魈</strong><span>重擊震地 · 躍起破局</span></span><span class="card-arrow">↗</span></button>
+  </div>
+</section>
+<footer class="page-footer"><span>落筆無悔，出鞘有聲。</span><span>原創角色 · 程式水墨繪景</span><a href="https://xikhar.github.io/sumiro/" target="_blank" rel="noopener noreferrer">美術靈感 / Sumiro ↗</a></footer>
+</main>
+<script type="module" src="game.js"></script>
+</body>
+</html>

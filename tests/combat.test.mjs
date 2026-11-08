@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {Combat, ENEMIES} from '../dist/legacy-2d/combat.js';
+const tick=(g,n,input={})=>{for(let i=0;i<n;i++)g.update(1/60,input);};
+test('melee requires range and cannot damage a distant opponent',()=>{const g=new Combat();g.action('attack');tick(g,20);assert.equal(g.enemy.hp,100);g.enemy.x=g.player.x+110;g.enemy.recover=10;g.action('attack');tick(g,20);assert.equal(g.enemy.hp,88);assert.equal(g.player.qi,12);});
+test('timed frontal parry cancels an attack and opens a punish window',()=>{const g=new Combat(1);g.enemy.x=g.player.x+120;g.update(.016,{guard:true});g.hurtPlayer(18,g.enemy.x);assert.equal(g.player.hp,120);assert.equal(g.enemy.hp,130);assert.equal(g.stats.parries,1);assert.ok(g.enemy.stun>1);});
+test('holding guard reduces damage, but a strike from behind bypasses it',()=>{const g=new Combat();tick(g,30,{guard:true});g.hurtPlayer(20,g.player.x+100);assert.equal(g.player.hp,116);g.player.invuln=0;g.hurtPlayer(20,g.player.x-100);assert.equal(g.player.hp,96);});
+test('dodge grants a finite invulnerability window and has a cooldown',()=>{const g=new Combat();g.action('dodge');g.hurtPlayer(20,g.enemy.x);assert.equal(g.player.hp,120);tick(g,25);g.hurtPlayer(20,g.enemy.x);assert.equal(g.player.hp,100);});
+test('jump clears a ground wave, grounded player takes damage',()=>{for(const airborne of [false,true]){const g=new Combat(2);g.enemy.recover=10;g.player.x=500;if(airborne)g.player.y=90;g.waves=[{x:450,r:40,hit:false,life:1}];g.update(.016);assert.equal(g.player.hp,airborne?120:99);}});
+test('ultimate requires full qi, consumes it, and deals damage',()=>{const g=new Combat();g.enemy.x=600;g.action('ultimate');assert.equal(g.player.attack,0);g.player.qi=100;g.action('ultimate');tick(g,20);assert.equal(g.player.qi,0);assert.equal(g.enemy.hp,52);});
+test('all three opponents can be defeated and cannot act after victory',()=>{for(let i=0;i<ENEMIES.length;i++){const g=new Combat(i);g.damageEnemy(999);assert.equal(g.status,'won');const x=g.enemy.x;tick(g,100);assert.equal(g.enemy.x,x);}});
+test('defeat stops the simulation and reset restores a playable round',()=>{const g=new Combat();g.hurtPlayer(999,900);assert.equal(g.status,'lost');g.reset(1);assert.equal(g.status,'playing');assert.equal(g.player.hp,120);assert.equal(g.enemy.maxHp,145);});
+test('long steps are clamped and movement cannot leave the arena',()=>{const g=new Combat();g.enemy.recover=100;g.player.x=1210;g.update(10,{right:true});assert.ok(g.player.x<=1215);assert.ok(g.time<=.04);});
+test('ordinary hits do not cancel enemy windups indefinitely',()=>{const g=new Combat(1);g.enemy.windup=.5;g.damageEnemy(12);g.update(.016);assert.ok(g.enemy.windup>0);assert.equal(g.enemy.stun,0);});
+test('swordsman follows the first slash with a second windup',()=>{const g=new Combat(1);g.enemy.x=g.player.x+120;g.enemy.phase=1;g.enemy.recover=0;g.enemy.attack=.01;g.enemy.attackHit=true;g.update(.02);assert.equal(g.enemy.phase,2);assert.ok(g.enemy.windup>0);});
+test('shockwaves can hit at most once even across several frames',()=>{const g=new Combat(2);g.enemy.recover=10;g.player.x=500;g.waves=[{x:450,r:35,hit:false,life:1}];tick(g,5);assert.equal(g.player.hp,99);});

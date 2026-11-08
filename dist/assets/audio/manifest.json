@@ -1,0 +1,266 @@
+[
+  {
+    "file": "whoosh-1.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0.28,
+      1.28
+    ],
+    "tempo": 1.7,
+    "peak_target": 0.52,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "b0917b375bbca300a1273c1895059563c92567fbd1e2bdae66edcc44ac372af4",
+    "bytes": 10269,
+    "duration": 0.5976041666666667
+  },
+  {
+    "file": "whoosh-2.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0.3,
+      1.32
+    ],
+    "tempo": 1.5,
+    "peak_target": 0.48,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "f0894b64043800e28d88cb5d446581a1407460ca330518fdd24cddf033a6546e",
+    "bytes": 11838,
+    "duration": 0.6943333333333334
+  },
+  {
+    "file": "cloth-1.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0,
+      0.55
+    ],
+    "tempo": 1.12,
+    "peak_target": 0.48,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "4d56cc0467f6bb3fdbf5cfb97be9e5c8ca772b26ed091da6b830cf13bd8561d8",
+    "bytes": 8473,
+    "duration": 0.5035208333333333
+  },
+  {
+    "file": "cloth-2.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0.02,
+      0.59
+    ],
+    "tempo": 1.02,
+    "peak_target": 0.44,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "0354e0ac4e18dc26a036fc59f044b240b45e98f4933c36cad3957c8083ba0fa8",
+    "bytes": 8992,
+    "duration": 0.57
+  },
+  {
+    "file": "draw.ogg",
+    "source_archive": "rpg-audio.zip",
+    "license": "CC0-1.0",
+    "author": "Kenney",
+    "changes": "Leading silence trimmed; EQ, limiter, -3.74 dB gain, 12 ms tail fade, mono Opus encoding",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "sha256": "a9d1572c951f97a7ef4151ed14e8cddc8daf49081c1dc909519633b085b6345c",
+    "bytes": 6888,
+    "duration": 0.399542
+  },
+  {
+    "file": "heal.ogg",
+    "source_archive": "rpg-audio.zip",
+    "license": "CC0-1.0",
+    "author": "Kenney",
+    "changes": "Leading silence trimmed; EQ, limiter, -3.74 dB gain, 12 ms tail fade, mono Opus encoding",
+    "url": "https://kenney.nl/assets/rpg-audio",
+    "sha256": "be124f9f567ccb1f04911d473c262b9f6aaa36826d9db8274ea502ff3a7a2e6b",
+    "bytes": 5210,
+    "duration": 0.269958
+  },
+  {
+    "file": "hit-1.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0,
+      0.49
+    ],
+    "tempo": 1.05,
+    "peak_target": 0.5,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "addf33ceaef71d8a69803c924644027b67fd870c668f201a9f25098ac403e5f0",
+    "bytes": 8839,
+    "duration": 0.4824791666666667
+  },
+  {
+    "file": "hit-2.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0.01,
+      0.53
+    ],
+    "tempo": 1.14,
+    "peak_target": 0.48,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "6065c3fcf56c1ca8dbe199cc8e237f4f6c44a1be340b2018894ab92c1c218d4a",
+    "bytes": 8328,
+    "duration": 0.47252083333333333
+  },
+  {
+    "file": "heavy-hit.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0,
+      0.78
+    ],
+    "tempo": 0.9,
+    "peak_target": 0.58,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "c4227e6f437a94ba6c542d0993c176c69e944f002769bae9e850d31d80a7bfad",
+    "bytes": 14128,
+    "duration": 0.8494166666666667
+  },
+  {
+    "file": "metal-1.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0.025,
+      0.57
+    ],
+    "tempo": 1,
+    "peak_target": 0.55,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "8e71e0462a79ae7b686edb2d3f8c428477c1a62a6ddef8f6ebba970ff1b24832",
+    "bytes": 8932,
+    "duration": 0.545
+  },
+  {
+    "file": "metal-2.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0.03,
+      0.62
+    ],
+    "tempo": 1.13,
+    "peak_target": 0.52,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "f9796242c63333674874e185f70062386389d70b8ba0b37b31645ea6594cca03",
+    "bytes": 8795,
+    "duration": 0.5406041666666667
+  },
+  {
+    "file": "bell.ogg",
+    "source_archive": "impact-sounds.zip",
+    "license": "CC0-1.0",
+    "author": "Kenney",
+    "changes": "Leading silence trimmed; EQ, limiter, -3.74 dB gain, 12 ms tail fade, mono Opus encoding",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "sha256": "9e8608dceab9c39d212195b05763c43e4bad1e77774cdd3597bfe61a3724051b",
+    "bytes": 27123,
+    "duration": 1.484688
+  },
+  {
+    "file": "stone.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0,
+      1.35
+    ],
+    "tempo": 1,
+    "peak_target": 0.58,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "43b60ceb90d7d698296ff98044840c4a458f05d4e3d58b6d2451d81bc71f2ac3",
+    "bytes": 21840,
+    "duration": 1.3477291666666666
+  },
+  {
+    "file": "step-1.ogg",
+    "source_archive": "impact-sounds.zip",
+    "license": "CC0-1.0",
+    "author": "Kenney",
+    "changes": "Leading silence trimmed; EQ, limiter, -3.74 dB gain, 12 ms tail fade, mono Opus encoding",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "sha256": "38fce130539b65138a0f5816b8e24198ce300174c2eafd15062973bbd6aee01e",
+    "bytes": 3342,
+    "duration": 0.110417
+  },
+  {
+    "file": "step-2.ogg",
+    "source_archive": "impact-sounds.zip",
+    "license": "CC0-1.0",
+    "author": "Kenney",
+    "changes": "Leading silence trimmed; EQ, limiter, -3.74 dB gain, 12 ms tail fade, mono Opus encoding",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "sha256": "54924ab7e40a05ab68f88e9d6c4beb7c6de70cb0f73104629e07b65da1ddeafb",
+    "bytes": 3324,
+    "duration": 0.112104
+  },
+  {
+    "file": "step-3.ogg",
+    "source_archive": "impact-sounds.zip",
+    "license": "CC0-1.0",
+    "author": "Kenney",
+    "changes": "Leading silence trimmed; EQ, limiter, -3.74 dB gain, 12 ms tail fade, mono Opus encoding",
+    "url": "https://kenney.nl/assets/impact-sounds",
+    "sha256": "bc0481a20bd3916fac6a81a9ceaa7b15e663a302c7afbf629e7a635d3a826243",
+    "bytes": 3274,
+    "duration": 0.117292
+  },
+  {
+    "file": "exploration.ogg",
+    "provider": "Higgsfield",
+    "model": "elevenlabs_music_v2_5",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "loop_seconds": 58,
+    "changes": "2 second end-to-start crossfade, EQ, -21 LUFS target plus -3.74 dB headroom, 5 ms boundary fades",
+    "sha256": "ac08458959f1441a3f62c043e8c3312cc31a8b49a82a830ec4aa99aedae17efe",
+    "bytes": 997679,
+    "duration": 58.0
+  },
+  {
+    "file": "battle.ogg",
+    "provider": "Higgsfield",
+    "model": "elevenlabs_music_v2_5",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "loop_seconds": 58,
+    "changes": "2 second end-to-start crossfade, EQ, -21 LUFS target plus -3.74 dB headroom, 5 ms boundary fades",
+    "sha256": "0bfb1285d71de1219a29a504da27e3bdcca32ba4fb6492747e358798395363ca",
+    "bytes": 885869,
+    "duration": 58.0
+  },
+  {
+    "file": "wolf-growl.ogg",
+    "provider": "Higgsfield",
+    "model": "mirelo_text_to_audio",
+    "license": "Generated via user Higgsfield account; provider/model terms apply; not CC0",
+    "source_cut": [
+      0,
+      1.75
+    ],
+    "tempo": 1.06,
+    "peak_target": 0.46,
+    "changes": "Local trim/tempo variant, EQ, peak normalization, 2 ms attack and 30 ms tail fades",
+    "sha256": "ccbd3d4bf12a71ce5f86d427f0cd0d82e9384ec67fbc51fa1e595a31fd30951f",
+    "bytes": 25457,
+    "duration": 1.661
+  }
+]

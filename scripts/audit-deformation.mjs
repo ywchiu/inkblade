@@ -1,0 +1,9 @@
+import{readFile}from'node:fs/promises';import{GLTFLoader}from'../dist/vendor/addons/loaders/GLTFLoader.js';import{createCharacter,animateCharacter}from'../dist/characters3d.js';import{PLAYER_MOVES}from'../dist/attack-moves.js';import*as T from'../dist/vendor/three.module.js';
+globalThis.self=globalThis;globalThis.createImageBitmap=async()=>({width:4096,height:4096,close(){}});
+const kind=process.argv[2]||'hero',file=kind==='hero'?'hero/demon-queller.glb':'ronin/faceless-swordsman.glb',bytes=await readFile(new URL('../dist/assets/'+file,import.meta.url)),m=createCharacter(await new GLTFLoader().parseAsync(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength),''),kind),out=[];
+for(const move of [PLAYER_MOVES.heavy,PLAYER_MOVES.diagonal,PLAYER_MOVES.reverse]){
+ const a={x:0,z:0,yaw:0,speed:0,flash:0,state:move.id==='heavy'?'heavy':'light',move:move.id,total:move.duration,timer:move.duration-(move.impact-.055)};m.motionTransition=null;m.footwork=null;for(let i=0;i<20;i++)animateCharacter(m,a,i/60,1/60);m.root.updateMatrixWorld(true);m.skeleton.update();const edges=[];let bad=0;
+ for(const mesh of m.meshes){const p=mesh.geometry.attributes.position,index=mesh.geometry.index,vertices=Array.from({length:p.count},(_,i)=>mesh.getVertexPosition(i,new T.Vector3()));for(let i=0;i<index.count;i+=3)for(const [a,b]of[[index.getX(i),index.getX(i+1)],[index.getX(i+1),index.getX(i+2)],[index.getX(i+2),index.getX(i)]]){const pa=new T.Vector3().fromBufferAttribute(p,a),pb=new T.Vector3().fromBufferAttribute(p,b),old=pa.distanceTo(pb),now=vertices[a].distanceTo(vertices[b]);if(old<.004)continue;const ratio=now/old;if(ratio>4&&now>.04)bad++;edges.push({ratio,now,old,mid:pa.add(pb).multiplyScalar(.5/m.height).toArray()});}}
+ edges.sort((a,b)=>b.ratio-a.ratio);out.push({move:move.id,badEdges:bad,extremes:edges.slice(0,5)});
+}
+console.log(JSON.stringify({kind,results:out},null,2));

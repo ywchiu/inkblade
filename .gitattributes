@@ -1,0 +1,6 @@
+dist/vendor/** -whitespace
+dist/assets/audio/*LICENSE.txt -whitespace
+*.glb binary
+*.png binary
+*.gif binary
+*.ogg binary

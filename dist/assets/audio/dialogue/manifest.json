@@ -1,0 +1,261 @@
+[
+  {
+    "id": "opening-0",
+    "speaker": "村中老婦",
+    "text": "判官爺，我兒進山還願，三日未歸。今早連他的名字，我也想不起來了。",
+    "file": "assets/audio/dialogue/opening-0.ogg",
+    "duration": 11.44
+  },
+  {
+    "id": "opening-1",
+    "speaker": "鍾馗",
+    "text": "狀紙上只剩手印，連姓名也被抹去……你們向誰求的平安？",
+    "file": "assets/audio/dialogue/opening-1.ogg",
+    "duration": 9.04
+  },
+  {
+    "id": "opening-2",
+    "speaker": "村中老婦",
+    "text": "鎮祟寺的山神。祂說，只借一個名字，便保一家平安。",
+    "file": "assets/audio/dialogue/opening-2.ogg",
+    "duration": 6.48
+  },
+  {
+    "id": "opening-3",
+    "speaker": "鍾馗",
+    "text": "借名不還，便是拘魂。這張無名狀，我接了。",
+    "file": "assets/audio/dialogue/opening-3.ogg",
+    "duration": 5.28
+  },
+  {
+    "id": "wolf-0",
+    "speaker": "墨狼腹中的聲音",
+    "text": "別……叫我的名字。祂會聽見。",
+    "file": "assets/audio/dialogue/wolf-0.ogg",
+    "duration": 5.525
+  },
+  {
+    "id": "wolf-1",
+    "speaker": "鍾馗",
+    "text": "活人的聲音，怎會鎖在獸腹裡？這群狼身上，都拴著同一道役魂咒。",
+    "file": "assets/audio/dialogue/wolf-1.ogg",
+    "duration": 8.56
+  },
+  {
+    "id": "wolf-2",
+    "speaker": "鍾馗",
+    "text": "莫怕。我斬的是拘你的咒，不是你的魂。",
+    "file": "assets/audio/dialogue/wolf-2.ogg",
+    "duration": 5.52
+  },
+  {
+    "id": "wolfClear-0",
+    "speaker": "獲救的殘魂",
+    "text": "我只記得……沈家的姑娘。她哥哥守著斷橋，不讓我們下山。",
+    "file": "assets/audio/dialogue/wolfClear-0.ogg",
+    "duration": 9.205
+  },
+  {
+    "id": "wolfClear-1",
+    "speaker": "鍾馗",
+    "text": "這名牌背面刻著「鎮祟寺」。獸是鎖，守橋人是門。",
+    "file": "assets/audio/dialogue/wolfClear-1.ogg",
+    "duration": 8.32
+  },
+  {
+    "id": "wolfClear-2",
+    "speaker": "鍾馗",
+    "text": "跟在我身後。去問問那持劍的，究竟在替誰守門。",
+    "file": "assets/audio/dialogue/wolfClear-2.ogg",
+    "duration": 5.76
+  },
+  {
+    "id": "ronin-0",
+    "speaker": "沈寒舟 · 守橋劍客",
+    "text": "止步！山神答應過我，我與劍影守住這條路，我妹妹便能回家。",
+    "file": "assets/audio/dialogue/ronin-0.ogg",
+    "duration": 7.2
+  },
+  {
+    "id": "ronin-1",
+    "speaker": "鍾馗",
+    "text": "狼腹裡拘著沈家姑娘的殘魂。你守的這道門，只許人進，不許魂出。",
+    "file": "assets/audio/dialogue/ronin-1.ogg",
+    "duration": 10.96
+  },
+  {
+    "id": "ronin-2",
+    "speaker": "沈寒舟 · 守橋劍客",
+    "text": "我已守了七個寒暑……你叫我如何信你！",
+    "file": "assets/audio/dialogue/ronin-2.ogg",
+    "duration": 4.64
+  },
+  {
+    "id": "ronin-3",
+    "speaker": "鍾馗",
+    "text": "那便看清楚。你的劍上，纏的是誰的鎖。",
+    "file": "assets/audio/dialogue/ronin-3.ogg",
+    "duration": 5.76
+  },
+  {
+    "id": "roninClear-0",
+    "speaker": "沈寒舟",
+    "text": "這斷刃裡的名字……都是被我攔下的人？原來我早已死了，還替祂守著牢門。",
+    "file": "assets/audio/dialogue/roninClear-0.ogg",
+    "duration": 9.04
+  },
+  {
+    "id": "roninClear-1",
+    "speaker": "鍾馗",
+    "text": "害你的人，還要借你的手害旁人。這筆債，該去向祂討。",
+    "file": "assets/audio/dialogue/roninClear-1.ogg",
+    "duration": 9.2
+  },
+  {
+    "id": "roninClear-2",
+    "speaker": "沈寒舟",
+    "text": "祂不是山神。借名契就藏在祂身上。判官，替我把妹妹的名字帶回去。",
+    "file": "assets/audio/dialogue/roninClear-2.ogg",
+    "duration": 9.04
+  },
+  {
+    "id": "oni-0",
+    "speaker": "鎮祟山魈",
+    "text": "一個名字，換七年平安。是他們自己按的手印。鍾馗，你憑什麼毀我的香火？",
+    "file": "assets/audio/dialogue/oni-0.ogg",
+    "duration": 10.318
+  },
+  {
+    "id": "oni-1",
+    "speaker": "鍾馗",
+    "text": "你驅狼下山，再賣平安；拘人魂魄，卻稱恩典。這香火，供的是恐懼。",
+    "file": "assets/audio/dialogue/oni-1.ogg",
+    "duration": 12.08
+  },
+  {
+    "id": "oni-2",
+    "speaker": "鎮祟山魈",
+    "text": "失了姓名的孤魂，除了我，誰還肯收留？",
+    "file": "assets/audio/dialogue/oni-2.ogg",
+    "duration": 4.471
+  },
+  {
+    "id": "oni-3",
+    "speaker": "鍾馗",
+    "text": "我記。今日來的每一個，都有歸處。",
+    "file": "assets/audio/dialogue/oni-3.ogg",
+    "duration": 6.72
+  },
+  {
+    "id": "ending-0",
+    "speaker": "鎮祟山魈",
+    "text": "契毀了……你又怎知，他們回去還有人記得？",
+    "file": "assets/audio/dialogue/ending-0.ogg",
+    "duration": 6.547
+  },
+  {
+    "id": "ending-1",
+    "speaker": "鍾馗",
+    "text": "有人等，便送回家。無人等，我便替他們留名。輪不到你作主。",
+    "file": "assets/audio/dialogue/ending-1.ogg",
+    "duration": 10.16
+  },
+  {
+    "id": "ending-2",
+    "speaker": "沈寒舟",
+    "text": "我想起來了。她叫沈阿蘅。勞你告訴她，哥哥不守這座橋了。",
+    "file": "assets/audio/dialogue/ending-2.ogg",
+    "duration": 10.08
+  },
+  {
+    "id": "ending-3",
+    "speaker": "後記",
+    "text": "天明時，無名狀上重新浮出字跡。有人歸家，有魂入土；鎮祟寺的香火，終於熄了。",
+    "file": "assets/audio/dialogue/ending-3.ogg",
+    "duration": 11.12
+  },
+  {
+    "id": "wolfEnd-0",
+    "speaker": "獲救的殘魂",
+    "text": "名牌……在鎮祟寺。求你，別讓別人再進山。",
+    "file": "assets/audio/dialogue/wolfEnd-0.ogg",
+    "duration": 8.245
+  },
+  {
+    "id": "wolfEnd-1",
+    "speaker": "鍾馗",
+    "text": "這一縷魂先送出林。餘下的債，沿古道去討。",
+    "file": "assets/audio/dialogue/wolfEnd-1.ogg",
+    "duration": 7.04
+  },
+  {
+    "id": "roninEnd-0",
+    "speaker": "沈寒舟",
+    "text": "我的劍困住的，竟是求救的人……山魈把借名契藏在身上。求你破契。",
+    "file": "assets/audio/dialogue/roninEnd-0.ogg",
+    "duration": 9.44
+  },
+  {
+    "id": "roninEnd-1",
+    "speaker": "鍾馗",
+    "text": "你且收劍。有人受騙而死，不該再因騙局不得安生。",
+    "file": "assets/audio/dialogue/roninEnd-1.ogg",
+    "duration": 7.28
+  },
+  {
+    "id": "oniEnd-0",
+    "speaker": "鎮祟山魈",
+    "text": "沒了我，誰保他們平安？",
+    "file": "assets/audio/dialogue/oniEnd-0.ogg",
+    "duration": 3.499
+  },
+  {
+    "id": "oniEnd-1",
+    "speaker": "鍾馗",
+    "text": "先少了你這一害，再談人間的路。",
+    "file": "assets/audio/dialogue/oniEnd-1.ogg",
+    "duration": 3.68
+  },
+  {
+    "id": "oniEnd-2",
+    "speaker": "後記",
+    "text": "借名契化為灰燼，被抹去的名字逐一浮現。若要知曉來路，請從「無雙征途」讀起。",
+    "file": "assets/audio/dialogue/oniEnd-2.ogg",
+    "duration": 9.12
+  },
+  {
+    "id": "bark-oni-rage",
+    "speaker": "鎮祟山魈",
+    "text": "滿山的名字，都在我掌中！",
+    "file": "assets/audio/dialogue/bark-oni-rage.ogg",
+    "duration": 3.281
+  },
+  {
+    "id": "bark-ronin-blade",
+    "speaker": "沈寒舟",
+    "text": "誰也別想越過這座橋！",
+    "file": "assets/audio/dialogue/bark-ronin-blade.ogg",
+    "duration": 2.08
+  },
+  {
+    "id": "bark-wolf-voice",
+    "speaker": "狼腹中的殘魂",
+    "text": "救我……我不想再替祂引路。",
+    "file": "assets/audio/dialogue/bark-wolf-voice.ogg",
+    "duration": 5.445
+  },
+  {
+    "id": "bark-ronin-doubt",
+    "speaker": "沈寒舟",
+    "text": "這道咒……怎會連著我的劍？",
+    "file": "assets/audio/dialogue/bark-ronin-doubt.ogg",
+    "duration": 3.28
+  },
+  {
+    "id": "bark-hero-parry",
+    "speaker": "鍾馗",
+    "text": "看清了，這一刃是斷鎖。",
+    "file": "assets/audio/dialogue/bark-hero-parry.ogg",
+    "duration": 4.32
+  }
+]

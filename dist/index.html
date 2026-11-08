@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111b23"><meta name="description" content="墨刃：3D 水墨魂系對戰。鎖定、閃避、彈反，在山門前與劍客和異獸交鋒。"><title>墨刃 · 3D 水墨魂鬥</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23914937'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-size='44' fill='%23ede5d2'%3E墨%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="style3d.css"><script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script></head>
+<body>
+<main id="app">
+ <canvas id="scene" tabindex="0" aria-label="3D 水墨對戰場景。WASD 移動，J 或滑鼠左鍵短按攻擊、長按重擊，空白鍵閃身，K 或右鍵防禦，R 補血、F 絕技。"></canvas>
+ <div class="grain" aria-hidden="true"></div><div class="vignette" aria-hidden="true"></div>
+ <header><button id="home" class="brand" aria-label="回到卷首"><b>墨</b><span>墨 刃<small>INKBLADE</small></span></button><span class="top-chapter">鎮 祟 寺 · 雨 夜</span><nav><button id="journal" aria-haspopup="dialog">志怪錄</button><button id="sound" aria-haspopup="dialog">聲音 <span>設定</span></button><button id="help">操作 <span>?</span></button><button id="fullscreen" aria-label="全螢幕">⛶</button></nav></header>
+ <section id="title-screen" class="title-screen"><p class="eyebrow"><i></i> THE TEMPLE OF BOUND SPIRITS</p><h1>墨<span>刃</span><b>魂<br>鬥</b></h1><p class="title-sub">借名山 · 一刃還魂名</p><div class="rule"></div><p class="intro">山神借走了村民的名字，卻不肯歸還。<br>執鍾馗之刃，循狼跡入山，問偽神討魂。</p><div class="mode-choices" role="group" aria-label="選擇遊戲模式"><button id="start" class="mode-card duel"><small>壹 · 單一對手</small><strong>單挑迎戰</strong><span id="start-enemy">鎮祟山魈</span><b aria-hidden="true">↗</b></button><button id="campaign" class="mode-card campaign"><small>貳 · 故事闖關</small><strong>無雙征途</strong><span>借名山 · 尋魂、破陣、斬偽神</span><b aria-hidden="true">↗</b></button></div><p class="title-note">簡化操作 · 攻擊、閃身、防禦 · 招式全保留</p></section>
+ <aside id="scene-note" class="scene-note"><span>古寺夜雨</span><i></i><span>刃有回聲</span></aside>
+ <section id="roster" class="roster" aria-label="選擇對手"><div class="roster-label"><small>擇 一 而 戰</small><span>THE ADVERSARIES</span></div><button data-opponent="0"><i>壹</i><span><strong>墨狼</strong><small>近身追咬 · 疾影撲殺</small></span><b>↗</b></button><button data-opponent="1"><i>貳</i><span><strong>沈寒舟</strong><small>守橋亡魂 · 離刃劍氣</small></span><b>↗</b></button><button data-opponent="2" class="selected" aria-pressed="true"><i>參</i><span><strong>鎮祟山魈</strong><small>竊名偽神 · 震地連擊</small></span><b>↗</b></button></section>
+ <section id="hud" hidden>
+  <div id="combat-labels" aria-hidden="true"></div><div id="combo-hint" class="combo-hint" hidden></div>
+  <div class="player-status"><div class="player-title"><span>鍾馗 · 執墨判官</span><small id="hp-number">140 / 140</small></div><div class="bar health"><i id="hp-fill"></i></div><div class="bar stamina"><i id="stamina-fill"></i></div><div class="resource-label"><span>精力 <b id="stamina-number">100</b></span><span id="qi-label">墨氣 0 / 100</span></div><div class="bar qi"><i id="qi-fill"></i></div></div>
+  <aside id="battle-map" hidden><div><b>鎮祟古道</b><span>北 ↑</span></div><canvas id="minimap" width="180" height="244" aria-label="戰場地圖：藍色主角、紅色敵人、金色關口"></canvas><p id="battle-count"></p><small>藍：主角 · 紅：敵人<br>自動鎖定與換敵</small></aside>
+  <div id="objective" hidden><small>無 雙 征 途</small><strong id="objective-title"></strong><span id="objective-goal"></span><b id="combo-count"></b></div>
+  <div class="battle-tools"><span id="lock-label">自動鎖敵</span><button id="pause" aria-label="暫停">Ⅱ</button></div>
+  <div id="reticle" class="reticle" aria-hidden="true"><i></i></div>
+  <div id="enemy-warning" class="enemy-warning"></div>
+  <div class="item-slot"><span class="flask">葫</span><div><b id="flasks">3</b><span><kbd>R</kbd> 回元飲</span><small>飲用時會露出破綻</small></div></div>
+  <div id="boss-status" class="boss-status"><p><small id="boss-subtitle">古寺守刃</small><strong id="boss-name">無相劍客</strong><span id="boss-number">310 / 310</span></p><div class="bar boss"><i id="boss-fill"></i></div><div class="bar posture"><i id="posture-fill"></i></div><div class="boss-caption"><span>架勢</span><span id="boss-hint">觀察起手，勿貪刀</span></div></div>
+  <div class="key-hints"><span><kbd>WASD</kbd> 移動</span><span><kbd>J / 左鍵</kbd> 短按斬 · 長按重擊</span><span><kbd>SPACE</kbd> 閃身</span><span><kbd>K / 右鍵</kbd> 防禦</span><span id="dash-hint">向前＋閃身：疾衝</span></div>
+  <div class="combat-utilities" aria-label="輔助招式"><button id="heal-button" data-action="heal" aria-label="回元飲，R 補血"><span>飲藥 <kbd>R</kbd></span><small>3 次</small></button><button id="special-button" data-action="special" aria-label="墨氣絕技，F 施放"><span>絕技 <kbd>F</kbd></span><small>0%</small></button></div>
+ </section>
+ <div id="message" class="message" aria-live="polite"></div>
+ <section id="touch" hidden aria-label="三鍵觸控操作"><div id="joystick" aria-label="移動搖桿"><i></i></div><div class="touch-actions"><button data-action="guard" aria-label="按住防禦，抓準時機彈反"><b>防禦</b><small>按住擋</small></button><button data-action="evade" aria-label="閃身，向前疾衝或左右閃避"><b>閃身</b><small>方向＋閃</small></button><button id="attack-button" data-action="attack" class="touch-light" aria-label="短按攻擊，長按重擊"><b>攻擊</b><small>短按斬 · 長按重</small></button></div></section>
+ <div id="story-bark" class="story-bark" hidden aria-live="polite"><strong id="bark-speaker"></strong><span id="bark-line"></span></div>
+ <section id="story-dialog" class="story-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="story-title" aria-describedby="story-line">
+  <div class="story-heading"><p id="story-chapter"></p><h2 id="story-title"></h2></div>
+  <div class="story-paper"><div class="story-copy" aria-live="polite" aria-atomic="true"><p id="story-speaker"></p><p id="story-line"></p></div><div class="story-bottom"><p><small>此行所求</small><span id="story-purpose"></span></p><div class="story-actions"><span id="story-progress"></span><button id="story-next" class="primary">下一句 →</button></div></div><div class="story-foot"><span>戰鬥已暫停 · 對話收錄於志怪錄</span><div class="story-audio-actions"><button id="story-voice" aria-label="重播本句配音">重播本句 ▷</button><button id="story-skip">跳過本段 <kbd>Esc</kbd></button></div></div></div>
+ </section>
+ <section id="overlay" hidden class="overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal"><button id="close-modal" class="close" aria-label="關閉">×</button><p id="modal-kicker" class="eyebrow"></p><h2 id="modal-title"></h2><div id="modal-body"></div><div id="modal-actions"></div></div></section>
+ <div id="loading" class="loading"><b>研 墨</b><span>正在載入主角與三位對手…</span></div>
+ <div id="error" class="error" hidden><h2>尚未能展開 3D 場景</h2><p id="error-detail"></p><button onclick="location.reload()">重新載入</button></div>
+ <footer id="footer"><span><i></i> 水墨 3D 對戰原型</span><span>立體場景 · 即時光影 · 自由鏡頭</span></footer>
+</main>
+<script type="module">import('./game3d.js').catch(error=>{document.getElementById('loading').hidden=true;document.getElementById('error').hidden=false;document.getElementById('error-detail').textContent='載入失敗：'+error.message;console.error(error);});</script>
+</body></html>
