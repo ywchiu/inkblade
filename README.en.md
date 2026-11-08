@@ -4,6 +4,8 @@
 
 Inkblade is a playable third-person 3D action prototype inspired by Zhong Kui and Chinese ghost stories. Sword in hand, the hero enters a rain-soaked temple to learn why villagers' names have been taken. Choose a single opponent to practice against, or follow a short campaign through a wolf pack, a swordsman encounter and a final mountain monster.
 
+**[Play in your browser](https://inkblade-e2h.pages.dev/)**
+
 ## Gameplay
 
 ![Actual gameplay GIF of Zhong Kui fighting wolves in a rainy temple](docs/gameplay.gif)
