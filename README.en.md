@@ -1,43 +1,53 @@
-# Inkblade — a 3D ink fantasy combat prototype
+# Inkblade — a 3D ink fantasy combat game
 
 [繁體中文](README.md) · [AI game-making guide](docs/AI-GAME-WORKFLOW.en.md) · [中文製作教學](docs/AI-GAME-WORKFLOW.zh-TW.md)
 
-Inkblade is a playable browser game about Zhong Kui recovering stolen names from a false mountain god. Fight a wolf pack, a swordsman and a mountain monster in a short story campaign, or choose a single opponent. It is a third-person 3D action game prototype.
+Inkblade is a playable 3D action prototype inspired by Zhong Kui and Chinese ghost stories. Choose a single opponent, or follow a short campaign through a wolf pack, a swordsman encounter and a final mountain monster.
 
-![Gameplay animation](docs/gameplay.gif)
+## Gameplay
 
-Story scene:
+![Actual gameplay GIF of Zhong Kui fighting wolves in a rainy temple](docs/gameplay.gif)
 
-![Zhong Kui faces the wolf pack in a rainy 3D arena](docs/gameplay-story.png)
+| Story scene | Mobile controls |
+| --- | --- |
+| ![3D story scene with Zhong Kui and wolves](docs/gameplay-story.png) | ![Movement stick and three action buttons on mobile](docs/gameplay-mobile.png) |
 
-Mobile controls:
+## Play locally
 
-![Three touch actions and movement stick](docs/gameplay-mobile.png)
-
-## Run locally
-
-```sh
+```bash
 git clone git@github.com:ywchiu/inkblade.git
 cd inkblade
 npm ci
 npm start
 ```
 
-Open <http://127.0.0.1:4173/> in a WebGL 2 browser. Runtime assets are local; playing does not need an API key or an AI account. `npm run check` checks JavaScript syntax and `npm test` runs combat, story, controls and audio tests.
+Open <http://127.0.0.1:4173/> in your browser. Playing does not require an AI account or API key.
 
-## Controls
+## Basic controls
 
-WASD / arrows move. Tap **J** or left click for a sword combo; hold for a heavy attack. **Space** dodges, or dashes when moving forward; attack during a dash for a dash cut. Hold **K** or right click to guard and time it for a parry. **R** heals; **F** uses the special attack. Counterattacks and executions use the same attack button when their windows open. On a narrow touch screen, use the stick and three primary action buttons.
+| Action | Control |
+| --- | --- |
+| Move | WASD or arrow keys |
+| Attack | Tap J / left click; hold for a heavy attack |
+| Dodge and forward dash | Space with a movement direction |
+| Guard and parry | Hold K / right click |
+| Heal / special | R / F |
 
-## What AI made, and what code made
+On a narrow screen, move with the stick and use the three main action buttons.
 
-| Part | Tools used | Result |
-| --- | --- | --- |
-| Visual direction | GPT Image; Nano Banana 2.1 | Character and scene reference images |
-| Character meshes | Tripo H3.1 | Four textured GLB meshes for the hero, monster, swordsman and wolf |
-| Sound and voices | Higgsfield: ElevenLabs Music, ElevenLabs speech and Mirelo; Kenney CC0 for selected effects | Two music loops, game effects and 37 voiced lines; 35 character lines were later directed for stronger emotion |
-| Game and animation | JavaScript and Three.js 0.187.0 | WebGL rendering, runtime rigs, procedural poses, combat, enemy AI, campaign, UI and audio integration |
+## How it was made
 
-Character movement is driven by procedural animation in the game. The references to other action games informed the combat design.
+1. **GPT Image** and **Nano Banana 2.1** created character and environment references.
+2. **Tripo H3.1** turned character references into 3D models.
+3. **JavaScript and Three.js** built the world, animations, combat, enemies and campaign.
+4. The **ElevenLabs voice model** made the character dialogue; music and effects use Higgsfield, Mirelo and Kenney assets.
+5. Browser playtesting guided changes to controls, visuals, combat pacing and story.
 
-See the [step-by-step guide](docs/AI-GAME-WORKFLOW.en.md) for the actual production workflow, test gates and the difference between generated assets and working game systems. The four shipped character meshes contain their textures; no cloud media service is called while playing. Generated media follows its provider's terms. Kenney audio licenses are included in `dist/assets/audio/`.
+This is a playable prototype. AI helped create production assets; code turns those assets into an interactive game. Read the [production guide](docs/AI-GAME-WORKFLOW.en.md) for the workflow.
+
+```bash
+npm run check
+npm test
+```
+
+Generated media follows its providers' terms. Kenney audio licenses are included in `dist/assets/audio/`.
