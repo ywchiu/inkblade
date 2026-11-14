@@ -10,6 +10,12 @@ Inkblade is a playable third-person 3D action prototype inspired by Zhong Kui an
 
 ![Actual gameplay GIF of Zhong Kui fighting wolves in a rainy temple](docs/gameplay.gif)
 
+### The ultimate: Ink Sunders the Mountains (墨破山河)
+
+![Zhong Kui's ultimate: a close-up as he raises the sword and gathers ink, then a whirling flurry and a golden seal circle on the ground](docs/ultimate.gif)
+
+With a full ink gauge, press F (or Ultimate on a phone). The camera closes in on Zhong Kui's face, then cuts low to look up the length of the raised sword while ink drifts in toward the blade and the move's name strikes in from the side. The world then drains to cold ink, leaving colour only on what glows, the hero whirls through a flurry of cuts, and the last blow lands in a burst of golden seal circle and light.
+
 | Story scene | Mobile controls |
 | --- | --- |
 | ![3D story scene with Zhong Kui and wolves](docs/gameplay-story.png) | ![A fight on a phone held upright: the stick and the attack, dodge and guard buttons at the bottom edge, the foe’s health under the objective](docs/gameplay-mobile.png) |
@@ -28,6 +34,20 @@ The online game runs on Cloudflare Pages, serving the files in `dist/` and redep
 - **One way in from the title screen.** The single-duel card and the opponent picker are gone: the wolf, Shen Hanzhou and the mountain monster are all bosses along the campaign road, so a new player no longer walks into the hardest fight first.
 - **Fix:** returning to the title from the campaign no longer logs an error on every frame.
 - **Earlier the same day:** the campaign grew to ten chapters across eight regions with new foes (the Name-Copying Scribe, the Gate Beast and others) and new moves; the script was rewritten in plain speech; the hero, swordsman and mountain monster play skeletal animation by default; the ultimate gained a close-up; the title screen got painted key art.
+
+## Art upgrades
+
+This round (2026-11-13 to 14) set out to push the look toward a AAA action game. Most of the change is in the art:
+
+- **Real skeletons and motion-captured animation.** The hero, the swordsman Shen Hanzhou and the mountain demon used to be posed by code. They are now auto-rigged with Meshy (through Higgsfield) and play motion-capture clips: 15 for the hero (idle, run, three light cuts, heavy strike, dodge, guard, fighting-stance walk, hurt, death, and the shout, flurry and leaping downward cut of the ultimate), 8 for the swordsman and 7 for the demon. The first rigging attempt failed because each model faced 90 degrees away from its skeleton, so walking dragged the legs and robes sideways; every model is now turned to face forward before it is rigged. The process is in [`art/direction/rigged/README.md`](art/direction/rigged/README.md).
+- **Footwork behind the guard.** The motion library had no walk with the sword raised in guard, so the legs come from a bought fighting-stance walk while the upper body holds the guard, with the turn of the hips taken back out so the sword stays still. Sideways steps are solved on the skeleton so each foot stays where it lands.
+- **Two new foes with their own models.** The Name-Copying Scribe and the Gate Beast used to borrow the swordsman's and the wolf's bodies in new colours. Each now has a GPT Image reference turned into 3D with Tripo H3.1; the scribe is rigged and shares the swordsman's clips, and the beast is skinned in the game on a four-legged skeleton. See [`art/direction/foes/README.md`](art/direction/foes/README.md).
+- **The ultimate and move effects.** Ink Sunders the Mountains has two close-up shots, focus lines, gathering ink and a seal circle (GIF above). The new moves have their own visuals too: Flying Ink is a flying crescent of ink, Edict: Seal spreads a talisman ring on the ground, and Mountain Breaker and the leaping cut crack the ground and throw up dust. Each effect is drawn where the combat rules say the blow actually lands.
+- **Post-processing.** The scene renders in linear light, so lanterns, sparks and blade light can go past white and bloom naturally (HDR with a multi-level bloom). The frame edge has a slight colour fringe that kicks on heavy hits; shadows lean to cold ink and highlights to lamp-warm.
+- **A rainy night.** A moonlit cloud dome, rain that follows the camera with splashes on the ground, mist, lantern embers, and distant lightning that flashes, goes dark and glows again. All of it is animated in shaders for only a few extra draw calls.
+- **Eight regions, each its own place.** Every stretch of the mountain road has its own ground, edges and landmarks: blank door plaques in the nameless village, bamboo closing overhead in the rain forest, steles scraped blank in the forest of a thousand names, a bridge over a drop with no bottom, a lantern road where every lamp is a name burning, the empty plinths of the guardians in the temple forecourt, and a hall hung with name tablets. The ground carries painted cart ruts and standing water. Props are drawn in batches and regions swallowed by fog are hidden, so it stays smooth.
+- **Title key art.** Nano Banana 2.1, given the in-game character models as reference, painted Zhong Kui facing the mountain demon on the temple steps. The art drifts slowly with a lightning flash now and then, and phones held upright get their own framing so the title and button keep clear of both faces. See [`art/direction/cover/README.md`](art/direction/cover/README.md).
+- **Lighter files.** Model textures went to 2048 px WebP and the meshes were simplified: the three rigged characters fell from 39 MB to 12.6 MB and the two new foes from 31 MB to 7.4 MB, light enough for phones.
 
 ## Story and modes
 
@@ -63,7 +83,7 @@ Tap attack to chain up to five sword strikes, or hold it for a heavy strike. Att
 
 1. **Set the scope and visual direction.** Start with the hero, opponents, rainy temple, single duels and a short campaign (the duel entry was later folded into the campaign, where its three opponents are bosses along the road). Aim for grounded Chinese fantasy, with ink in the atmosphere and combat effects.
 2. **Create character references.** GPT Image shaped the hero and environment; Nano Banana 2.1 supplied other character references. Keep costumes, silhouettes and colors consistent before building models.
-3. **Build 3D characters.** Tripo H3.1 turned the references into models. Check proportions, materials and different views inside the game.
+3. **Build 3D characters.** Tripo H3.1 turned the references into models. Check proportions, materials and different views inside the game. Meshy then auto-rigged them and supplied motion-capture clips (through Higgsfield), so the characters move on real skeletons.
 4. **Make it playable.** JavaScript and Three.js power the 3D world, character movement, combat rules, enemy behavior, levels, interface and touch controls. Game code drives the animations and combat.
 5. **Add story and sound.** Write the Borrowed Names Mountain dialogue and voice the characters with the ElevenLabs voice model (only the first chapters were recorded, and speech is switched off in the game for now: `VOICE_ON` in `dist/story3d.js`). Music and effects use Higgsfield, Mirelo and Kenney assets.
 6. **Playtest and improve.** Test visuals, controls and combat pace in the browser, then revise until the campaign can be played through.
