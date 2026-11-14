@@ -20,7 +20,7 @@
 | --- | --- |
 | ![鍾馗與狼群對峙的 3D 劇情畫面](docs/gameplay-story.png) | ![手機直向戰鬥畫面：搖桿與攻擊、閃身、防禦在螢幕底部，敵人血條在任務標題下方](docs/gameplay-mobile.png) |
 
-線上版使用 Cloudflare Pages，直接發布 `dist/` 中的遊戲檔案；GitHub `main` 更新後會自動重新部署。公開前將四個實戰角色的貼圖縮至 2048 像素，改用 WebP 並簡化網格，模型檔案合計由約 55 MB 降至 9.7 MB。後來加入的抄名鬼吏與鎮門石獸用 `scripts/compress-textures.mjs` 做同樣的貼圖處理，兩個模型由 31 MB 降至 7.4 MB；遊戲預設播放骨架動畫（`?rig=0` 可切回程序動作），用到的三個骨架模型也由 39 MB 降至 12.6 MB。
+線上版使用 Cloudflare Pages，直接發布 `dist/` 中的遊戲檔案；GitHub `main` 更新後會自動重新部署。公開前將四個實戰角色的貼圖縮至 2048 像素，改用 WebP 並簡化網格，模型檔案合計由約 55 MB 降至 9.7 MB。後來加入的抄名鬼吏與鎮門石獸用 `scripts/compress-textures.mjs` 做同樣的貼圖處理，兩個模型由 31 MB 降至 7.4 MB；三個骨架模型也由 39 MB 降至 12.6 MB。
 
 ## 最近更新
 
