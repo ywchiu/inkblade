@@ -1,7 +1,7 @@
 // Development contact sheet: steps the real animation code at 60 Hz and lays
 // sampled frames out in a grid, so gait and attack arcs can be read at a glance.
-// Procedural rig:  motion-lab.html?who=hero&clip=walk&view=side&cols=8&rows=2&span=1.2
-// Game rig:        motion-lab.html?rig=1&who=hero&clip=diagonal   (authored clips through the game's own loader)
+// Procedural rig:  motion-lab.html?rig=0&who=hero&clip=walk&view=side&cols=8&rows=2&span=1.2
+// Game rig:        motion-lab.html?who=hero&clip=diagonal   (authored clips through the game's own loader; the default)
 // Rigged GLB:      motion-lab.html?rig=./assets/hero/x.glb&clips=./assets/hero/walk.glb&clip=walk&view=front
 //                  (clip matches by name fragment or index; omit to list them in window.labClips)
 import * as THREE from './vendor/three.module.js';

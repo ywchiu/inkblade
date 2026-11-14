@@ -78,7 +78,7 @@ Tripo 產出的主角網格面朝 +X，Meshy 綁骨把它當成面朝 +Z 擺骨�
 - `dist/rig-clips.js`：`HERO_RIG` 清單（骨架檔、身高、朝向、每個 clip 的檔案與原始移動速度）與「角色狀態 → clip」對應。新增動作只要在 `clips` 加一行，名稱用上面清單的 id（`light1`–`light3`、`heavy`、`spin`、`dodge`、`guard`、`hurt`、`death`…）。
 - `dist/rigged-character3d.js`：載入、正規化到遊戲身高、掛劍、`AnimationMixer` 播放。攻擊／閃避用戰鬥計時器逐格對位（命中幀跟判定一致），移動依速度調整播放率，根位移固定在原地。
 - 缺少的 clip 會退回 idle，並記在 `model.missing`。
-- 目前為選用：網址加 `?rig=1` 才啟用，載入失敗自動退回程序骨架。
+- 2026-11-14 起為預設：主角、劍客、山魈都播放骨架動畫，載入失敗自動退回程序骨架。網址加 `?rig=0` 可切回舊的程序動作做比較。墨狼與石獸沒有骨架動畫片段，仍用四足程序動作。
 - 主角已換成新綁骨（`dist/assets/hero/rig2/`）：`hero.glb` 是模型＋骨架，其餘每個動作一個只含關鍵幀的小檔。
 
 ## 產生新動作（Higgsfield → Meshy 綁骨，每個 8 點）
@@ -87,6 +87,6 @@ Tripo 產出的主角網格面朝 +X，Meshy 綁骨把它當成面朝 +Z 擺骨�
 2. `3d_rigging`，`height_meters: 1.9`、`enable_animation: true`、`animation_action_id: <編號>`。
 3. `node scripts/extract-clip.mjs 下載檔.glb dist/assets/hero/rig2/<名稱>.glb`（16 MB → 幾十 KB）。
 4. 在 `dist/rig-clips.js` 的 `HERO_RIG.clips` 加一行；攻擊類用 `range` 指定出刀區間（秒），原地動作加 `inPlace` 或 `speed`。
-5. `motion-lab.html?rig=1&who=hero&clip=<動作>` 檢查。
+5. `motion-lab.html?who=hero&clip=<動作>` 檢查。
 
 已用編號：idle 0、run 16、light1 97、light2 219、light3 240、heavy 242、dodge 158、guard 147、hurt 178、death 187、shout 101（Sword_Shout）、judgment 102（Sword_Judgment）、plant 202（Weapon_Combo_1，只用 2.2 秒後的落地收尾）、flurry 199（Weapon_Combo）。

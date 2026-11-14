@@ -15,9 +15,9 @@ const loader=new GLTFLoader();
 const paths={hero:'./assets/hero/demon-queller.glb',oni:'./assets/monster/temple-guardian.glb',ronin:'./assets/ronin/faceless-swordsman.glb',wolf:'./assets/wolf/ink-wolf.glb'};
 // The source meshes face +X. Bake them into the combat convention (+Z, Y-up)
 // before placing joints or calculating bind matrices. No failed Meshy rig is loaded.
-// Authored skeletal animation is opt-in (?rig=1) until the hero's clip set is complete;
+// Authored skeletal animation is what the game plays; ?rig=0 brings the procedural rigs back for comparison, and
 // any load failure falls back to the procedural rig so the game always starts.
-const riggedRequested=()=>new URLSearchParams(globalThis.location?.search||'').get('rig')==='1';
+const riggedRequested=()=>new URLSearchParams(globalThis.location?.search||'').get('rig')!=='0';
 export async function loadCharacter(kind){
  const rig=RIGS[kind];if(rig&&riggedRequested()){try{return await loadRiggedCharacter(rig,{loader,createWeapon:rig.weaponBone?createSword:null,kind});}catch(error){console.warn('rigged '+kind+' unavailable, using procedural rig',error);}}
  return createCharacter(await loader.loadAsync(paths[kind]),kind);
