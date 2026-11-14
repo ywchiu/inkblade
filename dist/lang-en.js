@@ -124,7 +124,8 @@ export const EN = {
   '精準閃避或彈反後，按攻擊接乘隙反斬。': 'After a perfect dodge or a parry, press attack for a Riposte.',
   '敵人破勢時靠近，按攻擊施放鎮魂處決。': 'Close in on a foe whose posture is broken and press attack for the Soul-Quelling Execution.',
   '拖曳場景可轉動鏡頭，攻擊時會重新鎖敵。': 'Drag the scene to turn the camera; attacking locks back onto a foe.',
-  '保留選用操作：Q 切換鎖定、T 換敵、Shift 奔跑、C 直接疾衝、E 也可防禦。': 'Optional keys are still there: Q toggles lock-on, T switches target, Shift sprints, C dashes at once, E also guards.',
+  '保留選用操作：Q 切換鎖定、T 換敵、Shift 奔跑、C 直接疾衝、E 也可防禦、M 收合地圖。': 'Optional keys are still there: Q toggles lock-on, T switches target, Shift sprints, C dashes at once, E also guards, M folds the map.',
+  '收合地圖': 'Hide map', '展開地圖': 'Show map',
   '開始揮刀': 'Start Fighting',
 
   // ── Sound settings ──

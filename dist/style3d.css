@@ -30,10 +30,10 @@ footer{color:#a5ada9}
 
 /* Campaign information stays outside the combat center. */
 #battle-map{position:absolute;right:4.5%;top:180px;width:180px;background:#101b23e8;border:1px solid #b59b6055;box-shadow:0 8px 30px #0005;color:#e3d2ae;padding:8px;}
-#battle-map>div{display:flex;justify-content:space-between;font-size:11px;letter-spacing:2px;margin-bottom:5px}#battle-map>div span{font-size:9px;color:#aab6b7}#minimap{width:100%;height:210px;display:block}#battle-count{font:12px Arial;margin:8px 0}#battle-map small{font-size:9px;line-height:1.7;color:#a9b5b5}
+#map-toggle{display:flex;justify-content:space-between;align-items:center;gap:6px;width:100%;padding:0;font-size:11px;letter-spacing:2px;margin-bottom:5px;text-align:left;pointer-events:auto}#map-toggle span{font-size:9px;color:#aab6b7;margin-left:auto}#minimap{width:100%;height:210px;display:block}#battle-count{font:12px Arial;margin:8px 0}#battle-map small{font-size:9px;line-height:1.7;color:#a9b5b5}
 #objective{position:absolute;left:50%;top:105px;transform:translateX(-50%);text-align:center;display:flex;flex-direction:column;gap:7px;min-width:240px;text-shadow:0 2px 8px #000}#objective small{font-size:9px;color:#b8a078;letter-spacing:4px}#objective strong{font-size:20px;font-weight:400;color:#ecd8b0;letter-spacing:3px}#objective span{font-size:11px;color:#b8c7c6}#combo-count{font-size:28px;font-weight:400;color:#f5ca7c;letter-spacing:3px;min-height:34px}.touch-actions [data-action=special]{grid-column:auto}.key-hints{gap:14px}
 @media(max-width:900px){#battle-map{right:3%;top:165px;width:130px;padding:6px}#minimap{height:152px}#objective{top:85px;left:50%;min-width:180px}#objective strong{font-size:16px}.key-hints{gap:8px;font-size:9px}}
-@media(max-width:600px){#battle-map{top:170px;width:104px;right:12px}#minimap{height:120px}#battle-map small{display:none}#battle-map>div{font-size:9px;letter-spacing:0}#battle-count{font-size:10px}#objective{top:163px;left:5%;width:62%;min-width:0;transform:none;text-align:left;gap:6px}#objective span{font-size:10px}#objective small{display:none}#combo-count{font-size:21px}.enemy-warning{top:37%}}
+@media(max-width:600px){#battle-map{top:170px;width:104px;right:12px}#minimap{height:120px}#battle-map small{display:none}#map-toggle{font-size:9px;letter-spacing:0}#battle-count{font-size:10px}#objective{top:163px;left:5%;width:62%;min-width:0;transform:none;text-align:left;gap:6px}#objective span{font-size:10px}#objective small{display:none}#combo-count{font-size:21px}.enemy-warning{top:37%}}
 
 /* Small battlefield annotations share the game's bronze / vermilion palette. */
 #combat-labels{position:absolute;inset:0;overflow:hidden;pointer-events:none}
@@ -130,3 +130,26 @@ html[lang="en"] .audio-setting label{letter-spacing:1px}
 html[lang="en"] .scene-note{display:none}
 @media(max-width:650px){html[lang="en"] .title-sub{letter-spacing:1.5px}html[lang="en"] .intro{letter-spacing:0}html[lang="en"] .player-title{font-size:11px;letter-spacing:0}html[lang="en"] .message{letter-spacing:1px;font-size:22px}html[lang="en"] .modal h2{font-size:25px;letter-spacing:1px}html[lang="en"] nav{gap:9px}html[lang="en"] nav button,html[lang="en"] #journal{letter-spacing:0}}
 @media(max-height:540px) and (min-width:560px){html[lang="en"] .title-sub{letter-spacing:1.5px}}
+/* The map folds down to its title and the count when the screen is wanted for the fight. Its header is the button, with room around it for a thumb. */
+#map-toggle{position:relative}#map-toggle::after{content:'';position:absolute;inset:-8px -8px -6px}
+#map-toggle i{font-style:normal;font-size:10px;color:#d8c08c;line-height:1}#map-toggle i::before{content:'▾'}
+#battle-map.folded #map-toggle i::before{content:'▸'}
+#battle-map.folded #map-toggle{margin-bottom:0}
+#battle-map.folded #map-toggle span,#battle-map.folded #minimap,#battle-map.folded small{display:none}
+#battle-map.folded #battle-count{margin:6px 0 0}
+/* A phone held upright: the controls sit at the bottom edge where the thumbs are, the two side arts above the attack cluster,
+   and the foe's health moves up under the objective, out of the space the thumbs now use. */
+@media(max-width:700px) and (min-height:541px){
+#joystick{bottom:calc(30px + env(safe-area-inset-bottom))}
+.touch-actions{bottom:calc(30px + env(safe-area-inset-bottom))}
+.combat-utilities{left:auto;right:4%;bottom:calc(122px + env(safe-area-inset-bottom))}
+.combo-hint{bottom:calc(196px + env(safe-area-inset-bottom))}
+.boss-status{top:262px;bottom:auto;left:5%;right:136px}
+#battle-map.folded~.boss-status{right:5%}
+.boss-status>p{flex-wrap:wrap;gap:2px 10px;margin-bottom:6px}
+.boss-status small{max-width:none;flex-basis:100%}
+.boss-status>p>span{margin-left:auto}
+.enemy-warning{top:386px}
+.message{top:53%}
+}
+@media(max-height:540px) and (min-width:560px){#map-toggle::after{inset:-16px -12px -14px}}
