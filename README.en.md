@@ -26,14 +26,12 @@ The online game runs on Cloudflare Pages, serving the files in `dist/` and redep
 
 **2026-11-14**
 
-- **The game can be played in English.** A language button (EN / 中文) in the top-right corner switches the interface, prompts, move names, every line of dialogue and the journal, at any time; the choice is remembered in the browser. The first visit follows the browser's language, and `?lang=en` or `?lang=zh` in the address sets it directly. Gate plaques, steles and seals are part of the scenery and stay in Chinese. The English text lives in `dist/lang-en.js`; Chinese remains the single source.
-- **The title screen no longer covers the characters on a phone held upright.** The title keeps to the top, the Begin card moves to the bottom, and the key art fills the band between with both faces clear; on short phones the two pitch lines are dropped so the card stays on screen. The card's arrow is now drawn, so iPhones no longer show it as an emoji.
-- **Phones held upright: controls at the bottom edge, and a map that folds away.** The stick and the attack, dodge and guard buttons now sit at the bottom of the screen, with heal and ultimate above the attack cluster; the foe's health bar, which used to take that space, moved up under the objective. Tapping the map's title (or pressing M) folds it down to the place name and the count, and the choice is remembered.
-- **Fix: fast attack taps zoomed the page on phones.** iPhone Safari read quick taps as a double-tap zoom, enlarging the page until only the three buttons were left, the stick was off screen, and there was no way back. The page no longer zooms on a double tap or a pinch.
-- **The hero walks while guarding.** Holding guard and moving used to slide the hero across the ground with the sword raised and the feet still. Forward and backward now use motion-captured fighting-stance steps, sideways uses steps solved on the skeleton, and the upper body keeps the guard. The method is written up (in Chinese) in [`art/direction/rigged/README.md`](art/direction/rigged/README.md).
-- **One way in from the title screen.** The single-duel card and the opponent picker are gone: the wolf, Shen Hanzhou and the mountain monster are all bosses along the campaign road, so a new player no longer walks into the hardest fight first.
-- **Fix:** returning to the title from the campaign no longer logs an error on every frame.
-- **Earlier the same day:** the campaign grew to ten chapters across eight regions with new foes (the Name-Copying Scribe, the Gate Beast and others) and new moves; the script was rewritten in plain speech; the hero, swordsman and mountain monster play skeletal animation by default; the ultimate gained a close-up; the title screen got painted key art.
+- English version, switchable with the Chinese / English button in the top-right corner.
+- Phones: fast attack taps no longer zoom the page; controls sit at the bottom edge; the map folds away; the title screen no longer covers the characters.
+- Moving while guarding is now a walk instead of a slide.
+- The title screen has a single way in, Begin the Journey; the three opponents are bosses along the road.
+- The campaign grew to ten chapters across eight regions, with new foes and moves and a plain-spoken script.
+- A major art update; see Art upgrades below.
 
 ## Art upgrades
 
