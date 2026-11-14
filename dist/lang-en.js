@@ -158,10 +158,10 @@ export const EN = {
   '臺灣文獻館': 'Taiwan Historica', '教育部國語辭典': 'Ministry of Education Mandarin Dictionary', '倀': 'chang',
   '鍾馗捉鬼': 'Zhong Kui the Demon Queller',
   '借用民間傳說中鍾馗驅鬼除害、護佑人間的形象。本篇的村落、沈寒舟與借名契，均為原創，並非古籍情節。': 'The game borrows the folk figure of Zhong Kui, who drives off ghosts and protects the living. The village, Shen Hanzhou and the name-borrowing pact are original and come from no classical text.',
-  '臺灣文獻館 · 鍾馗 ↗': 'Taiwan Historica · Zhong Kui (in Chinese) ↗',
+  '臺灣文獻館 · 鍾馗': 'Taiwan Historica · Zhong Kui (in Chinese)',
   '為虎作倀': 'The Tiger’s Ghost',
   '「倀」原指傳說中被虎吃掉、反而替虎役使的鬼。本篇借用受害者被迫助害的母題，改寫為受騙守橋的亡魂；狼群與役魂咒是遊戲設定。': 'A chang is the ghost of someone eaten by a tiger who then serves the tiger. The game takes that motif, a victim made to help the one who harmed them, and turns it into a dead man tricked into guarding a bridge. The wolves and the soul-binding curse are inventions of the game.',
-  '教育部國語辭典 · 倀 ↗': 'Ministry of Education dictionary · chang (in Chinese) ↗',
+  '教育部國語辭典 · 倀': 'Ministry of Education dictionary · chang (in Chinese)',
   '落第與門神': 'The Failed Scholar on the Door',
   '傳說鍾馗應試得中，卻因相貌被黜，死後受封驅邪；民間將其畫像貼於門戶。本篇「名字從榜上抹掉」「貼在門上叫了一千年」取意於此，對白與山神青崖君皆為原創。': 'In legend Zhong Kui passed the imperial examination and was struck from the list for his looks; after death he was given the office of driving out evil, and people paste his picture on their doors. The lines about a name wiped from the list and called from doorways for a thousand years draw on that. The dialogue and the mountain god Lord Qingya are original.',
 
