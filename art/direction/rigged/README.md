@@ -54,7 +54,7 @@ Tripo 產出的主角網格面朝 +X，Meshy 綁骨把它當成面朝 +Z 擺骨�
 | 1 | 受擊 | 否 | 受擊反應 |
 | 1 | 倒地 | 否 | `dead` |
 | 2 | 衝刺 | 是 | `idle` 衝刺（5.8 m/s） |
-| 2 | 格擋慢走 | 是 | `guard` 移動（1.45 m/s） |
+| 2 | 格擋慢走 | 是 | `guard` 移動（1.45 m/s）。前後（`guardwalk`）的腿用買來的 `fightwalk`（備戰前進），上半身維持 `guard` 的舉劍姿勢；左右（`guardstrafe`）的步伐在載入時算出。反向播放即另一側，見下方「架勢步伐」 |
 | 2 | 前衝與疾衝斬 | 否 | `dash`、疾風拔斬 |
 | 2 | 上挑、橫掃 | 否 | 挑月斬、迴風掃蕩 |
 | 2 | 迴旋斬 | 否 | `special`：墨破山河（`guard`→`shout`→`heavy`→`judgment` 串接，見 `HERO_RIG.sequences.spin`；`shout` 舉劍朝天、`judgment` 躍起下劈為專屬動作，連斬段用專屬的 `flurry`，以數倍速播放） |
@@ -78,6 +78,26 @@ Tripo 產出的主角網格面朝 +X，Meshy 綁骨把它當成面朝 +Z 擺骨�
 - `dist/rig-clips.js`：`HERO_RIG` 清單（骨架檔、身高、朝向、每個 clip 的檔案與原始移動速度）與「角色狀態 → clip」對應。新增動作只要在 `clips` 加一行，名稱用上面清單的 id（`light1`–`light3`、`heavy`、`spin`、`dodge`、`guard`、`hurt`、`death`…）。
 - `dist/rigged-character3d.js`：載入、正規化到遊戲身高、掛劍、`AnimationMixer` 播放。攻擊／閃避用戰鬥計時器逐格對位（命中幀跟判定一致），移動依速度調整播放率，根位移固定在原地。
 - 缺少的 clip 會退回 idle，並記在 `model.missing`。
+
+## 架勢步伐（防禦時移動）
+
+主角只有站著的 `guard` 片段，按住防禦移動時原本整個人平移、腳不動。`dist/stance-walk.js` 在骨架載入時把「舉劍的上半身」和「走路的腿」組成一段循環，有兩種做法。
+
+**有走路片段（`mixStanceWalk`，前後移動用這個）：** 髖部與雙腿取自 `fightwalk`（動畫庫 `Walk_Fight_Forward`，id 21，2026-11-14 購入，8 點，工作 `309aaafa-9a7c-463c-aca3-c80f83ee04f3`），其餘骨頭凍結在 `guard` 的 `at` 秒。走路時髖部會轉正並隨步伐擺動，所以髖部往上的第一節脊椎要把這個轉動抵消回去（`steady`，預設抵消 85%），劍才不會跟著腳步晃。注意這副骨架掛在髖部下的那節叫 `Spine02`，不是 `Spine`，程式是用「髖部的非腿子骨頭」找的。這個片段是原地踏步，在主角身上腳底離地約 3.6 公分，用 `drop` 壓回地面；腳掌著地時的速度量出來約 0.78 m/s，寫在 `fightwalk.speed`，防禦移動 1.45 m/s 時以約 1.86 倍播放（一個循環 0.93 秒），脫戰時 2.03 m/s 以 2.6 倍播放（`rates` 放寬了上限）。
+
+**沒有走路片段（`bakeStanceWalk`，左右橫移用這個；`fightwalk` 載入失敗時前後也退回這個）：**
+
+- 上半身與髖部的轉向凍結在 `guard` 片段的 `at` 秒。
+- 每隻腳沿移動方向走自己的一條線：落地後以角色的移動速度等速向後（所以不滑步），離地後抬腳往前；腳跟在離地前先抬起，落地前腳尖微翹。大腿與小腿用兩段骨頭的反向運動學解出。
+- 髖部在雙腳著地時略沉、單腳支撐時略升並偏向支撐腳。
+
+清單寫法：`guardwalk: { speed: 1.45, walk: { stance: 'guard', at: .6, stride: .7 } }`。`speed` 要與 `combat3d.js` 的防禦移動速度一致；`stride` 是腳掌著地期間相對身體移動的距離（公尺，以 1.95 m 身高為準），一個循環的長度是 `stride / (speed × duty)`。`direction` 是角色座標中的移動方向（`[0, 1]` 向前、`[1, 0]` 向左）。
+
+播放端（`rig-clips.js` 的 `guardStep`）依實際移動方向相對於面向的角度選片段：前後用 `guardwalk`，左右用 `guardstrafe`，往後與往右是反向播放。轉身時方向會掃過一圈，新方向要持續 0.14 秒才換腳步。
+
+檢視：`/motion-lab.html?who=hero&clip=guardwalk`、`clip=guardback`、`clip=guardstrafe`（`&dir=-1` 向右）。測試在 `tests/rigged-character.test.mjs`，會量著地腳的滑動速度。
+
+橫移若也要換成動捕：動畫庫有 `Cautious_Crouch_Walk_Left`（id 525）一類的側移片段，買回來後在 `guardstrafe.walk` 加 `legs: '<片段名>'` 即可。
 - 2026-11-14 起為預設：主角、劍客、山魈都播放骨架動畫，載入失敗自動退回程序骨架。網址加 `?rig=0` 可切回舊的程序動作做比較。墨狼與石獸沒有骨架動畫片段，仍用四足程序動作。
 - 主角已換成新綁骨（`dist/assets/hero/rig2/`）：`hero.glb` 是模型＋骨架，其餘每個動作一個只含關鍵幀的小檔。
 
@@ -89,4 +109,4 @@ Tripo 產出的主角網格面朝 +X，Meshy 綁骨把它當成面朝 +Z 擺骨�
 4. 在 `dist/rig-clips.js` 的 `HERO_RIG.clips` 加一行；攻擊類用 `range` 指定出刀區間（秒），原地動作加 `inPlace` 或 `speed`。
 5. `motion-lab.html?who=hero&clip=<動作>` 檢查。
 
-已用編號：idle 0、run 16、light1 97、light2 219、light3 240、heavy 242、dodge 158、guard 147、hurt 178、death 187、shout 101（Sword_Shout）、judgment 102（Sword_Judgment）、plant 202（Weapon_Combo_1，只用 2.2 秒後的落地收尾）、flurry 199（Weapon_Combo）。
+已用編號：idle 0、run 16、light1 97、light2 219、light3 240、heavy 242、dodge 158、guard 147、hurt 178、death 187、shout 101（Sword_Shout）、judgment 102（Sword_Judgment）、plant 202（Weapon_Combo_1，只用 2.2 秒後的落地收尾）、flurry 199（Weapon_Combo）、fightwalk 21（Walk_Fight_Forward，只用髖部與腿）。

@@ -2,7 +2,7 @@
 
 [繁體中文](README.md)
 
-Inkblade is a playable third-person 3D action prototype inspired by Zhong Kui and Chinese ghost stories. Sword in hand, the hero enters a rain-soaked temple to learn why villagers' names have been taken. Choose a single opponent to practice against, or follow a short campaign through a wolf pack, a swordsman encounter and a final mountain monster.
+Inkblade is a playable third-person 3D action prototype inspired by Zhong Kui and Chinese ghost stories. Sword in hand, the hero enters a rain-soaked temple to learn why villagers' names have been taken. Follow the campaign through a wolf pack, a swordsman encounter and a final mountain monster.
 
 **[Play in your browser](https://inkblade-e2h.pages.dev/)**
 
@@ -20,7 +20,6 @@ The online game runs on Cloudflare Pages, serving the files in `dist/` and redep
 
 The stolen names have trapped the villagers' spirits in the mountains. Zhong Kui follows the trail through a bamboo forest, meets wolves bound by a curse, and faces the swordsman Shen Hanzhou, who has his own reason to guard the road. At the end waits a mountain monster claiming to protect the village. Dialogue, battle cries and an in-game journal carry the story.
 
-- **Single duel:** Choose the wolf, swordsman or mountain monster and enter a fight directly.
 - **Campaign:** A road of about 350 m up the mountain in ten chapters across eight regions: the nameless village, rain bamboo forest, forest of a thousand steles, the ravine bridge, the lantern road, the temple forecourt, the Hall of Borrowed Names, and a two-phase final fight in the temple courtyard. Foes hold their posts until you come near; there are ambushes, eleven enemy types, twelve collectible name rubbings and three roadside shrines. The route data lives in `dist/journey3d.js`.
 - **Action combat:** Chain sword attacks, dash forward and strike, dodge sideways, guard, parry and counterattack. Each opponent has a distinct pace; wolves only fight up close.
 
@@ -49,7 +48,7 @@ Tap attack to chain up to five sword strikes, or hold it for a heavy strike. Att
 
 ## Making the game with AI
 
-1. **Set the scope and visual direction.** Start with the hero, opponents, rainy temple, single duels and a short campaign. Aim for grounded Chinese fantasy, with ink in the atmosphere and combat effects.
+1. **Set the scope and visual direction.** Start with the hero, opponents, rainy temple, single duels and a short campaign (the duel entry was later folded into the campaign, where its three opponents are bosses along the road). Aim for grounded Chinese fantasy, with ink in the atmosphere and combat effects.
 2. **Create character references.** GPT Image shaped the hero and environment; Nano Banana 2.1 supplied other character references. Keep costumes, silhouettes and colors consistent before building models.
 3. **Build 3D characters.** Tripo H3.1 turned the references into models. Check proportions, materials and different views inside the game.
 4. **Make it playable.** JavaScript and Three.js power the 3D world, character movement, combat rules, enemy behavior, levels, interface and touch controls. Game code drives the animations and combat.

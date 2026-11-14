@@ -20,6 +20,15 @@ export const HERO_RIG = {
     heavy: { src: './assets/hero/rig2/heavy.glb', range: [.25, 1.35] },
     dodge: { src: './assets/hero/rig2/dodge.glb', range: [.35, 1.5], inPlace: true },
     guard: { src: './assets/hero/rig2/guard.glb' },
+    // A walk in a fighting stance (fists up), stepping in place: its feet cover the ground at `speed`.
+    // It is never played whole. `rates` lets it keep pace with the quicker walk between fights.
+    fightwalk: { src: './assets/hero/rig2/fightwalk.glb', speed: .78, rates: [.6, 2.8] },
+    // Moving behind the guard is put together when the skeleton loads (see stance-walk.js): the guard held above
+    // the hips, the steps below. guardwalk takes its legs from fightwalk and so its pace; without that clip the
+    // steps are solved for `speed`, the guarded pace in combat3d.js, as guardstrafe's always are.
+    // Each plays backwards for the opposite way: guardwalk is ahead/back, guardstrafe left/right.
+    guardwalk: { speed: 1.45, walk: { stance: 'guard', at: .6, legs: 'fightwalk', drop: .036, stride: .7 } },
+    guardstrafe: { speed: 1.45, walk: { stance: 'guard', at: .6, direction: [1, 0], stride: .56, lift: .07 } },
     hurt: { src: './assets/hero/rig2/hurt.glb' },
     death: { src: './assets/hero/rig2/death.glb' },
     // The ultimate's own clips: sword thrust to the sky, and a leaping downward cut.
@@ -103,8 +112,17 @@ const MOVE_CLIPS = { diagonal: 'light1', reverse: 'light2', cleave: 'light3', tw
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const progressOf = a => (a.total > 0 ? clamp(1 - a.timer / a.total, 0, 1) : 0);
 
+// Which steps carry a guarded actor along `travel`: the direction it is moving relative to where it faces
+// (radians, 0 ahead, positive toward its left). One clip covers each line; `reverse` plays it backwards.
+export function guardStep(travel = 0) {
+  const a = Math.atan2(Math.sin(travel), Math.cos(travel)), off = Math.abs(a);
+  if (off <= Math.PI * .3) return { name: 'guardwalk', reverse: false };
+  if (off >= Math.PI * .7) return { name: 'guardwalk', reverse: true };
+  return { name: 'guardstrafe', reverse: a < 0 };
+}
+
 // Ordered clip names for the actor's state, most specific first.
-export function clipCandidates(actor, moves = {}) {
+export function clipCandidates(actor, moves = {}, travel = 0) {
   const s = actor.state, speed = actor.speed || 0;
   if (TELEGRAPHED.has(s)) return [...new Set([moves[actor.variant], moves[actor.kind], actor.variant, actor.kind, 'attack'].filter(Boolean))];
   if (s === 'dead') return ['death'];
@@ -118,7 +136,7 @@ export function clipCandidates(actor, moves = {}) {
     return actor.move && actor.move !== named ? [actor.move, named] : [named];
   }
   if (s === 'heal') return ['heal'];
-  if (s === 'guard') return speed > .05 ? ['guardwalk', 'guard'] : ['guard'];
+  if (s === 'guard') return speed > .05 ? [...new Set([guardStep(travel).name, 'guardwalk', 'guard'])] : ['guard'];
   if (speed <= .05) return ['idle'];
   if (speed >= 4.5) return ['sprint', 'run', 'walk'];
   return speed >= 2 ? ['run', 'walk'] : ['walk', 'run'];
@@ -127,7 +145,7 @@ export function clipCandidates(actor, moves = {}) {
 // mode: 'loop' plays at `rate`; 'scrub' is driven by `progress` so the clip
 // stays locked to the combat timer (hit frames land when the game says so);
 // 'once' plays through and holds its last frame.
-export function pickClip(actor, clips, moves = {}, sequences = {}) {
+export function pickClip(actor, clips, moves = {}, sequences = {}, travel = 0) {
   const has = name => Object.prototype.hasOwnProperty.call(clips, name);
   const steps = ATTACKS.has(actor.state) && sequences[actor.move];
   if (steps && steps.every(step => has(step.clip))) {
@@ -137,7 +155,7 @@ export function pickClip(actor, clips, moves = {}, sequences = {}) {
     if (step.hit != null) pick.time = age < step.at ? start + clamp((age - from) / (step.at - from), 0, 1) * (step.hit - start) : step.hit + clamp((age - step.at) / (to - step.at), 0, 1) * (end - step.hit);
     return pick;
   }
-  const wanted = clipCandidates(actor, moves), name = wanted.find(has) || (has('idle') ? 'idle' : null);
+  const wanted = clipCandidates(actor, moves, travel), name = wanted.find(has) || (has('idle') ? 'idle' : null);
   if (!name) return null;
   const s = actor.state, exact = name === wanted[0];
   if (wanted.includes(name) && TELEGRAPHED.has(s)) return { name, mode: 'scrub', progress: progressOf(actor), segment: s, rate: 0, exact };
@@ -145,8 +163,10 @@ export function pickClip(actor, clips, moves = {}, sequences = {}) {
   if (wanted.includes(name) && timed && !['run', 'sprint'].includes(name)) return { name, mode: 'scrub', progress: progressOf(actor), rate: 0, exact };
   if (wanted.includes(name) && (s === 'dead' || s === 'stagger' || s === 'hurt')) return { name, mode: 'once', rate: 1, exact };
   const authored = clips[name].speed, speed = actor.speed || 0;
-  const rate = authored && speed > .05 ? clamp(speed / authored, .6, 1.7) : 1;
-  return { name, mode: 'loop', rate, exact };
+  const [slowest, fastest] = clips[name].rates || [.6, 1.7];
+  const rate = authored && speed > .05 ? clamp(speed / authored, slowest, fastest) : 1;
+  const step = s === 'guard' && speed > .05 ? guardStep(travel) : null;
+  return { name, mode: 'loop', rate: step?.name === name && step.reverse ? -rate : rate, exact };
 }
 
 // Where in the clip (seconds) a scrubbed pick sits.

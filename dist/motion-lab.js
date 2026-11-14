@@ -43,6 +43,8 @@ const clips={
  walk:{span:1.3,step(a,t,dt){a.speed=3.25;a.z+=a.speed*dt;}},
  run:{span:.9,step(a,t,dt){a.speed=5.8;a.z+=a.speed*dt;}},
  guardwalk:{span:1.6,step(a,t,dt){a.state='guard';a.speed=1.45;a.z+=a.speed*dt;}},
+ guardback:{span:1.6,step(a,t,dt){a.state='guard';a.speed=1.45;a.z-=a.speed*dt;}},
+ guardstrafe:{span:1.6,step(a,t,dt){a.state='guard';a.speed=1.45;a.x+=(+(q.get('dir')||1))*a.speed*dt;}},
  strafe:{span:1.3,step(a,t,dt){a.speed=3.25;a.x+=a.speed*dt;}},
  chase:{span:1.4,step(a,t,dt){a.speed=+(q.get('speed')||2.5);a.z+=a.speed*dt;}},
  stagger:{span:1.2,step(a){a.state='stagger';}},

@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.js';
-import { pickClip, scrubTime } from './rig-clips.js';
+import { pickClip, scrubTime, guardStep } from './rig-clips.js';
+import { bakeStanceWalk, mixStanceWalk } from './stance-walk.js';
 
 // Authored skeletal animation: a rigged GLB plus one clip per GLB, played
 // through AnimationMixer. Returns the same model shape the procedural rig in
@@ -26,7 +27,7 @@ export function prepareClip(source, name, { inPlace = false } = {}) {
 }
 
 export async function loadRiggedCharacter(manifest, { loader, createWeapon, kind = 'hero' } = {}) {
-  const entries = Object.entries(manifest.clips);
+  const entries = Object.entries(manifest.clips).filter(([, c]) => c.src);
   const [gltf, ...clipFiles] = await Promise.all([loader.loadAsync(manifest.rig), ...entries.map(([, c]) => loader.loadAsync(c.src))]);
   const clips = {};
   entries.forEach(([name], i) => { const found = clipFiles[i].animations[0]; if (found) clips[name] = prepareClip(found, name, { inPlace: !!(manifest.clips[name].speed || manifest.clips[name].inPlace) }); });
@@ -78,15 +79,25 @@ export function createRiggedCharacter(gltf, manifest, clips, { createWeapon, kin
     weapon.position.copy(hand.worldToLocal(wrist.addScaledVector(along, (grip.palm ?? .045) * manifest.height)));
     hand.add(weapon); weapon.userData.rest = weapon.quaternion.clone();
   }
-  const clipInfo = Object.fromEntries(Object.keys(clips).map(n => [n, manifest.clips[n] || {}]));
-  return attachMixer({ root, body, scene, hips: bone('Hips'), spine: bone('Spine', 'Spine01'), torso: bone('Spine02', 'Spine01', 'Spine'), head: bone('Head'), arms, legs, skeleton, meshes, weapon, height: manifest.height, type: manifest.type || 'human', kind, generated: true, rigged: true, asset: manifest.rig, clips, clipInfo, moves: manifest.moves || {}, sequences: manifest.sequences || {}, flashColor: manifest.flash || '#9e2415' });
+  const model = { root, body, scene, hips: bone('Hips'), spine: bone('Spine', 'Spine01'), torso: bone('Spine02', 'Spine01', 'Spine'), head: bone('Head'), arms, legs, skeleton, meshes, weapon, height: manifest.height, type: manifest.type || 'human', kind, generated: true, rigged: true, asset: manifest.rig, clips, moves: manifest.moves || {}, sequences: manifest.sequences || {}, flashColor: manifest.flash || '#9e2415' };
+  // Clips with no file are worked out on this skeleton: steps under a stance that only has a standing clip.
+  const paced = {};
+  for (const [name, c] of Object.entries(manifest.clips)) {
+    if (!c.walk || clips[name] || !clips[c.walk.stance]) continue;
+    // With an authored walk for the legs, use it; without one, solve the steps.
+    const steps = clips[c.walk.legs], made = steps ? mixStanceWalk(model, clips[c.walk.stance], steps, { ...c.walk, name })
+      : bakeStanceWalk(model, clips[c.walk.stance], { ...c.walk, name, speed: c.speed, lift: (c.walk.lift ?? .09) * manifest.height / 1.95, stride: c.walk.stride * manifest.height / 1.95 });
+    if (made) { clips[name] = made; if (steps) paced[name] = { ...c, speed: manifest.clips[c.walk.legs].speed, rates: manifest.clips[c.walk.legs].rates }; }
+  }
+  model.clipInfo = Object.fromEntries(Object.keys(clips).map(n => [n, paced[n] || manifest.clips[n] || {}]));
+  return attachMixer(model);
 }
 
 // Playback state is per instance: a cloned fighter shares clips but needs its own mixer.
 export function attachMixer(m) {
   m.mixer = new THREE.AnimationMixer(m.scene); m.actions = {};
   for (const [name, clip] of Object.entries(m.clips)) m.actions[name] = m.mixer.clipAction(clip);
-  return Object.assign(m, { current: null, missing: new Set(), phase: 0, deathProgress: 0, moveYaw: 0, tilt: new THREE.Vector3(), lastMotion: null, lastAnimationTime: undefined });
+  return Object.assign(m, { current: null, missing: new Set(), phase: 0, deathProgress: 0, moveYaw: 0, travel: null, travelAge: 0, tilt: new THREE.Vector3(), lastMotion: null, lastAnimationTime: undefined });
 }
 
 function switchTo(m, pick) {
@@ -103,7 +114,16 @@ function switchTo(m, pick) {
 export function animateRigged(m, a, t, dt) {
   const rewound = m.lastAnimationTime !== undefined && t < m.lastAnimationTime; m.lastAnimationTime = t;
   m.root.position.set(a.x, 0, a.z); m.root.rotation.y = a.state === 'roll' ? a.dodgeYaw ?? a.yaw : a.yaw;
-  const pick = pickClip(a, m.clipInfo, m.moves, m.sequences);
+  // How the actor moved since the last frame, and so which way its steps should go.
+  const last = m.lastMotion, tracked = !rewound && last && dt > 0; m.lastMotion = { x: a.x, z: a.z };
+  const vx = tracked ? (a.x - last.x) / dt : 0, vz = tracked ? (a.z - last.z) / dt : 0, pace = Math.hypot(vx, vz);
+  // Behind the guard the body keeps facing its target, so the steps follow the travel instead. A turn sweeps
+  // through every direction; a new line of steps has to last a moment before the feet change to it.
+  if (a.state === 'guard' && pace > .4) {
+    const raw = Math.atan2(vx, vz) - m.root.rotation.y, next = guardStep(raw), held = m.travel == null ? next : guardStep(m.travel);
+    if (next.name === held.name && next.reverse === held.reverse) { m.travel = raw; m.travelAge = 0; } else if ((m.travelAge += dt) > .14) { m.travel = raw; m.travelAge = 0; }
+  } else if (a.state !== 'guard') { m.travel = null; m.travelAge = 0; }
+  const pick = pickClip(a, m.clipInfo, m.moves, m.sequences, m.travel ?? 0);
   if (pick) {
     if (!pick.exact) m.missing.add(a.state === 'guard' || a.state === 'idle' ? a.state : a.move || a.state);
     // Scrubbed clips follow the combat timer, so only one-shot reactions need restarting per hit.
@@ -116,10 +136,9 @@ export function animateRigged(m, a, t, dt) {
   // The actor keeps facing its target while moving, and there is one run clip. Turn the body
   // into the direction of travel so strafing and backing off read as running that way,
   // and swing back to the target for anything that is not plain locomotion.
-  const last = m.lastMotion; m.lastMotion = { x: a.x, z: a.z };
   if (rewound || !last) m.moveYaw = 0;
   else if (dt > 0) {
-    const vx = (a.x - last.x) / dt, vz = (a.z - last.z) / dt, travelling = pick?.mode === 'loop' && LOCOMOTION.has(pick.name) && Math.hypot(vx, vz) > .4;
+    const travelling = pick?.mode === 'loop' && LOCOMOTION.has(pick.name) && pace > .4;
     const want = travelling ? Math.atan2(vx, vz) - m.root.rotation.y : 0, delta = Math.atan2(Math.sin(want - m.moveYaw), Math.cos(want - m.moveYaw));
     m.moveYaw += delta * (1 - Math.exp(-dt * (travelling ? 12 : 18)));
   }
