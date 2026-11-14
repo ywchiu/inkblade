@@ -6,7 +6,7 @@
  <canvas id="scene" tabindex="0" aria-label="3D 水墨對戰場景。WASD 移動，J 或滑鼠左鍵短按攻擊、長按重擊，空白鍵閃身，K 或右鍵防禦，R 補血、F 絕技。"></canvas>
  <div id="cover" class="cover" aria-hidden="true"><i></i></div>
  <div class="grain" aria-hidden="true"></div><div class="vignette" aria-hidden="true"></div>
- <header><button id="home" class="brand" aria-label="回到卷首"><b>墨</b><span>墨 刃<small>INKBLADE</small></span></button><span class="top-chapter" id="top-chapter">鎮 祟 寺 · 雨 夜</span><nav><button id="journal" aria-haspopup="dialog">志怪錄</button><button id="sound" aria-haspopup="dialog">聲音 <span>設定</span></button><button id="help">操作 <span>?</span></button><button id="fullscreen" aria-label="全螢幕">⛶</button></nav></header>
+ <header><button id="home" class="brand" aria-label="回到卷首"><b>墨</b><span>墨 刃<small>INKBLADE</small></span></button><span class="top-chapter" id="top-chapter">鎮 祟 寺 · 雨 夜</span><nav><button id="journal" aria-haspopup="dialog">志怪錄</button><button id="sound" aria-haspopup="dialog">聲音 <span>設定</span></button><button id="help">操作 <span>?</span></button><button id="lang" class="lang-switch" aria-label="Language / 語言" translate="no" lang="en">EN</button><button id="fullscreen" aria-label="全螢幕">⛶</button></nav></header>
  <section id="title-screen" class="title-screen"><p class="eyebrow"><i></i> THE TEMPLE OF BOUND SPIRITS</p><h1>墨<span>刃</span><b>魂<br>鬥</b></h1><p class="title-sub">借名山 · 一刃還魂名</p><div class="rule"></div><p class="intro">山神借走了村民的名字，卻不肯歸還。<br>執鍾馗之刃，循狼跡入山，問偽神討魂。</p><div class="mode-choices"><button id="campaign" class="mode-card campaign"><small>無雙征途 · 十章八境</small><strong>開始征途</strong><span>借名山全卷 · 尋魂、過橋、斬偽神</span><b aria-hidden="true">↗</b></button></div><p class="title-note">簡化操作 · 攻擊、閃身、防禦 · 招式全保留</p></section>
  <aside id="scene-note" class="scene-note"><span>古寺夜雨</span><i></i><span>刃有回聲</span></aside>
  <section id="hud" hidden>
@@ -35,5 +35,5 @@
  <div id="error" class="error" hidden><h2>尚未能展開 3D 場景</h2><p id="error-detail"></p><button onclick="location.reload()">重新載入</button></div>
  <footer id="footer"><span><i></i> 水墨 3D 對戰原型</span><span>立體場景 · 即時光影 · 自由鏡頭</span></footer>
 </main>
-<script type="module">import('./game3d.js').catch(error=>{document.getElementById('loading').hidden=true;document.getElementById('error').hidden=false;document.getElementById('error-detail').textContent='載入失敗：'+error.message;console.error(error);});</script>
+<script type="module">import('./i18n.js').then(m=>m.followPage()).catch(()=>{});import('./game3d.js').catch(error=>{document.getElementById('loading').hidden=true;document.getElementById('error').hidden=false;document.getElementById('error-detail').textContent='載入失敗：'+error.message;console.error(error);});</script>
 </body></html>

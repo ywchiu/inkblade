@@ -20,6 +20,7 @@ The online game runs on Cloudflare Pages, serving the files in `dist/` and redep
 
 **2026-11-14**
 
+- **The game can be played in English.** A language button (EN / 中文) in the top-right corner switches the interface, prompts, move names, every line of dialogue and the journal, at any time; the choice is remembered in the browser. The first visit follows the browser's language, and `?lang=en` or `?lang=zh` in the address sets it directly. Gate plaques, steles and seals are part of the scenery and stay in Chinese. The English text lives in `dist/lang-en.js`; Chinese remains the single source.
 - **The hero walks while guarding.** Holding guard and moving used to slide the hero across the ground with the sword raised and the feet still. Forward and backward now use motion-captured fighting-stance steps, sideways uses steps solved on the skeleton, and the upper body keeps the guard. The method is written up (in Chinese) in [`art/direction/rigged/README.md`](art/direction/rigged/README.md).
 - **One way in from the title screen.** The single-duel card and the opponent picker are gone: the wolf, Shen Hanzhou and the mountain monster are all bosses along the campaign road, so a new player no longer walks into the hardest fight first.
 - **Fix:** returning to the title from the campaign no longer logs an error on every frame.
