@@ -16,6 +16,15 @@ Inkblade is a playable third-person 3D action prototype inspired by Zhong Kui an
 
 The online game runs on Cloudflare Pages, serving the files in `dist/` and redeploying when GitHub `main` changes. Before publishing, we resized the four playable character textures to 2048 pixels, used WebP and simplified their meshes. Their combined model files fell from about 55 MB to 9.7 MB. The Name-Copying Scribe and the Gate Beast, added later, went through the same texture step with `scripts/compress-textures.mjs`: 31 MB down to 7.4 MB for the two, and 39 MB down to 12.6 MB for the three rigged models. Skeletal animation is the default; `?rig=0` switches back to the procedural rigs.
 
+## What's new
+
+**2026-11-14**
+
+- **The hero walks while guarding.** Holding guard and moving used to slide the hero across the ground with the sword raised and the feet still. Forward and backward now use motion-captured fighting-stance steps, sideways uses steps solved on the skeleton, and the upper body keeps the guard. The method is written up (in Chinese) in [`art/direction/rigged/README.md`](art/direction/rigged/README.md).
+- **One way in from the title screen.** The single-duel card and the opponent picker are gone: the wolf, Shen Hanzhou and the mountain monster are all bosses along the campaign road, so a new player no longer walks into the hardest fight first.
+- **Fix:** returning to the title from the campaign no longer logs an error on every frame.
+- **Earlier the same day:** the campaign grew to ten chapters across eight regions with new foes (the Name-Copying Scribe, the Gate Beast and others) and new moves; the script was rewritten in plain speech; the hero, swordsman and mountain monster play skeletal animation by default; the ultimate gained a close-up; the title screen got painted key art.
+
 ## Story and modes
 
 The stolen names have trapped the villagers' spirits in the mountains. Zhong Kui follows the trail through a bamboo forest, meets wolves bound by a curse, and faces the swordsman Shen Hanzhou, who has his own reason to guard the road. At the end waits a mountain monster claiming to protect the village. Dialogue, battle cries and an in-game journal carry the story.
