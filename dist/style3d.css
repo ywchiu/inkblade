@@ -65,3 +65,20 @@ header{border-color:#b9ac8425;text-shadow:0 2px 8px #000}
 @media(max-width:700px){.combat-utilities{left:5%;bottom:114px;gap:8px}.combat-utilities button{padding:6px 10px;min-width:64px;min-height:44px}.combat-utilities button>span{font-size:11px}.combat-utilities small{font-size:10px;margin-top:4px}.combat-utilities kbd{display:none}#joystick{width:104px;height:104px;left:5%;bottom:185px}#joystick>i{left:30px;top:30px}.touch-actions{right:4%;bottom:185px;grid-template-columns:52px 58px 76px;gap:7px}.touch-actions button{height:52px}.touch-actions button[data-action=evade]{height:58px}.touch-actions button.touch-light{height:76px}.touch-actions b{font-size:14px}.touch-actions .touch-light b{font-size:20px}.touch-actions small{font-size:8px}.simple-guide>div{grid-template-columns:86px 1fr;gap:6px 12px}.simple-guide kbd{font-size:10px}.simple-guide span{font-size:11px}.simple-utilities{gap:14px;font-size:11px}.combo-hint{bottom:285px}.story-bark{bottom:42%}}
 
 .story-audio-actions{display:flex;align-items:center;gap:12px}.story-audio-actions #story-voice{font-size:11px;color:#d7b98b}.story-foot>span{max-width:48%}@media(max-width:700px){.story-foot{flex-wrap:wrap}.story-foot>span{max-width:100%}.story-audio-actions{width:100%;justify-content:space-between;gap:8px}.story-audio-actions button{padding-left:0}.story-paper{padding-bottom:6px}}
+
+/* 絕技特寫：上下收幕、介面讓位，招名直書落在畫面右側 */
+#cut-in{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+#cut-in::before,#cut-in::after{content:"";position:absolute;left:0;right:0;height:11%;background:#04080c;transform:scaleY(0);transition:transform .14s ease-out}
+#cut-in::before{top:0;transform-origin:top}#cut-in::after{bottom:0;transform-origin:bottom}
+.ultimate #cut-in::before,.ultimate #cut-in::after{transform:scaleY(1)}
+#cut-in b{position:absolute;top:50%;right:clamp(26px,12vw,210px);transform:translateY(-50%);display:flex;flex-direction:column;font-size:clamp(44px,10.5vh,108px);line-height:1.12;font-weight:900;color:#f6e6bc;text-shadow:0 0 26px #e7a245,0 0 4px #201006,3px 4px 0 #160c05d0}
+#cut-in b i{font-style:normal;opacity:0}
+.ultimate #cut-in b i{animation:cut-in-glyph .24s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--i)*.12s + .12s)}
+@keyframes cut-in-glyph{from{opacity:0;transform:translateY(-.3em) scale(1.7);filter:blur(7px)}to{opacity:1;transform:none;filter:none}}
+#hud,#touch,#app>header,#message,#story-bark{transition:opacity .22s}
+.ultimate #hud,.ultimate #touch,.ultimate>header,.ultimate #message,.ultimate #story-bark,.ultimate .vignette{opacity:0;transition:opacity .1s}
+@media (max-aspect-ratio:4/5){#cut-in b{right:18px;font-size:clamp(36px,7vh,64px)}}
+@media (prefers-reduced-motion:reduce){.ultimate #cut-in b i{animation-duration:.01s}}
+#joystick.sprinting{border-color:#e9c98a;box-shadow:0 0 0 3px #e9c98a40}#joystick.sprinting>i{background:#b18f4bcc}
+/* Phone held sideways: the page is as tall as the screen, and the HUD closes up to fit. */
+@media(max-height:540px) and (min-width:560px){#app{min-height:0}.playing header{height:46px}.player-status{top:52px;width:210px}#objective{top:48px;gap:3px;min-width:200px}#objective strong{font-size:15px}#combo-count{font-size:20px;min-height:22px}.battle-tools{top:50px}.battle-tools button{padding:5px 12px}#battle-map{top:98px;transform:scale(.62);transform-origin:top right}#joystick{bottom:74px}.combat-utilities{bottom:8px}.touch-actions{bottom:18px}.boss-status{left:25%;right:33%;bottom:12px}.combo-hint{bottom:96px}.message{top:44%}}

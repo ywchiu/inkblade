@@ -41,7 +41,9 @@ export function agedTexture(kind) {
   const c = canvas(512), ctx = c.getContext('2d'), r = random(kind === 'wood' ? 901 : 143);
   ctx.fillStyle = kind === 'wood' ? '#482a25' : '#4e5453'; ctx.fillRect(0, 0, 512, 512);
   for (let i = 0; i < 8500; i++) { ctx.fillStyle = i % 3 ? '#02090818' : '#d1baa215'; const x = r() * 512, y = r() * 512; ctx.fillRect(x, y, kind === 'wood' ? .6 + r() * 2 : r() * 7, kind === 'wood' ? 4 + r() * 85 : r() * 4); }
-  return texture(c);
+  for (let i = 0; i < 46; i++) { const x = r() * 512, y = r() * 512, radius = 30 + r() * 110, g = ctx.createRadialGradient(x, y, 0, x, y, radius); g.addColorStop(0, i % 3 ? '#00070a3d' : '#e3d6bf1f'); g.addColorStop(1, '#00000000'); ctx.fillStyle = g; ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2); }
+  for (let i = 0; i < 70; i++) { const x = r() * 512, y = r() * 300, len = 60 + r() * 260, g = ctx.createLinearGradient(0, y, 0, y + len); g.addColorStop(0, '#02080b55'); g.addColorStop(1, '#02080b00'); ctx.fillStyle = g; ctx.fillRect(x, y, 1.5 + r() * 5, len); }
+  const t = texture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
 }
 
 export function buildTemple(world, mountainGeometry) {
@@ -59,7 +61,7 @@ export function buildTemple(world, mountainGeometry) {
   }
   function mesh(geo, mat, x = 0, y = 0, z = 0) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.receiveShadow = true; m.castShadow = true; scene.add(m); return m; }
   function beam(a, b, radius, mat = tile) { const p = new THREE.Vector3(...a), q = new THREE.Vector3(...b), d = q.clone().sub(p), obj = new THREE.Object3D(); obj.position.copy(p.add(q).multiplyScalar(.5)); obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize()); obj.scale.set(radius, d.length(), radius); obj.updateMatrix(); const key = `${cyl.uuid}:${mat.uuid}`; if (!batches.has(key)) batches.set(key, { geo: cyl, mat, matrices: [] }); batches.get(key).matrices.push(obj.matrix.clone()); }
-  const groundMat = new THREE.MeshPhysicalMaterial({ ...stoneTextures(), color: '#bec5c6', bumpScale: .065, roughness: .84, metalness: .04, clearcoat: .22, clearcoatRoughness: .32 });
+  const groundMat = new THREE.MeshPhysicalMaterial({ ...stoneTextures(), color: '#bec5c6', bumpScale: .075, roughness: .74, metalness: .04, clearcoat: .42, clearcoatRoughness: .36 });
   world.groundMaterial=groundMat;
   const floor = mesh(new THREE.CircleGeometry(12.5, 128), groundMat, 0, .005, 0); floor.rotation.x = -Math.PI / 2; floor.castShadow = false;
   mesh(new THREE.CylinderGeometry(12.5, 12.8, .75, 96), stone, 0, -.385, 0);

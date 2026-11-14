@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.js';
+import { gaitTiming } from './locomotion3d.js';
 const clamp=THREE.MathUtils.clamp;
 const ease=t=>t*t*(3-2*t);
 function aim(bone,child,point){
@@ -32,10 +33,13 @@ export function applyFootwork(m,a,dt){
  for(let i=0;i<m.legs.length;i++){
   const leg=m.legs[i],state=f.feet[i],current=leg.foot.getWorldPosition(new THREE.Vector3()),target=current.clone(),ground=m.soleClearance?.[i]??m.height*.065;
   if(mode==='walk'){
-   const phase=((m.phase/(Math.PI*2)+i*.5)%1+1)%1,stance=.56,swing=phase>=stance;
-   const nominal=new THREE.Vector3(a.x,ground,a.z).addScaledVector(right,(i?1:-1)*m.height*.14),landing=nominal.addScaledVector(direction,.36);
-   if(swing){if(!state.swing)state.from=state.anchor.clone();const u=(phase-stance)/(1-stance);target.copy(state.from||current).lerp(landing,ease(u));target.y=ground+Math.sin(Math.PI*u)*m.height*.09;state.last=target.clone();}
-   else{if(state.swing)state.anchor.copy(state.last||landing);state.anchor.y=ground;target.copy(state.anchor);}
+   const gait=gaitTiming(a.speed||0,m.height),phase=((m.phase/(Math.PI*2)+i*.5)%1+1)%1,stance=gait.stance,swing=phase>=stance;
+   const nominal=new THREE.Vector3(a.x,ground,a.z).addScaledVector(right,(i?1:-1)*m.height*(.105-gait.run*.03)),landing=nominal.addScaledVector(direction,gait.reach);
+   // Swing: the heel peels up behind, the knee drives through, the toe lifts before contact.
+   if(swing){const here=new THREE.Vector3(a.x,0,a.z);if(!state.swing||!state.from)state.from=state.anchor.clone().sub(here);const u=(phase-stance)/(1-stance);
+    // Swing in pelvis space: the leg travels with the body instead of being dragged from a world anchor.
+    target.copy(state.from).lerp(landing.clone().sub(here),ease(u)).add(here);target.y=ground+Math.pow(Math.sin(Math.PI*Math.pow(u,.8)),1.2)*m.height*(.04+gait.run*.075);state.pitch=(.35+gait.run*.5)*(1-ease(Math.min(1,u/.6)))-.28*ease(clamp((u-.5)/.35,0,1))*(1-ease(clamp((u-.88)/.12,0,1)));state.last=target.clone();}
+   else{if(state.swing)state.anchor.copy(state.last||landing);state.anchor.y=ground;target.copy(state.anchor);const late=ease(clamp((phase/stance-.62)/.38,0,1));state.pitch=late*(.22+gait.run*.3);target.y=ground+late*m.height*.012;}
    state.swing=swing;
   }else if(mode==='stand'){
    // Turn in place by releasing an overextended planted foot, not twisting its knee.
@@ -50,7 +54,7 @@ export function applyFootwork(m,a,dt){
  for(const {leg,state,target} of plans){
   solveLeg(leg,target,forward);
   const parent=leg.foot.parent.getWorldQuaternion(new THREE.Quaternion()),flat=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),yaw);
-  leg.foot.quaternion.copy(parent.invert().multiply(flat));leg.foot.updateWorldMatrix(false,true);
+  if(mode==='walk'&&state.pitch)flat.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),state.pitch));leg.foot.quaternion.copy(parent.invert().multiply(flat));leg.foot.updateWorldMatrix(false,true);
   state.error=leg.foot.getWorldPosition(new THREE.Vector3()).distanceTo(target);state.target=target;
  }
  f.x=a.x;f.z=a.z;f.yaw=yaw;

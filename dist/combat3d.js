@@ -1,13 +1,15 @@
 import { DASH, dashTravel } from './dash3d.js';
 import { enemySequence } from './enemy-patterns.js';
 import { DODGE, dodgeTravel } from './dodge3d.js';
-import { PLAYER_MOVES, playerMove, attackTravel } from './attack-moves.js';
+import { PLAYER_MOVES, LIGHT_CHAIN, playerMove, attackTravel } from './attack-moves.js';
 // Pure simulation: positions and attack cones use the arena's X/Z plane.
 export const ENEMIES = [
  {id:'wolf',name:'墨狼',title:'竹影獵魂',hp:230,speed:3.2,radius:.78,range:2.35,damage:19,windup:.68,recovery:1.1,posture:70,hint:'墨狼只會近身追咬；撲殺時向側方閃開，等連咬結束後還擊。'},
  {id:'ronin',name:'無相劍客',title:'古寺守刃',hp:310,speed:2.35,radius:.55,range:2.8,damage:23,windup:.82,recovery:1.2,posture:100,hint:'劍氣會接第二發，突刺方向在蓄勢中段固定；側閃後等連招結束再還擊。'},
  {id:'oni',name:'鎮祟山魈',title:'山門之主',hp:440,speed:2.5,radius:1.05,range:3.3,damage:31,windup:1.18,recovery:1.65,posture:150,hint:'裂地波與震地不可格擋；橫向避開紅色預警，再等連招收招後重擊破勢。'}
 ];
+// Seconds of unbroken sprint before an attack press becomes the leaping cut.
+export const SPRINT_ATTACK=.18;
 export const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 export const angleTo=(a,b)=>Math.atan2(b.x-a.x,b.z-a.z);
@@ -17,14 +19,18 @@ export function withinArc(attacker,target,range,halfAngle){return distance(attac
 const base=(x,z,hp,radius)=>({x,z,yaw:0,hp,maxHp:hp,radius,state:'idle',timer:0,total:0,flash:0,speed:0,stun:0,attackHit:false,invulnerable:0,actionAge:0,impact:null,impactSerial:0,knockbackX:0,knockbackZ:0});
 export class ArenaCombat {
  constructor(index=1){this.reset(index);}
- reset(index=1){this.index=clamp(index,0,2);this.spec=ENEMIES[this.index];this.player={...base(0,4.8,140,.5),yaw:Math.PI,stamina:100,maxStamina:100,regenDelay:0,qi:0,flasks:3,guardAge:0,chain:0,chainWindow:0,queuedLight:false,queuedFinisher:null,move:null,counterWindow:0,perfectDodged:false,dodgeOrigin:null,inputBuffer:null,dashCooldown:0,queuedDashAttack:false,dashYaw:Math.PI,rollX:0,rollZ:-1};this.enemy={...base(0,-3.5,this.spec.hp,this.spec.radius),yaw:0,cooldown:.9,rangedCooldown:0,chaseSpeed:0,posture:0,maxPosture:this.spec.posture,phase:0,kind:'slash',comboLeft:0,targetYaw:0,enraged:false,exposed:false,postureDelay:0,sequence:[],sequenceIndex:0,cycle:0,moveData:null};this.projectiles=[];this.projectileSerial=0;this.time=0;this.hitStop=0;this.status='playing';this.events=[];this.stats={hits:0,damageTaken:0,parries:0,dodges:0,perfectDodges:0,counters:0,executions:0,heals:0};}
+ reset(index=1){this.index=clamp(index,0,2);this.spec=ENEMIES[this.index];this.player={...base(0,4.8,140,.5),yaw:Math.PI,stamina:100,maxStamina:100,regenDelay:0,qi:0,flasks:3,guardAge:0,chain:0,chainWindow:0,queuedLight:false,queuedFinisher:null,move:null,counterWindow:0,perfectDodged:false,dodgeOrigin:null,inputBuffer:null,dashCooldown:0,queuedDashAttack:false,dashYaw:Math.PI,rollX:0,rollZ:-1,sprintTime:0,hitIndex:0};this.enemy={...base(0,-3.5,this.spec.hp,this.spec.radius),yaw:0,cooldown:.9,rangedCooldown:0,chaseSpeed:0,posture:0,maxPosture:this.spec.posture,phase:0,kind:'slash',comboLeft:0,targetYaw:0,enraged:false,exposed:false,postureDelay:0,sequence:[],sequenceIndex:0,cycle:0,moveData:null};this.projectiles=[];this.arts=[];this.striking=null;this.projectileSerial=0;this.time=0;this.hitStop=0;this.status='playing';this.events=[];this.stats={hits:0,damageTaken:0,parries:0,dodges:0,perfectDodges:0,counters:0,executions:0,heals:0};}
  emit(type,data={}){this.events.push({type,...data});}
  drainEvents(){const v=this.events;this.events=[];return v;}
  spend(amount){const p=this.player;if(p.stamina<amount){this.emit('exhausted');return false;}p.stamina-=amount;p.regenDelay=.8;return true;}
  canExecute(){return this.enemy.exposed&&this.enemy.state==='stagger'&&distance(this.player,this.enemy)<=3.4;}
+ // Sprinting long enough that an attack press is the leaping cut rather than a standing one.
+ canLeap(){const p=this.player;return this.status==='playing'&&p.state==='idle'&&p.stun<=0&&p.sprintTime>=SPRINT_ATTACK;}
+ // Which ink art an attack from the guard would be, if there is qi for it; otherwise the ordinary cut.
+ guardArt(name){const p=this.player,id=name==='heavy'?'seal':'inkWave';return p.state==='guard'&&p.stun<=0&&p.qi>=PLAYER_MOVES[id].qiCost?id:null;}
  action(name,dx=0,dz=0){if(this.status!=='playing')return false;const p=this.player,e=this.enemy;
   // A heavy input branches from a light cut; contact must occur before the finisher starts.
-  if(name==='heavy'&&p.state==='light'&&p.stun<=0){const id=p.chain>=2?'sweep':'rising';if(p.stamina<PLAYER_MOVES[id].cost){this.emit('exhausted');return false;}p.queuedFinisher=id;p.queuedLight=false;p.inputBuffer=null;return true;}
+  if(name==='heavy'&&p.state==='light'&&p.stun<=0&&!playerMove(p).art){const id=p.chain>=2?'sweep':'rising';if(p.stamina<PLAYER_MOVES[id].cost){this.emit('exhausted');return false;}p.queuedFinisher=id;p.queuedLight=false;p.inputBuffer=null;return true;}
   // A single short buffer makes a near-end press reliable without queuing whole combos.
   const recoverCancel=name==='roll'&&p.state==='light'&&p.total-p.timer>=playerMove(p).impact+.08;
   const counterCancel=name==='heavy'&&p.state==='roll'&&p.counterWindow>0&&p.actionAge>=.18;
@@ -39,18 +45,28 @@ export class ArenaCombat {
   if(name==='roll'){if(!this.spend(24))return false;const l=Math.hypot(dx,dz);p.rollX=l>.01?dx/l:-Math.sin(p.yaw);p.rollZ=l>.01?dz/l:-Math.cos(p.yaw);p.dodgeYaw=p.yaw;p.dodgeOrigin={x:p.x,z:p.z};p.perfectDodged=false;p.state='roll';p.timer=p.total=DODGE.duration;p.actionAge=0;p.invulnerable=DODGE.invulnerable;p.queuedLight=false;p.queuedFinisher=null;p.inputBuffer=null;p.chainWindow=p.chainWindow>0?.85:0;this.emit('roll',{x:p.x,z:p.z});return true;}
   if(name==='light'||name==='heavy'){
    const execution=name==='heavy'&&this.canExecute(),counter=name==='heavy'&&!execution&&p.counterWindow>0;
-   if(!execution&&!this.spend(counter?18:name==='heavy'?30:16))return false;
-   p.chain=name==='heavy'?0:p.chainWindow>0?(p.chain%3)+1:1;p.chainWindow=name==='heavy'?0:1.25;
-   p.move=execution?'execute':counter?'riposte':name==='heavy'?'heavy':['diagonal','reverse','cleave'][p.chain-1];
-   const move=PLAYER_MOVES[p.move];p.state=name;p.timer=p.total=move.duration;p.actionAge=0;p.attackHit=false;p.queuedLight=false;p.queuedFinisher=null;p.inputBuffer=null;
+   // Held guard turns the attack button into the ink arts; an opening (execute, riposte) still comes first.
+   const art=!execution&&!counter?this.guardArt(name):null;if(art)return this.startArt(art);
+   const leap=name==='light'&&this.canLeap();
+   if(!execution&&!this.spend(counter?18:leap?PLAYER_MOVES.leap.cost:name==='heavy'?30:16))return false;
+   p.chain=name==='heavy'?0:leap?1:p.chainWindow>0?(p.chain%LIGHT_CHAIN.length)+1:1;p.chainWindow=name==='heavy'?0:1.25;
+   p.move=execution?'execute':counter?'riposte':name==='heavy'?'heavy':leap?'leap':LIGHT_CHAIN[p.chain-1];
+   const move=PLAYER_MOVES[p.move];p.state=name;p.timer=p.total=move.duration;p.actionAge=0;p.attackHit=false;p.hitIndex=0;p.queuedLight=false;p.queuedFinisher=null;p.inputBuffer=null;
    if(counter){p.counterWindow=0;this.emit('counter',{x:p.x,z:p.z});}
    if(execution){p.counterWindow=0;e.exposed=false;e.stun=Math.max(e.stun,1.15);p.invulnerable=.8;this.emit('execution',{x:p.x,z:p.z});}
-   if(distance(p,e)<6)p.yaw=angleTo(p,e);this.emit('swing',{heavy:name==='heavy',move:p.move,chain:p.chain,x:p.x,z:p.z});return true;
+   // A leap follows the run; it only turns to a foe that is already roughly ahead.
+   if(leap){const l=Math.hypot(dx,dz),heading=l>.01?Math.atan2(dx,dz):p.yaw,aim=angleTo(p,e);p.yaw=e.hp>0&&distance(p,e)<8&&Math.abs(angleDiff(aim,heading))<1.05?aim:heading;}
+   else if(distance(p,e)<6)p.yaw=angleTo(p,e);
+   this.emit('swing',{heavy:name==='heavy',move:p.move,chain:p.chain,x:p.x,z:p.z});return true;
   }
   if(name==='heal'){if(!p.flasks||p.hp>=p.maxHp)return false;p.flasks--;p.state='heal';p.timer=p.total=1.3;p.actionAge=0;p.attackHit=false;this.emit('healing');return true;}
-  if(name==='special'){if(p.qi<100)return false;p.qi=0;p.state='special';p.move='spin';p.queuedLight=false;p.queuedFinisher=null;p.chain=0;p.chainWindow=0;p.timer=p.total=PLAYER_MOVES.spin.duration;p.actionAge=0;p.attackHit=false;p.invulnerable=.85;p.yaw=angleTo(p,e);this.emit('special',{x:p.x,z:p.z});return true;}
+  if(name==='special'){if(p.qi<100)return false;p.qi=0;p.state='special';p.move='spin';p.queuedLight=false;p.queuedFinisher=null;p.chain=0;p.chainWindow=0;p.timer=p.total=PLAYER_MOVES.spin.duration;p.actionAge=0;p.attackHit=false;p.hitIndex=0;p.invulnerable=1.15;p.yaw=angleTo(p,e);this.emit('special',{x:p.x,z:p.z});return true;}
   return false;
  }
+ // 飛墨斬 and 敕令 · 鎮 are paid for in qi, not stamina, and give none back.
+ startArt(id){const p=this.player,e=this.enemy,move=PLAYER_MOVES[id];p.qi-=move.qiCost;p.move=id;p.state=move.projectile?'light':'heavy';p.timer=p.total=move.duration;p.actionAge=0;p.attackHit=false;p.hitIndex=0;p.queuedLight=false;p.queuedFinisher=null;p.inputBuffer=null;p.chain=0;p.chainWindow=0;
+  if(move.ward)p.invulnerable=Math.max(p.invulnerable,move.ward);if(e.hp>0&&distance(p,e)<(move.projectile?move.projectile.range+2:6))p.yaw=angleTo(p,e);
+  this.emit('swing',{heavy:!move.projectile,move:id,art:id,x:p.x,z:p.z});return true;}
  startFinisher(id){const p=this.player,move=PLAYER_MOVES[id];p.queuedFinisher=null;if(!['rising','sweep'].includes(id)||!this.spend(move.cost))return false;p.move=id;p.state='heavy';p.timer=p.total=move.duration;p.actionAge=0;p.attackHit=false;p.queuedLight=false;p.inputBuffer=null;p.chain=0;p.chainWindow=0;this.emit('swing',{heavy:true,move:id,x:p.x,z:p.z});return true;}
  impactActor(target,source,{heavy=false,blocked=false,parry=false}={}){
   const yaw=angleTo(source,target),strength=blocked?.22:parry?1:heavy?1:.62;
@@ -64,7 +80,7 @@ export class ArenaCombat {
  }
  hitEnemy(damage,posture=0,kind='hit'){
   const p=this.player,e=this.enemy;if(e.hp<=0)return;
-  e.hp=Math.max(0,e.hp-damage);e.flash=.18;if(kind==='execution-hit')this.hitStop=Math.max(this.hitStop,.16);e.postureDelay=3;e.posture+=e.exposed?0:posture;p.qi=clamp(p.qi+(kind==='special-hit'?0:kind==='parry'?24:11),0,100);this.stats.hits++;const impact=this.impactActor(e,p,{heavy:p.state==='heavy'||kind==='special-hit',parry:kind==='parry'});this.emit(kind,{x:e.x,z:e.z,damage,...impact});
+  e.hp=Math.max(0,e.hp-damage);e.flash=.18;if(kind==='execution-hit')this.hitStop=Math.max(this.hitStop,.16);e.postureDelay=3;e.posture+=e.exposed?0:posture;const by=kind==='parry'?null:this.striking;p.qi=clamp(p.qi+(p.state==='special'?0:kind==='parry'?24:by?.gain??11),0,100);this.stats.hits++;const impact=this.impactActor(e,by?.from||p,{heavy:by?.heavy??(p.state==='heavy'||kind==='special-hit'),parry:kind==='parry'});this.emit(kind,{x:e.x,z:e.z,damage,...impact});
   if(e.posture>=e.maxPosture&&!e.exposed){e.posture=0;e.exposed=true;e.stun=2.6;e.state='stagger';e.timer=e.total=2.6;e.comboLeft=0;this.emit('stagger',{x:e.x,z:e.z});}
   if(e.hp<=0){e.state='dead';this.enemyDefeated(e);}
  }
@@ -78,7 +94,7 @@ export class ArenaCombat {
   }
   if(damage>0){p.hp=Math.max(0,p.hp-damage);p.flash=.22;p.invulnerable=.55;this.stats.damageTaken+=damage;const impact=blocked?{target:'player',blocked:true}:this.impactActor(p,source,{heavy:unblockable||damage>=30});this.emit('hurt',{x:p.x,z:p.z,damage,...impact});
    if(p.state!=='guard'||p.stamina===0){p.state='hurt';p.queuedLight=false;p.queuedFinisher=null;p.queuedDashAttack=false;p.inputBuffer=null;p.counterWindow=0;p.timer=p.total=Math.max(.4,p.stun);p.actionAge=0;p.stun=p.timer;}
-   if(p.hp<=0){p.state='dead';this.status='lost';this.projectiles=[];this.emit('defeat');}
+   if(p.hp<=0){p.state='dead';this.status='lost';this.projectiles=[];this.arts=[];this.emit('defeat');}
   }
  }
  rewardDodge(projectile=false){const p=this.player;if((!projectile&&this.enemy.state!=='attack')||p.state!=='roll'||p.actionAge>.22||p.perfectDodged)return false;p.perfectDodged=true;p.counterWindow=1.4;p.stamina=clamp(p.stamina+14,0,100);p.qi=clamp(p.qi+15,0,100);this.stats.perfectDodges++;this.hitStop=Math.max(this.hitStop,.065);this.emit('perfect-dodge',{x:p.x,z:p.z});return true;}
@@ -114,38 +130,70 @@ export class ArenaCombat {
  }
  update(dt,input={}){
   if(this.status!=='playing')return;dt=clamp(dt,0,.05);this.time+=dt;if(this.hitStop>0){const held=Math.min(dt,this.hitStop);this.hitStop=Math.max(0,this.hitStop-held);dt-=held;if(dt<1e-8)return;}const p=this.player,e=this.enemy,s=this.spec,playerBefore={x:this.player.x,z:this.player.z};
+  // The ultimate gathers in stopped time: only the hero's own timeline advances until the release.
+  if(this.ultimate()?.charging){const charge=playerMove(p).charge;p.timer-=dt;p.actionAge+=dt;p.flash=Math.max(0,p.flash-dt);for(const a of this.targets())a.speed=0;if(p.total-p.timer>=charge)this.emit('special-release',{x:p.x,z:p.z,yaw:p.yaw});return;}
   for(const a of this.targets())a.rangedCooldown=Math.max(0,a.rangedCooldown-dt);p.dashCooldown=Math.max(0,p.dashCooldown-dt);
   for(const a of[p,...this.targets()]){a.flash=Math.max(0,a.flash-dt);a.stun=Math.max(0,a.stun-dt);a.invulnerable=Math.max(0,a.invulnerable-dt);a.actionAge+=dt;a.speed=0;if(a.impact)a.impact.time=Math.max(0,a.impact.time-dt);const decay=Math.exp(-8*dt);a.x+=a.knockbackX*(1-decay)/8;a.z+=a.knockbackZ*(1-decay)/8;a.knockbackX*=decay;a.knockbackZ*=decay;}
   p.counterWindow=Math.max(0,p.counterWindow-dt);if(p.inputBuffer){p.inputBuffer.time-=dt;if(p.inputBuffer.time<=0)p.inputBuffer=null;}for(const target of this.targets()){target.postureDelay=Math.max(0,target.postureDelay-dt);if(target.postureDelay===0&&!target.exposed)target.posture=Math.max(0,target.posture-dt*8*(target.hp/target.maxHp));}
   p.chainWindow=Math.max(0,p.chainWindow-dt);p.regenDelay=Math.max(0,p.regenDelay-dt);if(p.regenDelay<=0&&['idle','guard'].includes(p.state))p.stamina=clamp(p.stamina+(p.state==='guard'?11:34)*dt,0,100);
   const m=Math.hypot(input.x||0,input.z||0),dx=m>.01?(input.x||0)/Math.max(1,m):0,dz=m>.01?(input.z||0)/Math.max(1,m):0;
+  if(!['idle','guard'].includes(p.state)||p.stun>0)p.sprintTime=0;
   if(['idle','guard'].includes(p.state)&&p.stun<=0){
    const guard=!!input.guard;p.guardAge=guard?(p.state==='guard'?p.guardAge+dt:0):0;p.state=guard?'guard':'idle';
    if(input.lock)p.yaw=turnTo(p.yaw,angleTo(p,e),dt*12);else if(m>.01)p.yaw=turnTo(p.yaw,Math.atan2(dx,dz),dt*12);
    const sprint=input.sprint&&p.stamina>0&&!guard&&m>.01;const speed=guard?1.45:sprint?5.8:3.25;p.x+=dx*speed*dt;p.z+=dz*speed*dt;p.speed=m>.01?speed:0;
-   if(sprint){p.stamina=Math.max(0,p.stamina-18*dt);p.regenDelay=.75;}
+   p.sprintTime=sprint?p.sprintTime+dt:0;if(sprint){p.stamina=Math.max(0,p.stamina-18*dt);p.regenDelay=.75;}
   }else if(p.state==='roll'){const before=p.total-p.timer;p.timer=Math.max(0,p.timer-dt);const travel=dodgeTravel(p.total-p.timer)-dodgeTravel(before);p.x+=p.rollX*travel;p.z+=p.rollZ*travel;p.speed=dt>0?travel/dt:0;if(p.timer<=0){p.state='idle';p.invulnerable=0;}}
   else if(p.state==='dash'){const before=p.total-p.timer;p.timer=Math.max(0,p.timer-dt);const travel=dashTravel(p.total-p.timer)-dashTravel(before);this.advancePlayer(travel,p.dashYaw);p.speed=travel/dt;if(p.queuedDashAttack&&p.actionAge>=DASH.linkAt&&p.stamina>=14){this.spend(14);const move=PLAYER_MOVES.dashCut;p.state='light';p.move='dashCut';p.timer=p.total=move.duration;p.actionAge=0;p.attackHit=false;p.queuedDashAttack=false;p.chain=1;p.chainWindow=1.25;this.emit('swing',{move:'dashCut',x:p.x,z:p.z});}else if(p.timer<=0){p.state='idle';p.queuedDashAttack=false;}}
   else if(['light','heavy','special'].includes(p.state)){
    p.timer-=dt;const elapsed=p.total-p.timer;
-   const move=playerMove(p),travel=attackTravel(move,elapsed)-attackTravel(move,elapsed-dt);if(move.id==='dashCut')this.advancePlayer(travel,p.yaw);else{p.x+=Math.sin(p.yaw)*travel;p.z+=Math.cos(p.yaw)*travel;}
+   const move=playerMove(p),travel=attackTravel(move,elapsed)-attackTravel(move,elapsed-dt);if(move.advance)this.advancePlayer(travel,p.yaw);else{p.x+=Math.sin(p.yaw)*travel;p.z+=Math.cos(p.yaw)*travel;}
    const impact=move.impact;
-   if(!p.attackHit&&elapsed>=impact){p.attackHit=true;const heavy=p.state==='heavy',special=p.state==='special';const range=move.range,arc=move.arc;
-    this.strike(move,special);
-   }
+   if(move.projectile){if(!p.attackHit&&elapsed>=impact){p.attackHit=true;this.launchArt(move);}}
+   else if(move.hits){while(p.hitIndex<move.hits.length&&elapsed>=move.hits[p.hitIndex].at&&this.status==='playing')this.land({...move,...move.hits[p.hitIndex++]},p.state==='special');p.attackHit=p.hitIndex>=move.hits.length;}
+   else if(!p.attackHit&&elapsed>=impact){p.attackHit=true;this.land(move,p.state==='special');}
    if(p.state==='light'&&p.queuedFinisher&&p.attackHit&&elapsed>=impact+.10&&this.hitStop<=0){this.startFinisher(p.queuedFinisher);}
-   if(p.timer<=0){const chain=p.state==='light',queued=p.queuedLight;p.state='idle';p.queuedLight=false;p.queuedFinisher=null;if(chain)p.chainWindow=.6;if(queued)this.action('light');}
+   // A tap buffered during an art is read against the guard as it is held now, so a second crescent can follow the first.
+   if(p.timer<=0){const chain=p.state==='light',queued=p.queuedLight;p.state=queued&&move.art&&input.guard?'guard':'idle';p.queuedLight=false;p.queuedFinisher=null;if(chain)p.chainWindow=move.art?0:.6;if(queued)this.action('light');}
   }else if(p.state==='heal'){p.timer-=dt;if(!p.attackHit&&p.timer<.35){p.attackHit=true;p.hp=clamp(p.hp+65,0,p.maxHp);this.stats.heals++;this.emit('healed');}if(p.timer<=0)p.state='idle';}
   else if(p.state==='hurt'){p.timer-=dt;if(p.timer<=0)p.state='idle';}
   if(this.status!=='playing')return;
   if(p.inputBuffer&&(['idle','guard'].includes(p.state)||p.inputBuffer.name==='heavy'&&p.state==='roll'&&p.counterWindow>0&&p.actionAge>=.18||p.inputBuffer.name==='roll'&&p.state==='light'&&p.total-p.timer>=playerMove(p).impact+.08)){const queued=p.inputBuffer;p.inputBuffer=null;this.action(queued.name,queued.dx,queued.dz);}
   this.updateEnemies(dt);
   this.updateProjectiles(dt,playerBefore);
+  this.updateArts(dt);
   this.resolveBodies();this.constrain();
  }
  targets(){return [this.enemy];}
- enemyDefeated(){this.status='won';this.projectiles=[];this.emit('victory');}
- strike(move,special){const p=this.player,e=this.enemy;if(withinArc(p,e,move.range+e.radius*.3,move.arc)){this.hitEnemy(move.damage,move.posture,p.move==='execute'?'execution-hit':p.move==='riposte'?'counter-hit':special?'special-hit':'hit');if(p.move==='execute')this.stats.executions++;if(p.move==='riposte')this.stats.counters++;}else this.emit('miss');}
+ // Runs `fn` with `this.enemy` standing for one particular foe. A duel has only the one; a crowd overrides this.
+ withEnemy(e,fn){return fn();}
+ // One scheduled contact of the hero's current move. `striking` tells hitEnemy what landed
+ // (its weight, the qi it returns) however many foes the strike reaches.
+ land(move,special){const p=this.player;this.striking=move;try{this.strike(move,special);}finally{this.striking=null;}if(move.shock)this.emit('art',{art:move.id,x:p.x,z:p.z,yaw:p.yaw,radius:move.shock});}
+ // 飛墨斬 leaves the blade as a crescent of ink: a shot of the hero's own, kept apart from the enemies' projectiles.
+ launchArt(move){const p=this.player,s=move.projectile,fx=Math.sin(p.yaw),fz=Math.cos(p.yaw),lead=.6;
+  this.arts.push({id:++this.projectileSerial,move:move.id,x:p.x+fx*lead,z:p.z+fz*lead,yaw:p.yaw,speed:s.speed,radius:s.radius,remaining:s.range-lead,pierce:s.pierce,struck:[],damage:move.damage,posture:move.posture});
+  this.emit('art',{art:move.id,x:p.x,z:p.z,yaw:p.yaw});
+ }
+ updateArts(dt){
+  const kept=[];
+  for(const shot of this.arts){
+   const fx=Math.sin(shot.yaw),fz=Math.cos(shot.yaw),travel=Math.min(shot.remaining,shot.speed*dt),move=PLAYER_MOVES[shot.move];
+   // Swept along this step's path, nearest first: it passes through each foe once and stops at its limit.
+   const reached=this.targets().filter(e=>e.hp>0&&!shot.struck.includes(e)).map(e=>{const along=clamp((e.x-shot.x)*fx+(e.z-shot.z)*fz,0,travel);return{e,along,gap:Math.hypot(e.x-shot.x-fx*along,e.z-shot.z-fz*along)};}).filter(h=>h.gap<=shot.radius+h.e.radius).sort((a,b)=>a.along-b.along);
+   for(const {e} of reached){if(shot.pierce<=0||this.status!=='playing')break;shot.struck.push(e);shot.pierce--;this.striking={...move,from:{x:e.x-fx*2,z:e.z-fz*2}};try{this.withEnemy(e,()=>this.hitEnemy(shot.damage,shot.posture,'hit'));}finally{this.striking=null;}}
+   shot.x+=fx*travel;shot.z+=fz*travel;shot.remaining-=travel;
+   if(this.status!=='playing')break;
+   if(shot.pierce>0&&shot.remaining>0)kept.push(shot);else this.emit('art-end',{art:shot.move,x:shot.x,z:shot.z,yaw:shot.yaw,spent:shot.pierce<=0});
+  }
+  this.arts=this.status==='playing'?kept:[];
+ }
+ enemyDefeated(){this.status='won';this.projectiles=[];this.arts=[];this.emit('victory');}
+ // While the ultimate is running: how far in it is and whether it is still gathering.
+ ultimate(){const p=this.player;if(p.state!=='special')return null;const move=playerMove(p);if(!move.charge)return null;const age=p.total-p.timer;return{age,charge:move.charge,total:p.total,charging:age<move.charge,move};}
+ // A multi-hit move lands its lead-in cuts as ordinary hits; only the last one carries the special's weight.
+ strikeKind(move,special){const id=this.player.move;return id==='execute'?'execution-hit':id==='riposte'?'counter-hit':special&&(!move.hits||move.final)?'special-hit':'hit';}
+ strike(move,special){const p=this.player,e=this.enemy;if(withinArc(p,e,move.range+e.radius*.3,move.arc)){this.hitEnemy(move.damage,move.posture,this.strikeKind(move,special));if(p.move==='execute')this.stats.executions++;if(p.move==='riposte')this.stats.counters++;}else this.emit('miss');}
  advancePlayer(travel,yaw){
   const p=this.player,dx=Math.sin(yaw),dz=Math.cos(yaw);let allowed=travel;
   for(const e of this.targets()){if(e.hp<=0)continue;const x=e.x-p.x,z=e.z-p.z,along=x*dx+z*dz,r=p.radius+e.radius+.02,side=x*x+z*z-along*along;if(along>0&&side<r*r)allowed=Math.min(allowed,Math.max(0,along-Math.sqrt(r*r-side)));}

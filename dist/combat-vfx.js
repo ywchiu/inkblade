@@ -7,7 +7,7 @@ class ParticlePool {
   const geometry=new THREE.BufferGeometry();for(const [name,size]of[['position',3],['tint',3],['size',1],['fade',1]])geometry.setAttribute(name,new THREE.Float32BufferAttribute(new Float32Array(capacity*size),size));
   const material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:additive?THREE.AdditiveBlending:THREE.NormalBlending,
    vertexShader:'attribute vec3 tint; attribute float size; attribute float fade; varying vec3 vTint; varying float vFade; void main(){vTint=tint;vFade=fade;vec4 p=modelViewMatrix*vec4(position,1.);gl_PointSize=clamp(size*500./max(1.,-p.z),1.,64.);gl_Position=projectionMatrix*p;}',
-   fragmentShader:'varying vec3 vTint; varying float vFade; void main(){vec2 p=gl_PointCoord-.5;float r=length(p)*2.;float feather=pow(max(0.,1.-r*r),2.);float ink=.75+.25*sin(p.x*21.+sin(p.y*17.)*2.);float a=feather*ink*vFade;if(a<.008)discard;gl_FragColor=vec4(vTint,a);}'
+   fragmentShader:'varying vec3 vTint; varying float vFade; void main(){vec2 p=gl_PointCoord-.5;float r=length(p)*2.;float feather=pow(max(0.,1.-r*r),2.);float ink=.75+.25*sin(p.x*21.+sin(p.y*17.)*2.);float a=feather*ink*vFade;if(a<.008)discard;gl_FragColor=vec4(vTint*'+(additive?'3.4':'1.')+',a);}'
   });
   this.mesh=new THREE.Points(geometry,material);this.mesh.frustumCulled=false;scene.add(this.mesh);this.additive=additive;
  }

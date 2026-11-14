@@ -40,3 +40,55 @@ export function enemySequence(id,cycle,enraged,dist,rangedReady=true){
  if(wolf&&enraged&&dist<=4&&keys.length===2)keys=[...keys,'rush'];
  return keys.map(key=>{const move={...moves[key],windup:moves[key].windup*(enraged?.92:1)};return move;});
 }
+
+// Roles that fight their own way. A role is a body (wolf, ronin, oni) with a different temper:
+// the campaign asks here first and falls back to the body's ordinary rhythm when this returns null.
+const packMoves={
+ snap:{kind:'bite',variant:'bite',name:'影咬',windup:.34,duration:.34,recovery:1.5,range:2.3,damage:14},
+ dart:{kind:'pounce',variant:'rush',name:'掠影',windup:.6,duration:.52,recovery:1.15,range:2.2,damage:18,speed:13,activeWindow:true,lane:8},
+ howl:{kind:'projectile',variant:'howl',name:'啣名長嗥',windup:1.05,duration:.5,recovery:1.3,range:0,damage:20,projectile:{style:'howl',speed:8.5,radius:1.1,range:15,spread:[0]},lane:15},
+ maul:{kind:'bite',variant:'rake',name:'裂名撕咬',windup:.62,duration:.46,recovery:1,range:2.9,damage:26},
+ gore:{kind:'bite',variant:'bite',name:'獠牙咬擊',windup:.5,duration:.4,recovery:.9,range:2.7,damage:22},
+ charge:{kind:'pounce',variant:'rush',name:'狼王奔襲',windup:.9,duration:.72,recovery:1.2,range:2.6,damage:30,speed:11.5,activeWindow:true,lane:9},
+ crush:{kind:'pounce',variant:'rush',name:'鎮門撲壓',windup:1.25,duration:.7,recovery:1.9,range:3,damage:30,speed:8,activeWindow:true,lane:7},
+ gnaw:{kind:'bite',variant:'bite',name:'石顎',windup:.8,duration:.45,recovery:1.5,range:2.8,damage:24},
+ swipe:{kind:'bite',variant:'rake',name:'回身石爪',windup:.7,duration:.46,recovery:1.7,range:3,damage:26}
+};
+const bladeMoves={
+ fan:{kind:'projectile',variant:'sword-wave',name:'抄名三筆',windup:1.05,duration:.5,recovery:1.5,range:0,damage:16,projectile:{style:'blade',speed:9,radius:.4,range:17,spread:[-.3,0,.3]},lane:17},
+ quill:{kind:'projectile',variant:'sword-cross',name:'點名',windup:.7,duration:.46,recovery:1.3,range:0,damage:20,projectile:{style:'blade',speed:14,radius:.4,range:19,spread:[0]},lane:19},
+ shove:{kind:'slash',variant:'slash-left',name:'拂袖',windup:.42,duration:.44,recovery:1.5,range:2.7,damage:15},
+ flare:{kind:'slash',variant:'slash-right',name:'燃名斬',windup:.5,duration:.42,recovery:.55,range:2.8,damage:19},
+ backflare:{kind:'slash',variant:'slash-left',name:'回燄',windup:.36,duration:.42,recovery:.6,range:2.85,damage:19},
+ lunge:{kind:'thrust',variant:'thrust',name:'撲火',windup:.7,duration:.6,recovery:1.5,range:2.6,damage:24,speed:9,activeWindow:true,lane:8}
+};
+const masterMoves={
+ fanFissure:{kind:'projectile',variant:'fissure',name:'吞名裂地',windup:1.1,duration:.65,recovery:1.5,range:0,damage:30,unblockable:true,projectile:{style:'fissure',speed:9,radius:.72,range:20,spread:[-.34,0,.34]},lane:20},
+ lash:{kind:'slash',variant:'claw-left',name:'奪名',windup:.44,duration:.5,recovery:.9,range:3.4,damage:26},
+ quake:{kind:'slam',variant:'slam',name:'無名震',windup:.86,recovery:1.2,range:4.4,damage:33}
+};
+const pick=(table,keys,enraged,quicken)=>keys.map(key=>({...table[key],windup:table[key].windup*(enraged?quicken:1)}));
+export function roleSequence(pattern,cycle,enraged,dist,rangedReady=true){
+ switch(pattern){
+  // A starved shadow: one quick bite or a darting pass, then it slips away to circle again.
+  case 'mare':return pick(packMoves,dist>3.6?['dart']:cycle%2?['snap','dart']:['snap'],enraged,.9);
+  // The pack leader howls the stolen names from range, charges, and mauls in threes up close.
+  case 'alpha':return pick(packMoves,dist>7&&rangedReady?['howl']:dist>4.2?(enraged?['charge','maul']:['charge']):[['maul','gore'],['gore','maul','gore'],['maul','charge']][cycle%3],enraged,.88);
+  // Stone does not hurry: long tells, heavy hits, long openings.
+  case 'lion':return pick(packMoves,dist>4.2?['crush']:[['gnaw'],['swipe','gnaw'],['gnaw','crush']][cycle%3],enraged,.92);
+  // Registry clerks write from a distance and only shove when cornered.
+  case 'scribe':return pick(bladeMoves,dist<3.2?['shove']:cycle%2?['quill','quill']:['fan'],enraged,.9);
+  // Lamp-thralls burn short: fast two- and three-cut flurries with no patience for range.
+  case 'thrall':return pick(bladeMoves,dist>4.5?['lunge']:[['flare','backflare'],['flare','backflare','lunge'],['backflare','flare']][cycle%3],enraged,.9);
+  // Clay attendants know the master's blows but none of his reach across the yard.
+  case 'acolyte':return guardianSequence(cycle,enraged,dist);
+  // The thing under the robe: every chain is longer, and the ground opens three ways.
+  case 'nameless':{
+   if(dist>6.5&&rangedReady)return pick(masterMoves,['fanFissure'],true,.92);
+   if(dist>4.5)return[...guardianSequence(cycle,true,dist),...pick(masterMoves,['lash'],true,.92)];
+   const chains=[['right','left','lash'],['quake','delayed'],['lash','right','quake'],['right','left','delayed']][cycle%4];
+   return chains.map(key=>({...(masterMoves[key]||moves[key]),windup:(masterMoves[key]||moves[key]).windup*.9}));
+  }
+  default:return null;
+ }
+}

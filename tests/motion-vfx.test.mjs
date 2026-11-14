@@ -6,7 +6,7 @@ import {locomotionPose} from '../dist/locomotion3d.js';
 import {CombatVFX} from '../dist/combat-vfx.js';
 import {ArenaCombat} from '../dist/combat3d.js';
 test('attack travel is conserved across frame rates and held until release',()=>{
- for(const m of Object.values(PLAYER_MOVES))for(const fps of [30,60,120]){let distance=0;for(let t=0;t<m.duration;t+=1/fps)distance+=attackTravel(m,t+1/fps)-attackTravel(m,t);assert.ok(Math.abs(distance-m.lungeSpeed*m.lungeUntil)<1e-8,m.id);assert.equal(attackTravel(m,Math.max(0,m.impact-.14)),0);}
+ for(const m of Object.values(PLAYER_MOVES))for(const fps of [30,60,120]){let distance=0;for(let t=0;t<m.duration;t+=1/fps)distance+=attackTravel(m,t+1/fps)-attackTravel(m,t);assert.ok(Math.abs(distance-m.lungeSpeed*m.lungeUntil)<1e-8,m.id);assert.equal(attackTravel(m,m.travelStart??Math.max(0,m.impact-.14)),0);}
 });
 test('blade passes through contact without stopping at each keyframe',()=>{
  for(const id of ['diagonal','reverse','cleave','heavy']){const m=PLAYER_MOVES[id],h=1e-5,a=sampleFrames(m.frames,m.impact-h).rightArm,b=sampleFrames(m.frames,m.impact).rightArm,c=sampleFrames(m.frames,m.impact+h).rightArm;const before=a.map((v,i)=>(b[i]-v)/h),after=b.map((v,i)=>(c[i]-v)/h);assert.ok(Math.hypot(...before)>1,id);assert.ok(Math.hypot(...after.map((v,i)=>v-before[i]))<.1,id);}

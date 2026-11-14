@@ -1,21 +1,36 @@
 import { dashPose } from './dash3d.js';
 import { applyFootwork } from './footwork3d.js';
 import { transitionPose } from './motion-transition3d.js';
-import { locomotionPose } from './locomotion3d.js';
-import { createWolfCharacter, animateWolf } from './wolf-character3d.js';
+import { locomotionPose, gaitTiming } from './locomotion3d.js';
+import { createWolfCharacter, animateWolf, BEAST_SHAPE } from './wolf-character3d.js';
 import { dodgePose } from './dodge3d.js';
 import * as THREE from './vendor/three.module.js';
 import { samplePlayerAttack, sampleMonsterAttack, sampleSwordsmanAttack } from './attack-moves.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
+import { RIGS } from './rig-clips.js';
+import { loadRiggedCharacter, animateRigged } from './rigged-character3d.js';
 
 const smooth=(a,b,x)=>{const v=THREE.MathUtils.clamp((x-a)/(b-a),0,1);return v*v*(3-2*v);};
 const loader=new GLTFLoader();
 const paths={hero:'./assets/hero/demon-queller.glb',oni:'./assets/monster/temple-guardian.glb',ronin:'./assets/ronin/faceless-swordsman.glb',wolf:'./assets/wolf/ink-wolf.glb'};
 // The source meshes face +X. Bake them into the combat convention (+Z, Y-up)
 // before placing joints or calculating bind matrices. No failed Meshy rig is loaded.
+// Authored skeletal animation is opt-in (?rig=1) until the hero's clip set is complete;
+// any load failure falls back to the procedural rig so the game always starts.
+const riggedRequested=()=>new URLSearchParams(globalThis.location?.search||'').get('rig')==='1';
 export async function loadCharacter(kind){
+ const rig=RIGS[kind];if(rig&&riggedRequested()){try{return await loadRiggedCharacter(rig,{loader,createWeapon:rig.weaponBone?createSword:null,kind});}catch(error){console.warn('rigged '+kind+' unavailable, using procedural rig',error);}}
  return createCharacter(await loader.loadAsync(paths[kind]),kind);
 }
+// Bodies that belong to one campaign role rather than to a kind (ROLES[role].skin). They load after the
+// base cast and are optional: a role whose body is missing wears its kind's body in the role's colours.
+// The clerk is always a rigged model: it has no procedural rig of its own.
+const skins={
+ beast:async()=>createWolfCharacter(await loader.loadAsync(BEAST_SHAPE.asset),BEAST_SHAPE),
+ scribe:()=>loadRiggedCharacter(RIGS.scribe,{loader,createWeapon:createBrush,kind:'ronin'})
+};
+export const SKINS=Object.keys(skins);
+export async function loadSkin(name){try{return await skins[name]();}catch(error){console.warn('skin '+name+' unavailable, using the base body',error);return null;}}
 export function createCharacter(gltf,kind){
  if(kind==='wolf')return createWolfCharacter(gltf);
  const root=new THREE.Group(),body=new THREE.Group();root.add(body);
@@ -101,6 +116,17 @@ function handComponents(geometry,height,hero){
  for(let i=0;i<n;i++){if(pos.getY(i)>=cut)continue;const g=groups.get(find(i)),x=g.sum/g.count;if(Math.abs(x)>(hero?.215:.235))regions[i]=x<0?0:1;}
  return regions;
 }
+// A judge's brush as long as a sword, held the same way: grip at the origin, tip down -Y.
+function createBrush(){
+ const g=new THREE.Group();g.name='JudgeBrush';
+ const wood=new THREE.MeshStandardMaterial({color:'#2a1c16',roughness:.6}),bronze=new THREE.MeshStandardMaterial({color:'#74563a',metalness:.85,roughness:.35}),cord=new THREE.MeshStandardMaterial({color:'#7c2a22',roughness:.8}),hair=new THREE.MeshStandardMaterial({color:'#0d1114',roughness:.5,emissive:'#123a3a',emissiveIntensity:.35});
+ const add=(geo,mat,y)=>{const mesh=new THREE.Mesh(geo,mat);mesh.position.y=y;mesh.castShadow=true;g.add(mesh);return mesh;};
+ add(new THREE.CylinderGeometry(.02,.024,1.02,10),wood,-.33);add(new THREE.SphereGeometry(.03,10,8),bronze,.19);add(new THREE.TorusGeometry(.026,.007,6,14),cord,.12).rotation.x=Math.PI/2;
+ add(new THREE.CylinderGeometry(.034,.026,.09,12),bronze,-.88);
+ // Bristles: a belly that swells below the ferrule and draws to a point.
+ add(new THREE.LatheGeometry([[.03,0],[.058,-.08],[.05,-.17],[.022,-.27],[0,-.34]].map(([x,y])=>new THREE.Vector2(x,y)),14),hair,-.92);
+ return g;
+}
 function createSword(){
  const g=new THREE.Group();g.name='DemonQuellerSword';
  const iron=new THREE.MeshStandardMaterial({color:'#75858a',metalness:.92,roughness:.27});
@@ -126,6 +152,7 @@ function createSword(){
  return g;
 }
 export function animateCharacter(m,a,t,dt){
+ if(m.rigged)return animateRigged(m,a,t,dt);
  if(m.type==='wolf')return animateWolf(m,a,t,dt);
  const {root,body,hips,spine,torso,head,arms,legs}=m;
  if(m.lastAnimationTime!==undefined&&t<m.lastAnimationTime){m.motionTransition=null;m.footwork=null;m.clothMotion=null;}m.lastAnimationTime=t;
@@ -133,7 +160,7 @@ export function animateCharacter(m,a,t,dt){
  const localX=len>.1?(rawX*Math.cos(a.yaw)-rawZ*Math.sin(a.yaw))/len:0,localZ=len>.1?(rawX*Math.sin(a.yaw)+rawZ*Math.cos(a.yaw))/len:1;
  const turn=previous&&dt>0?THREE.MathUtils.clamp(Math.atan2(Math.sin(a.yaw-previous.yaw),Math.cos(a.yaw-previous.yaw))/dt,-1,1):0;m.lastMotion={x:a.x,z:a.z,yaw:a.yaw};
  root.position.set(a.x,0,a.z);root.rotation.y=a.yaw;
- const moving=a.speed>.05;m.phase+=dt*(moving?a.speed*4.5:0);const stride=moving?Math.sin(m.phase):0;
+ const moving=a.speed>.05;m.phase+=dt*(moving?a.speed*gaitTiming(a.speed,m.height).rate:0);const stride=moving?Math.sin(m.phase):0;
  const pose=new Map(m.skeleton.bones.map(b=>[b,[0,0,0]]));const set=(b,x=0,y=0,z=0)=>pose.set(b,[x,y,z]);
  const progress=a.total>0?THREE.MathUtils.clamp(1-a.timer/a.total,0,1):0;
  const hero=m.type==='human',breath=Math.sin(t*1.7)*.012;
@@ -141,7 +168,7 @@ export function animateCharacter(m,a,t,dt){
  for(let i=0;i<2;i++){const wave=stride*(i?1:-1);set(legs[i].upper,wave*(hero?.34:.3));set(legs[i].lower,Math.max(0,-wave)*.35);set(arms[i].upper,-.08-wave*.16,0,i?-.025:.025);set(arms[i].lower,-.1);}
  set(torso,breath,Math.sin(m.phase)*.025*(moving?1:0));
  if(hero){
-  const parts={hips,spine,chest:torso,head,rightArm:arms[0].upper,rightForearm:arms[0].lower,leftArm:arms[1].upper,leftForearm:arms[1].lower,rightLeg:legs[0].upper,rightKnee:legs[0].lower,rightFoot:legs[0].foot,leftLeg:legs[1].upper,leftKnee:legs[1].lower,leftFoot:legs[1].foot};for(const [name,bone]of Object.entries(parts))set(bone,...gait[name]);
+  const parts={hips,spine,chest:torso,head,rightArm:arms[0].upper,rightForearm:arms[0].lower,rightHand:arms[0].hand,leftArm:arms[1].upper,leftForearm:arms[1].lower,rightLeg:legs[0].upper,rightKnee:legs[0].lower,rightFoot:legs[0].foot,leftLeg:legs[1].upper,leftKnee:legs[1].lower,leftFoot:legs[1].foot};for(const [name,bone]of Object.entries(parts))set(bone,...gait[name]);
   const arm=arms[0];
   if(['light','heavy','special'].includes(a.state)){
    // Attack keyframes are applied below as a full-body pose.
@@ -159,7 +186,7 @@ export function animateCharacter(m,a,t,dt){
  if(a.state==='stagger'){set(torso,.42,0,Math.sin(t*8)*.045);set(head,.24);arms.forEach((arm,i)=>{set(arm.upper,.18,0,i?-.16:.16);set(arm.lower,-.25);});}
  const previousBody=body.rotation.clone(),previousPosition=body.position.clone();
  body.rotation.set(...(hero?gait.body:[0,0,0]));body.position.set(...(hero?gait.offset:[0,moving?Math.abs(stride)*.022:breath*.5,0]));
- if(hero&&moving&&!attackPose)body.position.y-=Math.min(1,(a.speed||0)/1.2)*m.height*.055;
+ if(hero&&moving&&!attackPose)body.position.y-=Math.min(1,(a.speed||0)/1.2)*m.height*(a.state==='guard'?.045:.018);
  if(attackPose){body.rotation.set(...attackPose.body);body.position.add(new THREE.Vector3(...attackPose.offset));}
  if(a.state==='roll')root.rotation.y=a.dodgeYaw??a.yaw;
  if(a.state==='dead'){m.deathProgress=Math.min(1,m.deathProgress+dt*2.5);body.rotation.z=m.deathProgress*1.42;body.position.y=m.deathProgress*.18;}else m.deathProgress=0;
@@ -185,7 +212,8 @@ export function animateCharacter(m,a,t,dt){
   previous.vx+=((targetX-previous.x)*65-previous.vx*14)*step;previous.vz+=((targetZ-previous.z)*65-previous.vz*14)*step;previous.x+=previous.vx*step;previous.z+=previous.vz*step;m.clothMotion=previous;
   m.cape[0].rotation.set(-previous.x*.45,0,previous.z*.4);m.cape[1].rotation.set(-previous.x,0,previous.z);
  }
- applyFootwork(m,a,dt);
+ // Feet are pinned to the ground by default; a pose that lifts the whole body (a leap) leaves it.
+ if(attackPose&&attackPose.offset[1]>.04)m.footwork=null;else applyFootwork(m,a,dt);
  if(m.skirt&&dt>0)for(let i=0;i<2;i++){const target=THREE.MathUtils.clamp(legs[i].upper.rotation.x*.55,-.38,.28);m.skirt[i].rotation.x=THREE.MathUtils.lerp(m.skirt[i].rotation.x,target,1-Math.exp(-dt*14));m.skirt[i].rotation.z=legs[i].upper.rotation.z*.25;}
  for(const mesh of m.meshes){mesh.material.emissive.set(a.flash>0?(hero?'#9e2415':'#a76d35'):'#000000');mesh.material.emissiveIntensity=a.flash>0?(hero?.22:.16)*Math.min(1,a.flash/.12):0;}
 }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,statSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {DialogueAudio} from '../dist/dialogue-audio.js';
-import {SCENES} from '../dist/story3d.js';
+import {SCENES,recorded,VOICE_ON} from '../dist/story3d.js';
 
 function fixture(fetcher=async()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(8)})){
  const sources=[],audio={hidden:false,dialogue:{},dialogueActive:false,mixes:0,async unlock(){return true;},applyMix(){this.mixes++;},ctx:{currentTime:0,async decodeAudioData(){return {duration:10};},createBufferSource(){const s={connect(){},disconnect(){this.disconnected=true;},start(when,offset){this.offset=offset;},stop(){this.stopped=true;this.onended?.();}};sources.push(s);return s;}}};
@@ -28,11 +28,13 @@ test('missing clip is retryable; hidden tab never starts a new voice',async()=>{
  assert.equal(await lane.play('wolf-0'),false);assert.equal(lane.state,'failed');assert.equal(lane.error,'HTTP 404');
  ok=true;audio.hidden=true;await lane.play('wolf-0');assert.equal(lane.state,'paused');assert.equal(sources.length,0);audio.hidden=false;await lane.resume();assert.equal(lane.state,'playing');
 });
-test('all story subtitles match shipped voice files and generation receipts',()=>{
+test('every recorded page has a shipped voice file, and speech stays off while the wording differs from the recording',()=>{
  const manifest=JSON.parse(readFileSync(new URL('../art/audio/dialogue/manifest.json',import.meta.url)));
- const expected=Object.entries(SCENES).flatMap(([id,scene])=>scene.lines.map((line,index)=>({id:`${id}-${index}`,text:line.text})));
+ // Only the first recording session's pages are voiced; later chapters are read on screen.
+ // The script was reworded after the recording session: until those lines are recorded again the switch must stay off.
+ const expected=Object.entries(SCENES).filter(([id])=>recorded(id)).flatMap(([id,scene])=>scene.lines.map((line,index)=>({id:`${id}-${index}`,text:line.text})));
  assert.equal(manifest.length,37);assert.equal(new Set(manifest.map(x=>x.id)).size,37);
- for(const line of expected){const clip=manifest.find(x=>x.id===line.id);assert.ok(clip,line.id);assert.equal(clip.text,line.text);}
+ for(const line of expected){const clip=manifest.find(x=>x.id===line.id);assert.ok(clip,line.id);if(VOICE_ON)assert.equal(clip.text,line.text);}
  for(const clip of manifest){assert.ok(statSync(new URL(`../dist/${clip.file}`,import.meta.url)).size>1000);assert.ok(clip.duration>1);assert.ok(clip.peak<.95);assert.ok(clip.rms>.001);}
 });
 

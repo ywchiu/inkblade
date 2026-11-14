@@ -15,6 +15,9 @@ export function cueFor(e){
   case 'parry':return {family:'metal',sample:'metal',gain:.85,rate:1.08,cooldown:.09,duck:true};
   case 'dash':case 'roll':return {family:'cloth',sample:'cloth',gain:e.type==='dash'?.5:.35,rate:e.type==='dash'?.85:1.05,cooldown:.1};
   case 'enemy-swing':return ['bite','pounce'].includes(e.kind)?{family:'wolf',sample:'wolf-growl',gain:e.kind==='pounce'?.45:.28,rate:e.kind==='pounce'?.9:1.08,cooldown:.6}:{family:'enemy-swing',sample:e.kind==='slam'?'cloth':'whoosh',gain:.3,cooldown:.07};
+  case 'special-release':return {family:'ultimate',sample:'stone',gain:.7,rate:1.12,cooldown:.2,duck:true};
+  // The hero's ground-shaking moves and ink arts, from samples already shipped: stone for what hits the ground, a drawn blade for the crescent.
+  case 'art':return e.art==='inkWave'?{family:'art',sample:'draw',gain:.5,rate:1.3,cooldown:.1}:e.art==='seal'?{family:'art',sample:'stone',gain:.74,rate:.9,cooldown:.2,duck:true}:{family:'art',sample:'stone',gain:e.art==='leap'?.56:.46,rate:e.art==='leap'?1.15:1.32,cooldown:.15};
   case 'slam':return {family:'stone',sample:'stone',gain:.78,rate:.75,cooldown:.18,duck:true};
   case 'projectile-release':return e.style==='howl'?{family:'wolf',sample:'wolf-growl',gain:.48,rate:.82,cooldown:.6}:{family:'projectile',sample:'whoosh',gain:.4,rate:.7,cooldown:.12};
   case 'stagger':case 'guard-break':return {family:'break',sample:'metal',gain:.45,rate:.7,cooldown:.15};
@@ -22,6 +25,11 @@ export function cueFor(e){
   case 'perfect-dodge':return {family:'dodge',sample:'draw',gain:.32,rate:1.1,cooldown:.3};
   case 'victory':case 'gate-open':return {family:'result',sample:'bell',gain:.4,rate:.9,cooldown:1};
   case 'defeat':return {family:'result',sample:'bell',gain:.3,rate:.55,cooldown:1};
+  case 'rubbing':return {family:'find',sample:'bell',gain:.34,rate:1.5,cooldown:.5};
+  case 'shrine':return {family:'heal',sample:'heal',gain:.5,rate:.85,cooldown:.3};
+  case 'ambush':return {family:'stone',sample:'stone',gain:.45,rate:1.2,cooldown:.4};
+  case 'burst-warn':return {family:'projectile',sample:'whoosh',gain:.35,rate:.55,cooldown:.2};
+  case 'phase-break':return {family:'result',sample:'bell',gain:.5,rate:.6,cooldown:1};
   default:return null;
  }
 }
@@ -78,7 +86,7 @@ export class GameAudio {
   source.connect(level).connect(position).connect(this.effects);const voice={source,gain:level,pan:position};this.voices.add(voice);source.onended=()=>this.release(voice);source.start();this.cooldowns.set(family,now);this.played++;this.playedSamples[sample]=(this.playedSamples[sample]||0)+1;this.peakVoices=Math.max(this.peakVoices,this.voices.size);return true;
  }
  onEvent(event,game){
-  if(['swing','special'].includes(event.type)){this.pendingSwing={actor:game.player,move:event.move||game.player.move};return;}
+  if(['swing','special'].includes(event.type)){this.pendingSwing={actor:game.player,move:event.move||game.player.move};if(event.type==='special')this.play('draw',{gain:.62,rate:.72,family:'ultimate',cooldown:.3});if(event.art==='seal')this.play('draw',{gain:.5,rate:.84,family:'art',cooldown:.3});return;}
   const cue=cueFor(event);if(!cue)return;const p=game.player,dx=(event.x??p.x)-p.x,dz=(event.z??p.z)-p.z,d=Math.hypot(dx,dz);if(d>20)return;
   const pan=(dx*Math.cos(p.yaw)-dz*Math.sin(p.yaw))/8;
   if(this.play(cue.sample,{...cue,gain:cue.gain/(1+d*.07),pan})&&cue.duck){this.duckUntil=this.ctx.currentTime+.22;this.applyMix();}
@@ -88,7 +96,10 @@ export class GameAudio {
   if(paused&&!this.paused)this.stopEffects();this.paused=paused;this.track=musicFor(game,mode);this.applyMix();
   const p=game.player;
   if(mode!=='playing'||paused||this.hidden||game.status!=='playing'){this.lastPlayer=null;this.walkDistance=0;return;}
-  if(this.pendingSwing){const pending=this.pendingSwing,move=PLAYER_MOVES[pending.move];if(pending.actor!==p||p.move!==pending.move||!['light','heavy','special'].includes(p.state)){this.pendingSwing=null;}else if(move&&p.total-p.timer>=Math.max(.025,move.impact-.12)){this.play('whoosh',{gain:p.state==='light'?.38:.58,rate:p.state==='light'?1:.82,family:'hero-swing',cooldown:.06});this.pendingSwing=null;}}
+  if(this.pendingSwing){const pending=this.pendingSwing,move=PLAYER_MOVES[pending.move],cuts=move?.hits&&!move.charge?move.hits.filter(h=>!h.shock).map(h=>h.at):[move?.impact],index=pending.index||0;
+   if(pending.actor!==p||p.move!==pending.move||!['light','heavy','special'].includes(p.state)){this.pendingSwing=null;}
+   // One swish per cut of a move that cuts twice; the ultimate keeps its single closing one.
+   else if(move&&p.total-p.timer>=Math.max(.025,cuts[index]-.12)){this.play('whoosh',{gain:p.state==='light'?.38:.58,rate:p.state==='light'?1:.82,family:'hero-swing',cooldown:.06});pending.index=index+1;if(pending.index>=cuts.length)this.pendingSwing=null;}}
   if(this.lastPlayer&&['idle','guard'].includes(p.state)&&p.speed>1&&dt>0){const travel=Math.hypot(p.x-this.lastPlayer.x,p.z-this.lastPlayer.z);if(travel<1){this.walkDistance+=travel;if(this.walkDistance>(p.speed>4?1.55:1.2)){this.walkDistance=0;this.play('step',{gain:p.speed>4?.23:.15,rate:p.speed>4?1.06:.94,family:'footstep',cooldown:.18});}}}else this.walkDistance=0;
   this.lastPlayer={x:p.x,z:p.z};
  }

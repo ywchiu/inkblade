@@ -1,10 +1,10 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {ArenaCombat} from '../dist/combat3d.js';
-import {PLAYER_MOVES,sampleFrames,sampleMonsterAttack} from '../dist/attack-moves.js';
+import {PLAYER_MOVES,LIGHT_CHAIN,sampleFrames,sampleMonsterAttack} from '../dist/attack-moves.js';
 const tick=(g,n)=>{for(let i=0;i<n;i++)g.update(1/120);};
 const idle=g=>{for(let i=0;i<300&&g.player.state!=='idle';i++)g.update(1/120);assert.equal(g.player.state,'idle');};
 function safe(){const g=new ArenaCombat(2);g.player.z=8;g.enemy.z=-8;g.enemy.state='recover';g.enemy.timer=100;return g;}
-test('light chain chooses three distinct moves, buffers once at recovery, and charges on actual start',()=>{
+test('light chain opens with three distinct moves, buffers once at recovery, and charges on actual start',()=>{
  const g=safe();g.action('light');assert.equal(g.player.move,'diagonal');assert.equal(g.action('light'),false);tick(g,48);assert.equal(g.action('light'),true);assert.equal(g.player.stamina,84);g.action('light');tick(g,24);assert.equal(g.player.move,'reverse');assert.equal(g.player.chain,2);assert.equal(g.player.stamina,68);idle(g);g.action('light');assert.equal(g.player.move,'cleave');assert.equal(g.player.chain,3);idle(g);tick(g,90);g.action('light');assert.equal(g.player.move,'diagonal');
 });
 test('heavy resets the light chain and hurt clears queued follow-up',()=>{
@@ -12,12 +12,15 @@ test('heavy resets the light chain and hurt clears queued follow-up',()=>{
 });
 test('each move damages only at its shared animation impact time and only once',()=>{
  for(const move of Object.values(PLAYER_MOVES)){const g=new ArenaCombat(2);g.player.z=2;g.player.yaw=Math.PI;g.enemy.z=0;g.enemy.state='recover';g.enemy.timer=100;
-  if(['reverse','cleave'].includes(move.id)){g.player.chain=move.id==='reverse'?1:2;g.player.chainWindow=1;}
+  const link=LIGHT_CHAIN.indexOf(move.id);if(link>0){g.player.chain=link;g.player.chainWindow=1;}
+  if(move.id==='leap')g.player.sprintTime=1;if(move.art)g.player.state='guard';
   if(move.id==='riposte')g.player.counterWindow=1.4;if(move.id==='execute'){g.enemy.exposed=true;g.enemy.state='stagger';g.enemy.stun=2.6;}
   if(move.id==='dashCut'){g.action('dash');g.action('light');while(g.player.state==='dash')g.update(1/120);}
   if(['rising','sweep'].includes(move.id))g.startFinisher(move.id);
-  g.player.qi=100;if(!['dashCut','rising','sweep'].includes(move.id))g.action(['heavy','riposte','execute'].includes(move.id)?'heavy':move.id==='spin'?'special':'light');
-  while(g.player.actionAge+1/120<move.impact)g.update(1/120);assert.equal(g.enemy.hp,440,move.id+' before contact');
+  g.player.qi=100;if(!['dashCut','rising','sweep'].includes(move.id))g.action(['heavy','riposte','execute','seal'].includes(move.id)?'heavy':move.id==='spin'?'special':'light');assert.equal(g.player.move,move.id);
+  const first=move.hits?move.hits[0].at:move.impact;
+  while(g.player.actionAge+1/120<first)g.update(1/120);assert.equal(g.enemy.hp,440,move.id+' before contact');
+  if(move.hits){assert.equal(move.hits.reduce((n,h)=>n+h.damage,0),move.damage,move.id+' hits add up to its damage');assert.equal(move.hits.reduce((n,h)=>n+h.posture,0),move.posture);idle(g);assert.equal(g.enemy.hp,440-move.damage,move.id+' after its last hit');assert.equal(g.stats.hits,move.hits.length,move.id+' each hit once');continue;}
   tick(g,2);assert.equal(g.enemy.hp,440-move.damage,move.id+' at contact');idle(g);assert.equal(g.stats.hits,1,move.id+' one hit');
  }
 });
