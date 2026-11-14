@@ -45,7 +45,6 @@ This round (2026-11-13 to 14) set out to push the look toward a AAA action game.
 - **A rainy night.** A moonlit cloud dome, rain that follows the camera with splashes on the ground, mist, lantern embers, and distant lightning that flashes, goes dark and glows again. All of it is animated in shaders for only a few extra draw calls.
 - **Eight regions, each its own place.** Every stretch of the mountain road has its own ground, edges and landmarks: blank door plaques in the nameless village, bamboo closing overhead in the rain forest, steles scraped blank in the forest of a thousand names, a bridge over a drop with no bottom, a lantern road where every lamp is a name burning, the empty plinths of the guardians in the temple forecourt, and a hall hung with name tablets. The ground carries painted cart ruts and standing water. Props are drawn in batches and regions swallowed by fog are hidden, so it stays smooth.
 - **Title key art.** Nano Banana 2.1, given the in-game character models as reference, painted Zhong Kui facing the mountain demon on the temple steps. The art drifts slowly with a lightning flash now and then, and phones held upright get their own framing so the title and button keep clear of both faces. See [`art/direction/cover/README.md`](art/direction/cover/README.md).
-- **Lighter files.** Model textures went to 2048 px WebP and the meshes were simplified: the three rigged characters fell from 39 MB to 12.6 MB and the two new foes from 31 MB to 7.4 MB, light enough for phones.
 
 ## Story and modes
 
