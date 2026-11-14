@@ -20,7 +20,7 @@ With a full ink gauge, press F (or Ultimate on a phone). The camera closes in on
 | --- | --- |
 | ![3D story scene with Zhong Kui and wolves](docs/gameplay-story.png) | ![A fight on a phone held upright: the stick and the attack, dodge and guard buttons at the bottom edge, the foe’s health under the objective](docs/gameplay-mobile.png) |
 
-The online game runs on Cloudflare Pages, serving the files in `dist/` and redeploying when GitHub `main` changes. Before publishing, we resized the four playable character textures to 2048 pixels, used WebP and simplified their meshes. Their combined model files fell from about 55 MB to 9.7 MB. The Name-Copying Scribe and the Gate Beast, added later, went through the same texture step with `scripts/compress-textures.mjs`: 31 MB down to 7.4 MB for the two, and 39 MB down to 12.6 MB for the three rigged models.
+The online game is hosted on Cloudflare Pages and redeploys whenever GitHub `main` changes.
 
 ## What's new
 
