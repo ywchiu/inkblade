@@ -1,7 +1,7 @@
-import { STAGES, PICKUPS, JOURNEY, ZONES, bounds } from './journey3d.js';
-// The road map: a strip on the left shows the whole climb, the rest is the stretch around the hero (north is up).
+// The road map of the realm being walked: a strip on the left shows the whole climb, the rest is the stretch around the hero (north is up).
 const SPAN = 34, STRIP = 16;
 export function drawBattleMap(canvas, game) {
+  const { STAGES, PICKUPS, JOURNEY, ZONES, bounds } = game.realm;
   const ctx = canvas.getContext('2d'), w = canvas.width, h = canvas.height, p = game.player, scale = h / (SPAN * 2), cx = STRIP + 6 + (w - STRIP - 6) / 2;
   const X = v => cx + v * scale, Z = v => h / 2 + (v - p.z) * scale, opened = i => i < game.stage || i === game.stage && game.cleared;
   ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#121e26'; ctx.fillRect(0, 0, w, h);

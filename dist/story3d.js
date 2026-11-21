@@ -1,5 +1,5 @@
 // Original fiction inspired by Zhong Kui folklore; no dialogue is a historical quotation.
-import {STAGES} from './journey3d.js';
+import {realmById} from './realms.js';
 const line=(speaker,text)=>({speaker,text});
 export const SCENES=Object.freeze({
  opening:{title:'借名山',chapter:'序 · 一紙無名狀',purpose:'接下無名狀 · 先看看這座村子',lines:[
@@ -155,9 +155,9 @@ export const LORE=Object.freeze([
 ]);
 const STORAGE_KEY='inkblade.journal.v1',NAMES_KEY='inkblade.names.v1';
 export class StoryDirector{
- constructor(storage=null){this.storage=storage;this.journal=new Set();this.names=new Set();const load=(key,known,into)=>{try{const saved=JSON.parse(storage?.getItem(key)||'[]');if(Array.isArray(saved))for(const id of saved)if(Object.hasOwn(known,id))into.add(id);}catch{}};load(STORAGE_KEY,SCENES,this.journal);load(NAMES_KEY,NAMES,this.names);this.seen=new Set();this.queue=[];this.current=null;this.index=0;this.barkUsed=new Set();this.nextBarkAt=0;this.campaign=false;this.opponent=0;}
+ constructor(storage=null){this.storage=storage;this.journal=new Set();this.names=new Set();const load=(key,known,into)=>{try{const saved=JSON.parse(storage?.getItem(key)||'[]');if(Array.isArray(saved))for(const id of saved)if(Object.hasOwn(known,id))into.add(id);}catch{}};load(STORAGE_KEY,SCENES,this.journal);load(NAMES_KEY,NAMES,this.names);this.seen=new Set();this.queue=[];this.current=null;this.index=0;this.barkUsed=new Set();this.nextBarkAt=0;this.campaign=false;this.opponent=0;this.realm=realmById('mountain');}
  remember(id){this.journal.add(id);try{this.storage?.setItem(STORAGE_KEY,JSON.stringify([...this.journal]));}catch{}}
- start({campaign=false,opponent=0,retry=false,stage=0}={}){this.cancel();this.campaign=campaign;this.opponent=opponent;this.barkUsed.clear();this.nextBarkAt=0;if(!retry){this.seen.clear();this.queue=campaign?['opening',STAGE_INTRO[STAGES[0].id]]:[DUEL_SCENES[opponent]];}else if(campaign){this.seen.add(STAGE_INTRO[STAGES[stage].id]);}return this.openNext();}
+ start({campaign=false,opponent=0,retry=false,stage=0,realm='mountain'}={}){this.cancel();this.campaign=campaign;this.realm=realmById(realm);const STAGES=this.realm.STAGES;this.opponent=opponent;this.barkUsed.clear();this.nextBarkAt=0;if(!retry){this.seen.clear();this.queue=campaign?['opening',STAGE_INTRO[STAGES[0].id]]:[DUEL_SCENES[opponent]];}else if(campaign){this.seen.add(STAGE_INTRO[STAGES[stage].id]);}return this.openNext();}
  open(id){if(!Object.hasOwn(SCENES,id)||this.seen.has(id))return null;this.seen.add(id);this.remember(id);this.current=id;this.index=0;return this.view();}
  openNext(){while(this.queue.length){const view=this.open(this.queue.shift());if(view)return view;}this.current=null;this.index=0;return null;}
  view(){if(!this.current)return null;const scene=SCENES[this.current];return {id:this.current,...scene,line:scene.lines[this.index],index:this.index,total:scene.lines.length,voiced:voiced(this.current)};}
@@ -167,7 +167,7 @@ export class StoryDirector{
  }
  cancel(){this.current=null;this.index=0;this.queue=[];}
  // A page that falls due while another is being read follows it instead of being lost.
- event(event,game){if(!this.campaign||!['chapter','gate-open'].includes(event.type))return null;const id=STAGES[event.stage??game.stage]?.id,scene=(event.type==='chapter'?STAGE_INTRO:STAGE_CLEAR)[id];if(!scene)return null;if(this.current){if(!this.seen.has(scene)&&!this.queue.includes(scene))this.queue.push(scene);return null;}return this.open(scene);}
+ event(event,game){if(!this.campaign||!['chapter','gate-open'].includes(event.type))return null;const id=this.realm.STAGES[event.stage??game.stage]?.id,scene=(event.type==='chapter'?STAGE_INTRO:STAGE_CLEAR)[id];if(!scene)return null;if(this.current){if(!this.seen.has(scene)&&!this.queue.includes(scene))this.queue.push(scene);return null;}return this.open(scene);}
  // The road's ending runs on into the village at dawn; whoever brought back every hidden name also learns the mountain's own.
  finish(won,game=null){if(!won||this.current)return null;if(!this.campaign)return this.open(['wolfEnd','roninEnd','oniEnd'][this.opponent]);this.queue=['ending','epilogue',...(game?.rubbings?.()>=Object.keys(NAMES).length?['trueName']:[]),'coda'];return this.openNext();}
  // A name taken from a stele: kept in the journal, and read out once as a passing line.

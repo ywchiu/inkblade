@@ -27,20 +27,25 @@ export const STATIONS = Object.freeze([
   [15.5, -4.5, 4.5], [12.5, -4.5, 4.5]
 ]);
 
-// West and east walkable limits at depth z. North of the last station the road opens onto the round courtyard.
-export function bounds(z) {
-  z = clamp(z, JOURNEY.north, JOURNEY.south);
-  const last = STATIONS.at(-1), yard = v => Math.sqrt(Math.max(0, JOURNEY.courtyard ** 2 - v * v));
-  if (z <= JOURNEY.courtyardFrom) { const half = yard(z); return { min: -half, max: half }; }
-  if (z <= last[0]) { const k = ease((last[0] - z) / (last[0] - JOURNEY.courtyardFrom)), half = yard(JOURNEY.courtyardFrom); return { min: last[1] + (-half - last[1]) * k, max: last[2] + (half - last[2]) * k }; }
-  for (let i = 1; i < STATIONS.length; i++) {
-    const a = STATIONS[i - 1], b = STATIONS[i];
-    if (z >= b[0]) { const k = ease((a[0] - z) / (a[0] - b[0])); return { min: a[1] + (b[1] - a[1]) * k, max: a[2] + (b[2] - a[2]) * k }; }
+// A road from its stations: west and east walkable limits at depth z, and what follows from them.
+// North of the last station the road opens onto a round courtyard when the journey has one; otherwise it keeps the last width.
+export function makeRoute({ journey, stations, zones = [] }) {
+  const last = stations.at(-1), yard = v => Math.sqrt(Math.max(0, journey.courtyard ** 2 - v * v));
+  function bounds(z) {
+    z = clamp(z, journey.north, journey.south);
+    if (journey.courtyard && z <= journey.courtyardFrom) { const half = yard(z); return { min: -half, max: half }; }
+    if (journey.courtyard && z <= last[0]) { const k = ease((last[0] - z) / (last[0] - journey.courtyardFrom)), half = yard(journey.courtyardFrom); return { min: last[1] + (-half - last[1]) * k, max: last[2] + (half - last[2]) * k }; }
+    for (let i = 1; i < stations.length; i++) {
+      const a = stations[i - 1], b = stations[i];
+      if (z >= b[0]) { const k = ease((a[0] - z) / (a[0] - b[0])); return { min: a[1] + (b[1] - a[1]) * k, max: a[2] + (b[2] - a[2]) * k }; }
+    }
+    return { min: last[1], max: last[2] };
   }
-  return { min: last[1], max: last[2] };
+  const centre = z => { const b = bounds(z); return (b.min + b.max) / 2; };
+  const contains = (x, z, margin = 0) => { const b = bounds(z); return z >= journey.north && z <= journey.south && x >= b.min + margin && x <= b.max - margin; };
+  const zoneAt = z => zones.find(zone => z <= zone.from && z > zone.to) || (z > zones[0]?.from ? zones[0] : zones.at(-1));
+  return { JOURNEY: journey, STATIONS: stations, ZONES: zones, bounds, centre, contains, zoneAt };
 }
-export const centre = z => { const b = bounds(z); return (b.min + b.max) / 2; };
-export const contains = (x, z, margin = 0) => { const b = bounds(z); return z >= JOURNEY.north && z <= JOURNEY.south && x >= b.min + margin && x <= b.max - margin; };
 
 // Regions of the road, south to north. `mood` is what the air looks like there:
 // fog colour and density, how hard it rains (0-1) and how much sky light gets in (1 = the courtyard's).
@@ -54,7 +59,8 @@ export const ZONES = Object.freeze([
   { id: 'hall', name: '借名殿', from: 62, to: 14, mood: { fog: '#301f22', density: .030, rain: 0, light: .6 } },
   { id: 'temple', name: '鎮祟寺', from: 14, to: -10, mood: { fog: '#26373f', density: .022, rain: 1, light: 1 } }
 ]);
-export const zoneAt = z => ZONES.find(zone => z <= zone.from && z > zone.to) || (z > ZONES[0].from ? ZONES[0] : ZONES.at(-1));
+export const ROUTE = makeRoute({ journey: JOURNEY, stations: STATIONS, zones: ZONES });
+export const { bounds, centre, contains, zoneAt } = ROUTE;
 
 // Chapters in order. Every chapter but the last two ends at a gate across the road at depth `gate`,
 // which opens when its foes are down. `groups` are where its foes stand: a group with `when.z`
