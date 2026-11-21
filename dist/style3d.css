@@ -144,13 +144,24 @@ html[lang="en"] .scene-note{display:none}
 .touch-actions{bottom:calc(30px + env(safe-area-inset-bottom))}
 .combat-utilities{left:auto;right:4%;bottom:calc(122px + env(safe-area-inset-bottom))}
 .combo-hint{bottom:calc(196px + env(safe-area-inset-bottom))}
-.boss-status{top:262px;bottom:auto;left:5%;right:136px}
+.boss-status{top:196px;bottom:auto;left:5%;right:170px}
 #battle-map.folded~.boss-status{right:5%}
-.boss-status>p{flex-wrap:wrap;gap:2px 10px;margin-bottom:6px}
-.boss-status small{max-width:none;flex-basis:100%}
+.boss-status>p{gap:10px;margin:0 0 5px}
+.boss-status small{display:none}
 .boss-status>p>span{margin-left:auto}
-.enemy-warning{top:386px}
+.boss-caption{margin-top:5px}
+.enemy-warning{top:max(37%,262px)}
+.story-bark{bottom:calc(178px + env(safe-area-inset-bottom))}
+#hud:has(~#story-bark:not([hidden])) .combo-hint{bottom:calc(270px + env(safe-area-inset-bottom))}
 .message{top:53%}
+}
+/* The fight is in the middle of an upright phone, so the foe's bar stays in the top column under the player's own bars.
+   A narrow phone keeps the chapter goal there: during a fight the goal gives up its place and only the combo count stays. */
+@media(max-width:600px) and (min-height:541px){
+.boss-status{top:163px;right:136px}
+.fighting #objective{top:236px}
+.fighting #combo-count{min-height:0}
+.fighting #objective strong,.fighting #objective-goal{display:none}
 }
 @media(max-height:540px) and (min-width:560px){#map-toggle::after{inset:-16px -12px -14px}}
 /* Arrows are drawn, not typed: iOS draws the arrow characters as colour emoji. */
