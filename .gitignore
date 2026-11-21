@@ -26,3 +26,6 @@ dist/assets/hero/demon-queller-rigged.glb
 dist/assets/hero/demon-queller-walk-original.glb
 dist/assets/hero/walk-armature.glb
 dist/assets/hero/run-armature.glb
+
+# Raw image-to-3D output and full-texture rig inputs for the snow realm (13-17 MB each); hashes in art/direction/snow/README.md.
+art/direction/snow/local/
