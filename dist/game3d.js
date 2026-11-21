@@ -128,5 +128,5 @@ Object.defineProperty(window,'inkblade3d',{value:Object.freeze({snapshot:()=>({m
 // ?debug exposes the live objects so a test page can move the hero or clear a stage.
 if(new URLSearchParams(location.search).has('debug'))window.__inkblade={get game(){return game;},world,story,begin,misses};
 $('campaign').disabled=true;
-world.assetsReady.then(()=>{$('loading').hidden=true;$('campaign').disabled=false;document.querySelectorAll('.mode-card.realm').forEach(b=>b.disabled=false);}).catch(error=>{$('loading').hidden=true;$('error').hidden=false;$('error-detail').textContent='角色模型載入失敗：'+error.message;console.error(error);});
+world.assetsReady.then(()=>{for(const card of realmCards(progress))world.prepareRealm(card.id);$('loading').hidden=true;$('campaign').disabled=false;document.querySelectorAll('.mode-card.realm').forEach(b=>b.disabled=false);}).catch(error=>{$('loading').hidden=true;$('error').hidden=false;$('error-detail').textContent='角色模型載入失敗：'+error.message;console.error(error);});
 requestAnimationFrame(frame);

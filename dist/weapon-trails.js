@@ -30,6 +30,6 @@ export class WeaponTrails {
  clear(){this.hero.clear();this.enemySword?.clear();this.claws.forEach(r=>r.clear());}
  update(dt,p,e,model){const attacking=['light','heavy','special'].includes(p.state),move=playerMove(p),age=p.total-p.timer;const inked=p.state==='special'||attacking&&!!move.art;this.hero.material.color.set(inked?'#e6ad65':'#f5dfac').multiplyScalar(p.state==='special'?1.9:inked?1.6:1.25);this.hero.update(dt,attacking&&age>=move.trailStart&&age<=move.trailEnd);
   if(model?.kind==='ronin'&&this.enemySword)this.enemySword.node=model.weapon;if(model?.kind==='oni')this.claws.forEach((r,i)=>r.node=model.arms[i].hand);
-  const variant=monsterVariant(e),progress=e.total>0?1-e.timer/e.total:0;this.enemySword?.update(dt,model?.kind==='ronin'&&e.state==='attack'&&progress>.12&&progress<.7);this.claws.forEach((r,i)=>r.update(dt,model?.kind==='oni'&&e.state==='attack'&&!['slam','fissure'].includes(variant)&&progress<.78&&(variant==='claw-right'?i===0:i===1)));
+  const variant=monsterVariant(e),progress=e.total>0?1-e.timer/e.total:0;this.enemySword?.update(dt,model?.kind==='ronin'&&!!model.weapon&&e.state==='attack'&&progress>.12&&progress<.7);this.claws.forEach((r,i)=>r.update(dt,model?.kind==='oni'&&e.state==='attack'&&!['slam','fissure'].includes(variant)&&progress<.78&&(variant==='claw-right'?i===0:i===1)));
  }
 }

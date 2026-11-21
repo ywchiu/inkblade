@@ -14,23 +14,29 @@ const LOCOMOTION = new Set(['walk', 'run', 'sprint']);
 // their travel relative to the first frame (a lunge, a knock-back) but start on
 // the actor, whatever offset the clip was authored at. Scale tracks are dropped:
 // they only carry exporter noise and fight the normalized rig.
-export function prepareClip(source, name, { inPlace = false } = {}) {
+// Only the root's position is kept. Every other bone's position track only restates its length on the body the
+// clip was bought for; on a body that borrows the clip (same bone names, other proportions) it would stretch or
+// shrink the limbs. `scale` is this body's root height over the clip body's, so a borrowed crouch sinks as far.
+export function prepareClip(source, name, { inPlace = false, scale = 1 } = {}) {
   const clip = source.clone();
   clip.name = name;
-  clip.tracks = clip.tracks.filter(t => !t.name.endsWith('.scale'));
+  clip.tracks = clip.tracks.filter(t => !t.name.endsWith('.scale') && (!t.name.endsWith('.position') || ROOT_MOTION.test(t.name)));
   for (const t of clip.tracks) {
     if (!ROOT_MOTION.test(t.name)) continue;
     const x = t.values[0], z = t.values[2];
-    for (let i = 0; i < t.values.length; i += 3) { t.values[i] = inPlace ? 0 : t.values[i] - x; t.values[i + 2] = inPlace ? 0 : t.values[i + 2] - z; }
+    for (let i = 0; i < t.values.length; i += 3) { t.values[i] = inPlace ? 0 : (t.values[i] - x) * scale; t.values[i + 1] *= scale; t.values[i + 2] = inPlace ? 0 : (t.values[i + 2] - z) * scale; }
   }
   return clip;
 }
+// The rest height of a GLB's root bone, in its armature's units (a clip file keeps the skeleton it was made on).
+const rootHeight = scene => { let y = 0; scene.traverse(o => { if (!y && /^(hips|root|pelvis)$/i.test(o.name)) y = o.position.y; }); return y; };
 
 export async function loadRiggedCharacter(manifest, { loader, createWeapon, kind = 'hero' } = {}) {
   const entries = Object.entries(manifest.clips).filter(([, c]) => c.src);
   const [gltf, ...clipFiles] = await Promise.all([loader.loadAsync(manifest.rig), ...entries.map(([, c]) => loader.loadAsync(c.src))]);
   const clips = {};
-  entries.forEach(([name], i) => { const found = clipFiles[i].animations[0]; if (found) clips[name] = prepareClip(found, name, { inPlace: !!(manifest.clips[name].speed || manifest.clips[name].inPlace) }); });
+  const own = rootHeight(gltf.scene);
+  entries.forEach(([name], i) => { const found = clipFiles[i].animations[0], theirs = rootHeight(clipFiles[i].scene); if (found) clips[name] = prepareClip(found, name, { inPlace: !!(manifest.clips[name].speed || manifest.clips[name].inPlace), scale: own > 0 && theirs > 0 ? own / theirs : 1 }); });
   return createRiggedCharacter(gltf, manifest, clips, { createWeapon, kind });
 }
 
