@@ -130,3 +130,11 @@ test('the page itself is covered: every piece of text and every label in index.h
   assert.ok(list.length > 40, 'the page text was found');
   assert.deepEqual(untranslated(list), []);
 });
+
+test('the journal is covered: every realm\'s section, with every page and find shown', async () => {
+  const { journalHTML } = await import('../dist/story-view.js');
+  const all = { journal: new Set(story.SCENE_ORDER), names: new Set() }, none = { journal: new Set(story.SCENE_ORDER), names: new Set(Object.keys(story.NAMES)) };
+  const texts = [journalHTML(all), journalHTML(none)].flatMap(html => [...html.matchAll(/>([^<]+)</g)].map(m => m[1].trim())).filter(text => CJK.test(text));
+  assert.ok(texts.some(text => text.includes('寒聲嶺')), 'the snow section was drawn');
+  assert.deepEqual(untranslated(texts.map(text => ['journal', text])), []);
+});

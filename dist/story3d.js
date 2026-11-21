@@ -119,14 +119,85 @@ export const SCENES=Object.freeze({
   line('後記','雨停了，天亮了。有人回了家，有魂入了土。判官收起簿子，往下一座山走去。') ]},
  wolfEnd:{title:'獸腹咒散',chapter:'斷章 · 墨狼',purpose:'線索已記入志怪錄',lines:[line('獲救的殘魂','名牌……在鎮祟寺。求求你，別再讓別人上山了。'),line('鍾馗','這一縷魂，我先送出林子。剩下的債，我沿著古道去討。')]},
  roninEnd:{title:'斷刃的囑託',chapter:'斷章 · 劍客',purpose:'線索已記入志怪錄',lines:[line('沈寒舟','我的劍攔住的，竟然都是來求救的人……山魈把借名契藏在身上。求你把它毀掉。'),line('鍾馗','你把劍收起來吧。已經被騙到死了，不該死後還被這場騙局纏著。')]},
- oniEnd:{title:'偽神伏誅',chapter:'斷章 · 山魈',purpose:'借名契已毀 · 完整故事見無雙征途',lines:[line('鎮祟山魈','沒有我，誰來保他們平安？'),line('鍾馗','先除掉你這個禍害，再來談人間的路怎麼走。'),line('後記','借名契燒成了灰，被抹掉的名字一個一個浮了出來。想知道事情的來龍去脈，請從「無雙征途」讀起。')]}
+ oniEnd:{title:'偽神伏誅',chapter:'斷章 · 山魈',purpose:'借名契已毀 · 完整故事見無雙征途',lines:[line('鎮祟山魈','沒有我，誰來保他們平安？'),line('鍾馗','先除掉你這個禍害，再來談人間的路怎麼走。'),line('後記','借名契燒成了灰，被抹掉的名字一個一個浮了出來。想知道事情的來龍去脈，請從「無雙征途」讀起。')]},
+ // ── 寒聲嶺 ──
+ snowOpening:{title:'畫狀',chapter:'序 · 一張畫出來的狀紙',purpose:'接下畫狀 · 上山找畫狀紙的人',lines:[
+  line('鍾馗','這張狀紙一個字也沒有，只有畫。一座山谷，一群張著嘴的人，嘴裡什麼都沒畫。'),
+  line('鍾馗','角落裡畫了一口鈴。借名契背面寫的「寒聲嶺」，就是這裡。'),
+  line('送狀的樵夫','畫的是山下啞村的丫頭阿聆。她娘上山以後，全村人一個接一個說不出話來。'),
+  line('鍾馗','名字被賣到這裡，聲音也跟著被收走了。走，先去找那個丫頭。') ]},
+ hush:{title:'啞村',chapter:'序 · 啞村',purpose:'擊退從雪裡竄出的冰狐',lines:[
+  line('鍾馗','整個村子都在動嘴，一點聲音也沒有。像在看一齣沒有鑼鼓的戲。'),
+  line('阿聆 · 雪上的字','「你是畫上那個判官？」'),
+  line('阿聆 · 雪上的字','「狐狸來了。我們心裡想喊什麼，牠們都聽得見，就從雪裡鑽出來。」'),
+  line('鍾馗','那就讓牠們聽聽我心裡想的。往後站。') ]},
+ hushClear:{title:'雪上的字',chapter:'序 · 狐散之後',purpose:'出村上坡 · 去找阿聆的娘',lines:[
+  line('阿聆 · 雪上的字','「我娘叫秋娘。她說山上有個婆婆收聲音，也賣聲音，她要去替我買回來。」'),
+  line('阿聆 · 雪上的字','「那是去年冬天的事。她一直沒有下來。」'),
+  line('鍾馗','收聲音的人手上一定有名冊。沒有名字，她叫不走任何人的聲音。'),
+  line('鍾馗','你娘的名字我記下了。在這裡等我。') ]},
+ slope:{title:'凍客',chapter:'壹 · 風雪坡道',purpose:'放倒擋路的凍旅人',lines:[
+  line('鍾馗','坡上站著的不是石頭。是人，走到一半就凍住了。'),
+  line('凍旅人','……我叫……我叫什麼……那個名字，已經不是我的了……'),
+  line('鍾馗','他們的名字被人拿去用了，身子只好留在這裡乾等。醒過來的，先讓他們躺下。') ]},
+ slopeClear:{title:'名牌',chapter:'壹 · 凍客倒下',purpose:'下坡向冰湖 · 湖底有人聲',lines:[
+  line('鍾馗','這個人腰上掛著一塊木牌：「石生，貨郎，往北」。'),
+  line('鍾馗','牌子還在，人凍在坡上，聲音卻不在他身上。被帶到更上面去了。'),
+  line('鍾馗','石生。我替你記著。') ]},
+ lake:{title:'湖底',chapter:'貳 · 冰湖',purpose:'渡過冰湖 · 擊退吼風山魈',lines:[
+  line('鍾馗','冰底下有東西在動……是聲音，一層一層壓在湖底。'),
+  line('鍾馗','對岸蹲著一隻山魈，跟鎮祟寺那隻一個樣，小了一號，脾氣倒是一樣壞。'),
+  line('吼風山魈','吼——！婆婆說了，帶著名字來的，一個都不准過湖！') ]},
+ lakeClear:{title:'報時',chapter:'貳 · 冰裂',purpose:'沿湖向北 · 聲窟就在前面',lines:[
+  line('鍾馗','湖面裂開了，北邊有聲音順著冰一路傳過來：「天亮了，起來掃雪了。」'),
+  line('鍾馗','是報時的聲音。啞村的村長，每天天亮前都這樣喊。'),
+  line('鍾馗','老周。你的聲音被關了這麼久，還記得要叫大家起床。') ]},
+ cavemouth:{title:'無風鈴響',chapter:'參 · 聲窟前',purpose:'清開聲窟門前的守衛',lines:[
+  line('鍾馗','沒有風，鈴卻一直在響。'),
+  line('鍾馗','仔細聽，每一聲都不一樣。這是個老人，這是個貨郎，這一聲……是個小姑娘。'),
+  line('鍾馗','一口鈴，就是一個人。門口還有守衛，先把路清開。') ]},
+ cavemouthClear:{title:'叫名字',chapter:'參 · 鈴下',purpose:'入聲窟 · 走近冰鈴，用喚名叫出鈴裡那人的名字',lines:[
+  line('鍾馗','聲音是跟著名字走的。她拿買來的名字把聲音叫走，封在鈴裡。'),
+  line('鍾馗','那就倒過來。走到鈴旁邊，把那個人的名字叫出來，聲音認得主人，鈴就會碎。'),
+  line('鍾馗','老周、石生、秋娘……還有一口，我得進去聽了才知道是誰。') ]},
+ crone:{title:'凍聲婆',chapter:'終 · 聲窟',purpose:'走近冰鈴喚名 · 冰甲碎盡再出刀',lines:[
+  line('凍聲婆','又一個帶著名字上山的。判官，你的聲音聽起來很硬，凍起來一定很好聽。'),
+  line('鍾馗','這些名字是借名山那個偽神賣給你的。買賊贓的，跟賊同罪。'),
+  line('凍聲婆','我是替他們保管。山谷裡哭聲、罵聲，吵得要命，凍起來就乾淨了。你看我這身冰，多安靜。'),
+  line('鍾馗','你身上那層冰，是用他們的聲音結的。刀砍不進去，那我就一個一個叫他們回家。') ]},
+ croneEnd:{title:'冰鈴盡碎',chapter:'終 · 聲歸',purpose:'聲音回到了山谷',lines:[
+  line('凍聲婆','我的冰……我的聲音……'),
+  line('鍾馗','那不是你的。你買來的名冊呢？'),
+  line('凍聲婆','名冊？呵……賣名字的那位，貨可不只賣給我一家。往後你走到哪裡，都會聽到有人在數錢。'),
+  line('鍾馗','那我就一家一家去收。') ]},
+ snowEpilogue:{title:'第一個字',chapter:'尾聲 · 啞村',purpose:'山谷又有了聲音',lines:[
+  line('老周','天亮了——起來掃雪了！……哎，我的嗓子回來了！'),
+  line('秋娘','阿聆，阿聆！娘回來了，你叫一聲給娘聽。'),
+  line('阿聆','……娘。'),
+  line('鍾馗','這一聲，比整座山的鈴都好聽。') ]},
+ snowTrueName:{title:'山谷的名字',chapter:'尾聲 · 六聲俱全',purpose:'六道冰聲，唱出了山谷原本的名字',lines:[
+  line('鍾馗','路上收的六道冰聲，到了村口一起化開了。'),
+  line('阿聆','他們在唱……是奶奶小時候教我的歌。歌裡說，這裡本來不叫寒聲嶺。'),
+  line('鍾馗','叫「回音谷」。喊一聲，山就回你一聲。以後就這樣叫它吧。') ]},
+ snowCoda:{title:'畫的背面',chapter:'尾聲 · 狀紙背面',purpose:'偽神賣出去的，不只名字',lines:[
+  line('阿聆','判官，你的狀紙背面，自己長出了一幅畫。'),
+  line('鍾馗','畫的是一片水，水邊站著一排人。看不出少了什麼，可是每個人都少了一樣東西。'),
+  line('鍾馗','偽神賣出去的，不只名字跟聲音。'),
+  line('後記','雪停了。山谷裡吵吵鬧鬧，有人在罵孩子，有人在笑。判官收起狀紙，往下一處走去。') ]}
 });
 // Which page opens each chapter of the road and which closes it; duels use their foe's own page.
 export const DUEL_SCENES=['wolf','ronin','oni'];
-export const STAGE_INTRO=Object.freeze({village:'village',bamboo:'wolf',alpha:'alpha',steles:'steles',bridge:'ronin',lanterns:'lanterns',forecourt:'forecourt',hall:'hall',oni:'oni',nameless:'nameless'});
-export const STAGE_CLEAR=Object.freeze({village:'villageClear',bamboo:'wolfClear',alpha:'alphaClear',steles:'stelesClear',bridge:'roninClear',lanterns:'lanternsClear',forecourt:'forecourtClear',hall:'hallClear'});
+export const STAGE_INTRO=Object.freeze({village:'village',bamboo:'wolf',alpha:'alpha',steles:'steles',bridge:'ronin',lanterns:'lanterns',forecourt:'forecourt',hall:'hall',oni:'oni',nameless:'nameless',
+ hush:'hush',slope:'slope',lake:'lake',cavemouth:'cavemouth',crone:'crone'});
+export const STAGE_CLEAR=Object.freeze({village:'villageClear',bamboo:'wolfClear',alpha:'alphaClear',steles:'stelesClear',bridge:'roninClear',lanterns:'lanternsClear',forecourt:'forecourtClear',hall:'hallClear',
+ hush:'hushClear',slope:'slopeClear',lake:'lakeClear',cavemouth:'cavemouthClear'});
 // Reading order for the journal, whatever order the pages were found in.
-export const SCENE_ORDER=Object.freeze(['opening','village','villageClear','wolf','wolfClear','alpha','alphaClear','steles','stelesClear','ronin','roninClear','lanterns','lanternsClear','forecourt','forecourtClear','hall','hallClear','oni','nameless','ending','epilogue','trueName','soldNames','coda','wolfEnd','roninEnd','oniEnd']);
+// Each realm's pages in reading order; the journal shows a realm once any of its pages has been reached.
+export const REALM_SCENES=Object.freeze({
+ mountain:['opening','village','villageClear','wolf','wolfClear','alpha','alphaClear','steles','stelesClear','ronin','roninClear','lanterns','lanternsClear','forecourt','forecourtClear','hall','hallClear','oni','nameless','ending','epilogue','trueName','soldNames','coda'],
+ snow:['snowOpening','hush','hushClear','slope','slopeClear','lake','lakeClear','cavemouth','cavemouthClear','crone','croneEnd','snowEpilogue','snowTrueName','snowCoda']
+});
+export const SCENE_ORDER=Object.freeze([...REALM_SCENES.mountain,...REALM_SCENES.snow,'wolfEnd','roninEnd','oniEnd']);
 // Lines that were recorded. Everything else is read, not heard.
 const VOICED=new Set(['opening','wolf','wolfClear','ronin','roninClear','oni','ending','wolfEnd','roninEnd','oniEnd','bark-oni-rage','bark-ronin-blade','bark-wolf-voice','bark-ronin-doubt','bark-hero-parry']);
 // Speech is switched off: only the first chapters were ever recorded, and every line has since been reworded
@@ -148,7 +219,14 @@ export const NAMES=Object.freeze({
  r9:{name:'何三娘',text:'香客。每年上山添燈油，卻不知道燈裡燒的是自己的丈夫。'},
  r10:{name:'小沙彌',text:'沒有俗家的名字。背面只刻了一個木魚，和一句「師父說我叫小沙彌」。'},
  r11:{name:'劉月娥',text:'山下的老婆婆。借出自己的名字，替兒子換了七年。'},
- r12:{name:'青崖',text:'碑林裡最老的一塊。背面只有兩個字，不像人的名字。'}
+ r12:{name:'青崖',text:'碑林裡最老的一塊。背面只有兩個字，不像人的名字。'},
+ // 寒聲嶺: voices frozen into icicles by the road, each the last thing its owner said.
+ v1:{name:'王嬸',text:'村口賣豆腐的。冰裡留著她最後一句話：「豆腐要趁熱吃。」'},
+ v2:{name:'小栓',text:'放羊的孩子。冰裡留著他最後一句話：「羊跑到坡上去了，我去追。」'},
+ v3:{name:'趙老拐',text:'擺渡的老人。冰裡留著他最後一句話：「湖還沒凍實，別急著過。」'},
+ v4:{name:'柳先生',text:'教村裡孩子認字的先生。冰裡留著他最後一句話：「這個字念聲，聲音的聲。」'},
+ v5:{name:'阿桂',text:'秋娘的鄰居。冰裡留著她最後一句話：「秋娘，你一個人上山，我不放心。」'},
+ v6:{name:'無名旅人',text:'冰裡只有一句話，沒有名字：「誰來替我記得我叫什麼？」'}
 });
 export const IDENTITIES=Object.freeze({wolf:{name:'墨狼',title:'受役魂咒驅使的獵魂獸'},ronin:{name:'沈寒舟',title:'誤信還魂之約的亡魂'},oni:{name:'鎮祟山魈',title:'竊名拘魂的偽山神'}});
 // On the road every foe carries its own name; a duel shows the foe's story identity.
@@ -162,7 +240,7 @@ const STORAGE_KEY='inkblade.journal.v1',NAMES_KEY='inkblade.names.v1';
 export class StoryDirector{
  constructor(storage=null){this.storage=storage;this.journal=new Set();this.names=new Set();const load=(key,known,into)=>{try{const saved=JSON.parse(storage?.getItem(key)||'[]');if(Array.isArray(saved))for(const id of saved)if(Object.hasOwn(known,id))into.add(id);}catch{}};load(STORAGE_KEY,SCENES,this.journal);load(NAMES_KEY,NAMES,this.names);this.seen=new Set();this.queue=[];this.current=null;this.index=0;this.barkUsed=new Set();this.nextBarkAt=0;this.campaign=false;this.opponent=0;this.realm=realmById('mountain');}
  remember(id){this.journal.add(id);try{this.storage?.setItem(STORAGE_KEY,JSON.stringify([...this.journal]));}catch{}}
- start({campaign=false,opponent=0,retry=false,stage=0,realm='mountain'}={}){this.cancel();this.campaign=campaign;this.realm=realmById(realm);const STAGES=this.realm.STAGES;this.opponent=opponent;this.barkUsed.clear();this.nextBarkAt=0;if(!retry){this.seen.clear();this.queue=campaign?['opening',STAGE_INTRO[STAGES[0].id]]:[DUEL_SCENES[opponent]];}else if(campaign){this.seen.add(STAGE_INTRO[STAGES[stage].id]);}return this.openNext();}
+ start({campaign=false,opponent=0,retry=false,stage=0,realm='mountain'}={}){this.cancel();this.campaign=campaign;this.realm=realmById(realm);const STAGES=this.realm.STAGES;this.opponent=opponent;this.barkUsed.clear();this.nextBarkAt=0;if(!retry){this.seen.clear();this.queue=campaign?[this.realm.opening,STAGE_INTRO[STAGES[0].id]]:[DUEL_SCENES[opponent]];}else if(campaign){this.seen.add(STAGE_INTRO[STAGES[stage].id]);}return this.openNext();}
  open(id){if(!Object.hasOwn(SCENES,id)||this.seen.has(id))return null;this.seen.add(id);this.remember(id);this.current=id;this.index=0;return this.view();}
  openNext(){while(this.queue.length){const view=this.open(this.queue.shift());if(view)return view;}this.current=null;this.index=0;return null;}
  view(){if(!this.current)return null;const scene=SCENES[this.current];return {id:this.current,...scene,line:scene.lines[this.index],index:this.index,total:scene.lines.length,voiced:voiced(this.current)};}
@@ -174,10 +252,15 @@ export class StoryDirector{
  // A page that falls due while another is being read follows it instead of being lost.
  event(event,game){if(!this.campaign||!['chapter','gate-open'].includes(event.type))return null;const id=this.realm.STAGES[event.stage??game.stage]?.id,scene=(event.type==='chapter'?STAGE_INTRO:STAGE_CLEAR)[id];if(!scene)return null;if(this.current){if(!this.seen.has(scene)&&!this.queue.includes(scene))this.queue.push(scene);return null;}return this.open(scene);}
  // The road's ending runs on into the village at dawn; whoever brought back every hidden name also learns the mountain's own.
- finish(won,game=null){if(!won||this.current)return null;if(!this.campaign)return this.open(['wolfEnd','roninEnd','oniEnd'][this.opponent]);const {ending,trueName,trueNameAfter}=this.realm,all=game?.rubbings?.()>=Object.keys(NAMES).length;this.queue=ending.flatMap(id=>id===trueNameAfter&&all?[id,trueName]:[id]);return this.openNext();}
+ finish(won,game=null){if(!won||this.current)return null;if(!this.campaign)return this.open(['wolfEnd','roninEnd','oniEnd'][this.opponent]);const {ending,trueName,trueNameAfter}=this.realm,all=game?.rubbings?.()>=this.realm.rubbingTotal;this.queue=ending.flatMap(id=>id===trueNameAfter&&all?[id,trueName]:[id]);return this.openNext();}
  // A name taken from a stele: kept in the journal, and read out once as a passing line.
- rubbing(id,count=this.names.size+1){const entry=NAMES[id];if(!entry)return null;this.names.add(id);try{this.storage?.setItem(NAMES_KEY,JSON.stringify([...this.names]));}catch{}return {id:`rubbing-${id}`,speaker:`名拓 · ${count} / ${Object.keys(NAMES).length}`,text:`「${entry.name}」${entry.text}`};}
- bark(event,game){if(this.current||game.status!=='playing'||game.time<this.nextBarkAt)return null;const actor=game.campaign?game.enemies.find(e=>e.id===event.enemyId):game.enemy;const kind=actor?.kindId||(!game.campaign?game.spec.id:null),role=actor?.role||event.role||kind;let key,text,speaker;
+ rubbing(id,count=this.names.size+1){const entry=NAMES[id];if(!entry)return null;this.names.add(id);try{this.storage?.setItem(NAMES_KEY,JSON.stringify([...this.names]));}catch{}return {id:`rubbing-${id}`,speaker:`${this.realm.findName} · ${count} / ${this.realm.rubbingTotal}`,text:`「${entry.name}」${entry.text}`};}
+ // A bell broken by a called name: whose voice it held, read out once as a passing line.
+ bellLine(event){return {id:`bell-${event.id}`,speaker:`冰鈴 · ${event.broken} / ${event.total}`,text:`「${event.name}」${event.text}`};}
+ bark(event,game){if(this.current||game.status!=='playing')return null;
+  // The first cut the armour turns is the one clue the player cannot miss: it is said at once, never held back by the pacing.
+  if(event.type==='armour-turn'){if(!event.first||this.barkUsed.has('armour-turn'))return null;this.barkUsed.add('armour-turn');this.nextBarkAt=game.time+12;return {id:'bark-armour-turn',speaker:'鍾馗',text:'刀砍不進去……這層冰裡，全是人的聲音。'};}
+  if(game.time<this.nextBarkAt)return null;const actor=game.campaign?game.enemies.find(e=>e.id===event.enemyId):game.enemy;const kind=actor?.kindId||(!game.campaign?game.spec.id:null),role=actor?.role||event.role||kind;let key,text,speaker;
   if(event.type==='enrage'&&role==='oni'){key='oni-rage';speaker='鎮祟山魈';text='整座山的名字，都在我手裡！';}
   else if(event.type==='projectile-release'&&['ronin','hanzhou'].includes(role)){key='ronin-blade';speaker='沈寒舟';text='誰都別想過這座橋！';}
   else if(event.type==='enemy-swing'&&role==='wolf'){key='wolf-voice';speaker='狼腹中的殘魂';text='救救我……我不想再替祂帶路了。';}
@@ -190,6 +273,9 @@ export class StoryDirector{
   else if(event.type==='stagger'&&role==='acolyte'){key='acolyte-crack';speaker='無塵';text='泥巴裡還留著金粉……祂們本來不該是這個樣子。';}
   else if(event.type==='ambush'){key='ambush';speaker='鍾馗';text='躲在影子裡的，全都出來。';}
   else if(event.type==='projectile-release'&&role==='nameless'){key='nameless-hunger';speaker='無名之主';text='吞下去的，都是我的！';}
+  else if(event.type==='projectile-release'&&role==='howler'){key='howler-roar';speaker='吼風山魈';text='吼——！';}
+  else if(event.type==='troop-defeated'&&event.role==='traveller'){key='traveller-rest';speaker='凍旅人';text='終於……可以躺下了。';}
+  else if(event.type==='armour-fall'){key='crone-bare';speaker='凍聲婆';text='我的冰……我的聲音！';}
   else if(event.type==='stagger'&&role==='nameless'){key='nameless-names';speaker='無名之主';text='不要念……不要念那些名字！';}
   if(!key||this.barkUsed.has(key))return null;this.barkUsed.add(key);this.nextBarkAt=game.time+12;return {id:`bark-${key}`,speaker,text};
  }

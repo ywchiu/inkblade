@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import {StoryDirector,SCENES,LORE,NAMES,SCENE_ORDER,STAGE_INTRO,STAGE_CLEAR,identityFor,voiced,recorded,VOICE_ON} from '../dist/story3d.js';
 import {CampaignCombat,CHAPTERS} from '../dist/campaign3d.js';
 import {PICKUPS} from '../dist/journey3d.js';
+import {REALMS} from '../dist/realms.js';
+import {REALM_SCENES} from '../dist/story3d.js';
+import {journalHTML} from '../dist/story-view.js';
 const readScene=story=>{const id=story.current;let steps=0;while(story.current===id&&steps++<20)story.advance();assert.ok(steps<20,'scene must terminate');};
 
 test('campaign opens with the petition, follows into the village, and consumes the first chapter once',()=>{
@@ -77,7 +80,10 @@ test('battle barks use the actor, are throttled and never interrupt dialogue',()
 test('every scene is bounded and readable, every chapter and rubbing has its page, and source notes mark what is original',()=>{
  for(const [id,scene] of Object.entries(SCENES)){assert.ok(scene.lines.length>=2&&scene.lines.length<=5,id);assert.ok(SCENE_ORDER.includes(id),id);for(const l of scene.lines){assert.ok(l.text.length<=85);assert.ok(l.speaker);}}
  for(const chapter of CHAPTERS){assert.ok(SCENES[STAGE_INTRO[chapter.id]],chapter.id);if(!chapter.instant&&!chapter.final)assert.ok(SCENES[STAGE_CLEAR[chapter.id]],chapter.id);}
- assert.deepEqual(PICKUPS.filter(p=>p.kind==='rubbing').map(p=>p.id).sort(),Object.keys(NAMES).sort());
+ for(const realm of REALMS)for(const find of realm.PICKUPS.filter(p=>p.kind==='rubbing'))assert.ok(NAMES[find.id],`${realm.id}: ${find.id} has its page`);
+ assert.deepEqual(REALMS.flatMap(r=>r.PICKUPS.filter(p=>p.kind==='rubbing').map(p=>p.id)).sort(),Object.keys(NAMES).sort());
+ for(const realm of REALMS)for(const chapter of realm.STAGES){assert.ok(SCENES[STAGE_INTRO[chapter.id]],chapter.id);if(!chapter.instant&&!chapter.final)assert.ok(SCENES[STAGE_CLEAR[chapter.id]],chapter.id);}
+ for(const realm of REALMS)for(const id of [realm.opening,...realm.ending,realm.trueName])assert.ok(SCENES[id],`${realm.id}: ${id}`);
  assert.match(LORE[0].text,/原創/);assert.match(LORE[1].text,/被虎/);assert.match(LORE[1].text,/遊戲設定/);assert.match(LORE[2].text,/原創/);
  assert.equal(recorded('opening'),true);assert.equal(recorded('hall'),false);
  // Speech plays only while the switch is on, and never for a page without a recording.
@@ -96,4 +102,60 @@ test('the mountain’s ending tells where the names went, and leads into the las
  assert.equal(SCENES.soldNames.lines.length,4);
  assert.ok(SCENES.soldNames.lines.some(l=>l.text.includes('寒聲嶺')),'the next buyer’s road is named');
  assert.ok(SCENE_ORDER.indexOf('soldNames')>SCENE_ORDER.indexOf('trueName')&&SCENE_ORDER.indexOf('soldNames')<SCENE_ORDER.indexOf('coda'));
+});
+
+// Walk a realm's road with the real combat, read every page that falls due, and return the pages in the order read.
+function walkRoad(realm,rubbings=0){
+ const s=new StoryDirector(),g=new CampaignCombat(null,{realm}),read=[];read.push(s.start({campaign:true,realm}).id);while(s.current){const id=s.current;readScene(s);if(s.current&&s.current!==id)read.push(s.current);}
+ const feed=()=>{for(const e of g.drainEvents()){const view=s.event(e,g);if(view){read.push(view.id);s.skip();}}};feed();
+ const chapters=g.realm.STAGES;
+ for(let stage=0;stage<chapters.length;stage++){const chapter=chapters[stage];
+  if(!chapter.instant&&!chapter.final)g.player.z=chapter.gate+2;
+  for(let round=0;round<8&&!g.cleared;round++){for(const pending of [...g.pending])g.deploy(pending,true);for(const e of g.enemies)if(e.hp>0){e.armour=0;g.withEnemy(e,()=>g.hitEnemy(e.hp+1));}g.hitStop=0;g.bursts=[];g.update(1/60);}
+  feed();if(chapter.final)break;
+  for(let i=0;i<200&&g.stage===stage;i++){g.hitStop=0;g.player.z=chapter.gate+.9;g.update(1/60);}
+  feed();}
+ assert.equal(g.status,'won');g.rubbings=()=>rubbings;
+ let view=s.finish(true,g);while(view){read.push(view.id);readScene(s);view=s.current?s.view():null;}
+ return read;
+}
+test('the snow road opens with the drawn petition and its first chapter',()=>{
+ const s=new StoryDirector();assert.equal(s.start({campaign:true,realm:'snow'}).id,'snowOpening');readScene(s);assert.equal(s.current,'hush');
+});
+test('the whole snow road reveals its pages in order and ends at the coda',()=>{
+ assert.deepEqual(walkRoad('snow'),REALM_SCENES.snow.filter(id=>id!=='snowTrueName'));
+});
+test('all six frozen voices add the valley’s old name',()=>{
+ const read=walkRoad('snow',6);
+ assert.deepEqual(read.slice(-3),['snowEpilogue','snowTrueName','snowCoda']);
+});
+test('a find is counted against its own realm',()=>{
+ const snow=new StoryDirector();snow.start({campaign:true,realm:'snow'});assert.equal(snow.rubbing('v1',1).speaker,'冰聲 · 1 / 6');
+ const mountain=new StoryDirector();mountain.start({campaign:true});assert.equal(mountain.rubbing('r1',1).speaker,'名拓 · 1 / 12');
+});
+test('the first blocked cut is explained once, even straight after another line',()=>{
+ const s=new StoryDirector();s.start({campaign:true,realm:'snow'});s.skip();const g={campaign:true,time:5,status:'playing',enemies:[{id:1,kindId:'ronin',role:'crone'}],spec:{id:'ronin'}};
+ assert.ok(s.bark({type:'ambush',enemyId:1},g),'another line was just said');
+ const line=s.bark({type:'armour-turn',first:true,enemyId:1},g);
+ assert.equal(line?.speaker,'鍾馗');assert.equal(line.text,'刀砍不進去……這層冰裡，全是人的聲音。');
+ g.time=60;assert.equal(s.bark({type:'armour-turn',first:true,enemyId:1},g),null);
+ assert.equal(s.bark({type:'armour-turn',first:false,enemyId:1},g),null);
+});
+test('a broken bell reads out whose voice it held',()=>{
+ const s=new StoryDirector(),line=s.bellLine({id:'b4',name:'阿聆',text:'畫狀紙的啞女。',broken:4,total:4});
+ assert.equal(line.speaker,'冰鈴 · 4 / 4');assert.equal(line.text,'「阿聆」畫狀紙的啞女。');assert.equal(line.id,'bell-b4');
+});
+test('the snow’s troops and master have their say',()=>{
+ const s=new StoryDirector();s.start({campaign:true,realm:'snow'});s.skip();const g={campaign:true,time:1,status:'playing',enemies:[{id:1,kindId:'oni',role:'howler'},{id:2,kindId:'ronin',role:'crone'}],spec:{id:'oni'}};
+ assert.equal(s.bark({type:'projectile-release',enemyId:1},g).speaker,'吼風山魈');
+ g.time=20;assert.equal(s.bark({type:'troop-defeated',role:'traveller'},g).speaker,'凍旅人');
+ g.time=40;assert.equal(s.bark({type:'armour-fall',enemyId:2},g).speaker,'凍聲婆');
+});
+test('the journal keeps each realm apart and hides the snow until it is reached',()=>{
+ const story={journal:new Set(['opening','village']),names:new Set()};
+ const before=journalHTML(story);assert.ok(!before.includes('寒聲嶺'));assert.ok(before.includes('名拓 · 0 / 12'));
+ story.journal.add('snowOpening');story.journal.add('hush');
+ const after=journalHTML(story);assert.ok(after.includes('寒聲嶺'));assert.ok(after.includes('冰聲 · 0 / 6'));
+ assert.equal((after.match(/還凍在路旁某根冰柱裡/g)||[]).length,6);
+ assert.ok(after.indexOf('data-story-entry="hush"')>after.indexOf('寒聲嶺'),'the snow pages sit under the snow');
 });
