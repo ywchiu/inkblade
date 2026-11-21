@@ -66,6 +66,8 @@ export class CampaignCombat extends ArenaCombat {
  }
  // A bound soul stops to listen when its name is called; 寒聲 holds any troop. Masters and elites only lose stance to 寒聲.
  answer(e,move){const def=ROLES[e.role],master=def.boss||def.elite;
+  // A foe whose stance is already broken is waiting to be finished; a call must not hold its window open.
+  if(e.exposed)return false;
   if(master)return super.answer(e,move);
   if(move.effect!=='roar'&&!def.named)return false;
   this.rouse(e);e.stun=Math.max(e.stun,move.stun);e.state='stagger';e.comboLeft=0;return true;}

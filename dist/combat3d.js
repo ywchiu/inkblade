@@ -19,7 +19,7 @@ export function withinArc(attacker,target,range,halfAngle){return distance(attac
 const base=(x,z,hp,radius)=>({x,z,yaw:0,hp,maxHp:hp,radius,state:'idle',timer:0,total:0,flash:0,speed:0,stun:0,attackHit:false,invulnerable:0,actionAge:0,impact:null,impactSerial:0,knockbackX:0,knockbackZ:0});
 export class ArenaCombat {
  // `powers` are what the hero has taken from the realms' masters (喚名, 寒聲); a campaign hands them in.
- constructor(index=1){this.powers=new Set();this.reset(index);}
+ constructor(index=1){this.powers=new Set();this.powerWait={};this.reset(index);}
  reset(index=1){this.index=clamp(index,0,2);this.spec=ENEMIES[this.index];this.player={...base(0,4.8,140,.5),yaw:Math.PI,stamina:100,maxStamina:100,regenDelay:0,qi:0,flasks:3,guardAge:0,chain:0,chainWindow:0,queuedLight:false,queuedFinisher:null,move:null,counterWindow:0,perfectDodged:false,dodgeOrigin:null,inputBuffer:null,dashCooldown:0,queuedDashAttack:false,dashYaw:Math.PI,rollX:0,rollZ:-1,sprintTime:0,hitIndex:0};this.enemy={...base(0,-3.5,this.spec.hp,this.spec.radius),yaw:0,cooldown:.9,rangedCooldown:0,chaseSpeed:0,posture:0,maxPosture:this.spec.posture,phase:0,kind:'slash',comboLeft:0,targetYaw:0,enraged:false,exposed:false,postureDelay:0,sequence:[],sequenceIndex:0,cycle:0,moveData:null};this.projectiles=[];this.arts=[];this.striking=null;this.projectileSerial=0;this.time=0;this.hitStop=0;this.status='playing';this.events=[];this.stats={hits:0,damageTaken:0,parries:0,dodges:0,perfectDodges:0,counters:0,executions:0,heals:0};}
  emit(type,data={}){this.events.push({type,...data});}
  drainEvents(){const v=this.events;this.events=[];return v;}
@@ -66,12 +66,12 @@ export class ArenaCombat {
   return false;
  }
  // A power the hero has earned (喚名, 寒聲): refused, with the reason told, unless it is known, paid for and the hero is free.
- startPower(id){const p=this.player,move=PLAYER_MOVES[id];const reason=!this.powers.has(id)?'locked':p.qi<move.qiCost?'qi':p.stun>0||!['idle','guard'].includes(p.state)?'busy':null;
-  if(reason){this.emit('power-unavailable',{power:id,reason});return false;}return this.startArt(id);}
+ startPower(id){const p=this.player,move=PLAYER_MOVES[id];const reason=!this.powers.has(id)?'locked':this.powerWait[id]>0?'cooldown':p.qi<move.qiCost?'qi':p.stun>0||!['idle','guard'].includes(p.state)?'busy':null;
+  if(reason){this.emit('power-unavailable',{power:id,reason});return false;}this.powerWait[id]=move.cooldown||0;return this.startArt(id);}
  // The call lands: every foe in reach answers it or does not. A duel's foe is a master, so only 寒聲 reaches it.
  invoke(move){const p=this.player,hits=[];for(const e of this.targets()){if(e.hp<=0||!withinArc(p,e,move.range+e.radius*.3,move.arc))continue;if(this.withEnemy(e,()=>this.answer(e,move)))hits.push(e.id);}
   this.emit(move.effect==='call'?'call-name':'cold-voice',{x:p.x,z:p.z,yaw:p.yaw,radius:move.range,hits});}
- answer(e,move){if(move.effect!=='roar')return false;this.shake(e,move.posture);return true;}
+ answer(e,move){if(move.effect!=='roar'||e.exposed)return false;this.shake(e,move.posture);return true;}
  // Stance worn down without a cut; a full gauge breaks it as a hit would.
  shake(e,amount){if(e.exposed)return;e.posture+=amount;e.postureDelay=3;if(e.posture>=e.maxPosture){e.posture=0;e.exposed=true;e.stun=2.6;e.state='stagger';e.timer=e.total=2.6;e.comboLeft=0;this.emit('stagger',{x:e.x,z:e.z});}}
  // 飛墨斬 and 敕令 · 鎮 are paid for in qi, not stamina, and give none back.
@@ -143,7 +143,7 @@ export class ArenaCombat {
   if(this.status!=='playing')return;dt=clamp(dt,0,.05);this.time+=dt;if(this.hitStop>0){const held=Math.min(dt,this.hitStop);this.hitStop=Math.max(0,this.hitStop-held);dt-=held;if(dt<1e-8)return;}const p=this.player,e=this.enemy,s=this.spec,playerBefore={x:this.player.x,z:this.player.z};
   // The ultimate gathers in stopped time: only the hero's own timeline advances until the release.
   if(this.ultimate()?.charging){const charge=playerMove(p).charge;p.timer-=dt;p.actionAge+=dt;p.flash=Math.max(0,p.flash-dt);for(const a of this.targets())a.speed=0;if(p.total-p.timer>=charge)this.emit('special-release',{x:p.x,z:p.z,yaw:p.yaw});return;}
-  for(const a of this.targets())a.rangedCooldown=Math.max(0,a.rangedCooldown-dt);p.dashCooldown=Math.max(0,p.dashCooldown-dt);
+  for(const a of this.targets())a.rangedCooldown=Math.max(0,a.rangedCooldown-dt);p.dashCooldown=Math.max(0,p.dashCooldown-dt);for(const id in this.powerWait)this.powerWait[id]=Math.max(0,this.powerWait[id]-dt);
   for(const a of[p,...this.targets()]){a.flash=Math.max(0,a.flash-dt);a.stun=Math.max(0,a.stun-dt);a.invulnerable=Math.max(0,a.invulnerable-dt);a.actionAge+=dt;a.speed=0;if(a.impact)a.impact.time=Math.max(0,a.impact.time-dt);const decay=Math.exp(-8*dt);a.x+=a.knockbackX*(1-decay)/8;a.z+=a.knockbackZ*(1-decay)/8;a.knockbackX*=decay;a.knockbackZ*=decay;}
   p.counterWindow=Math.max(0,p.counterWindow-dt);if(p.inputBuffer){p.inputBuffer.time-=dt;if(p.inputBuffer.time<=0)p.inputBuffer=null;}for(const target of this.targets()){target.postureDelay=Math.max(0,target.postureDelay-dt);if(target.postureDelay===0&&!target.exposed)target.posture=Math.max(0,target.posture-dt*8*(target.hp/target.maxHp));}
   p.chainWindow=Math.max(0,p.chainWindow-dt);p.regenDelay=Math.max(0,p.regenDelay-dt);if(p.regenDelay<=0&&['idle','guard'].includes(p.state))p.stamina=clamp(p.stamina+(p.state==='guard'?11:34)*dt,0,100);

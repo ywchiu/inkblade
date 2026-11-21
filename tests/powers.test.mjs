@@ -115,3 +115,29 @@ test('a call is seen: a ring runs out to the reach of the call', async () => {
   assert.equal(rings.length, 2);
   assert.notEqual(rings[0][3], rings[1][3], 'the two calls are told apart by colour');
 });
+
+test('a call does not stretch the window on a foe whose stance is already broken', () => {
+  const g = new CampaignCombat(null, { powers: ['callName', 'coldVoice'] }), wolf = facing(g, 'wolf');
+  wolf.exposed = true; wolf.state = 'stagger'; wolf.stun = .6; wolf.timer = wolf.total = 2.6;
+  g.player.qi = 100; g.action('callName');
+  let called = null;
+  for (let i = 0; i < 60 && !called; i++) { g.update(1 / 60, {}); called = g.drainEvents().find(e => e.type === 'call-name'); }
+  assert.ok(wolf.stun < .6, `the window keeps running down (stun ${wolf.stun.toFixed(2)})`);
+  assert.ok(!called.hits.includes(wolf.id), 'a broken foe is not counted as answering');
+});
+
+test('each power has its own cooldown, and a power used too soon is refused with the reason', () => {
+  const g = new CampaignCombat(null, { powers: ['callName', 'coldVoice'] });
+  assert.equal(PLAYER_MOVES.callName.cooldown, 4);
+  assert.equal(PLAYER_MOVES.coldVoice.cooldown, 8);
+  g.player.qi = 100;
+  assert.equal(g.action('callName'), true);
+  run(g, 1);
+  g.player.qi = 100;
+  assert.equal(g.action('callName'), false);
+  assert.equal(last(g).reason, 'cooldown');
+  assert.equal(g.action('coldVoice'), true, 'the other power has its own clock');
+  run(g, 3.2);
+  g.player.qi = 100;
+  assert.equal(g.action('callName'), true, 'ready again after four seconds');
+});

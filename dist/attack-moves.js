@@ -106,8 +106,8 @@ function power(id,name,{duration,impact,roar=false,...extra}){
   frames:[[0,pose({})],[impact*.6,raise],[impact,shout],[impact+.2,shout],[duration-.1,mix(pose({}),raise,.3)],[duration,pose({})]]};
 }
 export const PLAYER_MOVES={
- callName:power('callName','喚名',{duration:.8,impact:.45,qiCost:30,posture:0,range:6.5,arc:2.1,effect:'call',stun:1.6}),
- coldVoice:power('coldVoice','寒聲',{duration:.9,impact:.5,roar:true,qiCost:40,posture:30,range:4.8,arc:Math.PI*2,effect:'roar',stun:1.2}),
+ callName:power('callName','喚名',{duration:.8,impact:.45,qiCost:30,cooldown:4,posture:0,range:6.5,arc:2.1,effect:'call',stun:1.6}),
+ coldVoice:power('coldVoice','寒聲',{duration:.9,impact:.5,roar:true,qiCost:40,cooldown:8,posture:30,range:4.8,arc:Math.PI*2,effect:'roar',stun:1.2}),
  dashCut:move('dashCut','疾風拔斬',.72,.23,
   {hips:[.08,-.32,0],chest:[.22,-.6,-.08],rightArm:[-.5,-.9,-.5],rightForearm:[-.9,0,0],rightHand:[-.3,0,-.3],leftArm:[.35,0,-.6],rightLeg:[-.5,0,0],leftLeg:[.32,0,0]},
   {hips:[.08,.2,0],chest:[.12,.35,.08],rightArm:[-1.2,.35,.35],rightForearm:[-.08,0,0],rightHand:[-.4,0,.2],leftArm:[-.65,0,-.6]},

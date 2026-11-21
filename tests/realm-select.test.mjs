@@ -28,4 +28,6 @@ test('the keys for the powers are G and V, and a refused power says why', () => 
   assert.match(game, /e\.type==='power-unavailable'/);
   assert.match(game, /'尚未習得'/);
   assert.match(game, /'墨氣不足'/);
+  assert.match(game, /e\.reason==='cooldown'\?'調息未定'/, 'a power used too soon says so, not that ink is short');
+  assert.match(game, /game\.powerWait\?\.\[id\]>0/, 'a power button dims while its power recovers');
 });

@@ -45,7 +45,7 @@ export const EN = {
   '暫停': 'Pause',
   '回元飲': 'Restoring Draught', '飲用時會露出破綻': 'Drinking leaves you open',
   '飲藥': 'Heal', '# 次': '×#', '絕技': 'Ultimate', '已就緒': 'Ready',
-  '輔助招式': 'Support moves', '回元飲，R 補血': 'Restoring Draught, R to heal', '墨氣絕技，F 施放': 'Ink ultimate, F to release', '喚名，G 施放': 'Call the Name, G to use', '寒聲，V 施放': 'Cold Voice, V to use', '墨氣 #': 'Ink #', '尚未習得': 'Not learned yet', '墨氣不足': 'Not enough ink', '第 # 關': 'Realm #', '山神借走了村民的名字': 'The mountain god borrowed the villagers’ names',
+  '輔助招式': 'Support moves', '回元飲，R 補血': 'Restoring Draught, R to heal', '墨氣絕技，F 施放': 'Ink ultimate, F to release', '喚名，G 施放': 'Call the Name, G to use', '寒聲，V 施放': 'Cold Voice, V to use', '墨氣 #': 'Ink #', '尚未習得': 'Not learned yet', '調息未定': 'Still gathering breath', '墨氣不足': 'Not enough ink', '第 # 關': 'Realm #', '山神借走了村民的名字': 'The mountain god borrowed the villagers’ names',
   '古寺守刃': 'Blade of the Old Temple', '無相劍客': 'The Faceless Swordsman',
   '觀察起手，勿貪刀': 'Read the wind-up; don’t get greedy',
   '移動': 'Move', 'J / 左鍵': 'J / Left click', '短按斬 · 長按重擊': 'Tap to cut · hold for heavy', '閃身': 'Dodge', 'K / 右鍵': 'K / Right click', '防禦': 'Guard',
