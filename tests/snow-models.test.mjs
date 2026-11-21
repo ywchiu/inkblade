@@ -43,3 +43,39 @@ test('the fox skins to full weight on twenty bones, and its tails stay tail', as
   }
   assert.ok(tails > 0);
 });
+
+test('the mountain asks for exactly the bodies it loads today', async () => {
+  const { REALM_SKINS } = await import('../dist/characters3d.js');
+  assert.deepEqual(REALM_SKINS.mountain, ['beast', 'scribe']);
+  assert.deepEqual(REALM_SKINS.snow, ['fox', 'traveller', 'howler', 'crone']);
+});
+
+test('every realm body is a skin the loader knows', async () => {
+  const { REALM_SKINS, SKINS } = await import('../dist/characters3d.js');
+  for (const name of Object.values(REALM_SKINS).flat()) assert.ok(SKINS.includes(name), name);
+});
+
+test('asking again does not load again', async () => {
+  const { SkinShelf } = await import('../dist/characters3d.js');
+  let n = 0; const shelf = new SkinShelf(async name => (n++, { name }));
+  await shelf.want(['fox']); await shelf.want(['fox', 'fox']);
+  assert.equal(n, 1); assert.equal(shelf.get('fox').name, 'fox'); assert.equal(shelf.get('crone'), null);
+});
+
+test('a body that fails to load is null and asked for once', async () => {
+  const { SkinShelf } = await import('../dist/characters3d.js');
+  let n = 0; const shelf = new SkinShelf(async () => { n++; return null; });
+  await shelf.want(['crone']); await shelf.want(['crone']);
+  assert.equal(shelf.get('crone'), null); assert.equal(n, 1);
+  const throwing = new SkinShelf(async () => { throw new Error('404'); });
+  await assert.doesNotReject(throwing.want(['howler'])); assert.equal(throwing.get('howler'), null);
+});
+
+test('nothing is fetched until a realm asks, and a run asks for its own realm', async () => {
+  const { readFileSync } = await import('node:fs');
+  const world = readFileSync(new URL('../dist/world3d.js', import.meta.url), 'utf8'), game = readFileSync(new URL('../dist/game3d.js', import.meta.url), 'utf8'), field = readFileSync(new URL('../dist/campaign-world3d.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(world, /for\(const name of SKINS\)/);
+  assert.match(world, /prepareRealm\(id\)\{/);
+  assert.match(game, /world\.prepareRealm\(game\.realm\.id\)/);
+  assert.match(field, /world\.shelf\?\.get\(skin\)/);
+});

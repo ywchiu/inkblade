@@ -28,9 +28,22 @@ export async function loadCharacter(kind){
 const skins={
  beast:async()=>createWolfCharacter(await loader.loadAsync(BEAST_SHAPE.asset),BEAST_SHAPE),
  fox:async()=>createWolfCharacter(await loader.loadAsync(FOX_SHAPE.asset),FOX_SHAPE),
- scribe:()=>loadRiggedCharacter(RIGS.scribe,{loader,createWeapon:createBrush,kind:'ronin'})
+ scribe:()=>loadRiggedCharacter(RIGS.scribe,{loader,createWeapon:createBrush,kind:'ronin'}),
+ crone:()=>loadRiggedCharacter(RIGS.crone,{loader,createWeapon:null,kind:'ronin'}),
+ traveller:()=>loadRiggedCharacter(RIGS.traveller,{loader,createWeapon:null,kind:'ronin'}),
+ howler:()=>loadRiggedCharacter(RIGS.howler,{loader,createWeapon:null,kind:'oni'})
 };
 export const SKINS=Object.keys(skins);
+// The bodies each realm's road needs. A first visit to the mountain fetches only the mountain's; a realm's
+// bodies are asked for when a run there begins.
+export const REALM_SKINS=Object.freeze({mountain:['beast','scribe'],snow:['fox','traveller','howler','crone']});
+// Holds the bodies that have arrived. Each name is fetched at most once a visit, whether it arrives or fails;
+// a body that is not here (yet, or ever) is null, and its role wears its kind's body in the meantime.
+export class SkinShelf{
+ constructor(load){this.load=load;this.asked=new Map();this.bodies=new Map();}
+ want(names){return Promise.all(names.map(name=>{if(!this.asked.has(name))this.asked.set(name,Promise.resolve().then(()=>this.load(name)).then(model=>{if(model)this.bodies.set(name,model);},()=>{}));return this.asked.get(name);})).then(()=>{});}
+ get(name){return this.bodies.get(name)||null;}
+}
 export async function loadSkin(name){try{return await skins[name]();}catch(error){console.warn('skin '+name+' unavailable, using the base body',error);return null;}}
 export function createCharacter(gltf,kind){
  if(kind==='wolf')return createWolfCharacter(gltf);

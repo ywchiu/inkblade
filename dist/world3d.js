@@ -5,7 +5,7 @@ import { EnemyThreats } from './enemy-threats.js';
 import { buildTemple, updateTemple } from './environment3d.js';
 import { DodgeEchoes } from './dodge-effects.js';
 import * as THREE from './vendor/three.module.js';
-import { loadCharacter, loadSkin, SKINS, animateCharacter } from './characters3d.js';
+import { loadCharacter, loadSkin, SkinShelf, REALM_SKINS, animateCharacter } from './characters3d.js';
 import { WeaponTrails } from './weapon-trails.js';
 import { ImpactFeedback } from './impact3d.js';
 import { RoomEnvironment } from './vendor/addons/environments/RoomEnvironment.js';
@@ -91,8 +91,10 @@ export class InkWorld {
   const [hero,monster,ronin,wolfModel]=await Promise.all(['hero','oni','ronin','wolf'].map(loadCharacter));
   this.scene.remove(this.player.root);disposeModel(this.player.root);this.player=hero;this.scene.add(hero.root);this.generatedMonster=monster;this.generatedEnemies={oni:monster,ronin,wolf:wolfModel};this.weaponTrails=new WeaponTrails(this.scene,hero,monster,ronin);this.dodgeEchoes=new DodgeEchoes(this.scene,hero);this.enemyEchoes=Object.fromEntries(Object.entries(this.generatedEnemies).map(([id,m])=>[id,new DodgeEchoes(this.scene,m)]));this.campaignField=new CampaignField(this);this.assetsLoaded=true;this.setEnemy(this.enemyKind);
   // Role bodies arrive in their own time; the campaign uses each one from the next foe it dresses.
-  this.skins={};for(const name of SKINS)loadSkin(name).then(model=>{if(model)this.skins[name]=model;});
+  this.shelf=new SkinShelf(loadSkin);this.prepareRealm('mountain');
  }
+ // Fetch the bodies a realm's road needs; each arrives in its own time and is fetched once a visit.
+ prepareRealm(id){return this.shelf?.want(REALM_SKINS[id]||[]);}
  setEnemy(type){for(const echoes of Object.values(this.enemyEchoes||{}))echoes.clear();this.enemyKind=type;if(this.enemy){this.scene.remove(this.enemy.root);if(!this.enemy.generated)disposeModel(this.enemy.root);}this.enemy=this.generatedEnemies?.[type]||(type==='wolf'?wolf():type==='oni'?oni():human(true));this.weaponTrails?.clear();this.scene.add(this.enemy.root);}
 
  resize(){const r=this.canvas.getBoundingClientRect(),w=Math.max(1,r.width),h=Math.max(1,r.height);this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();const size=this.renderer.getDrawingBufferSize(new THREE.Vector2());this.post?.setSize(size.x,size.y);}
