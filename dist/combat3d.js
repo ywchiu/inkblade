@@ -71,6 +71,8 @@ export class ArenaCombat {
  // The call lands: every foe in reach answers it or does not. A duel's foe is a master, so only 寒聲 reaches it.
  invoke(move){const p=this.player,hits=[];for(const e of this.targets()){if(e.hp<=0||!withinArc(p,e,move.range+e.radius*.3,move.arc))continue;if(this.withEnemy(e,()=>this.answer(e,move)))hits.push(e.id);}
   this.emit(move.effect==='call'?'call-name':'cold-voice',{x:p.x,z:p.z,yaw:p.yaw,radius:move.range,hits});}
+ // How sure the hero's feet are: 1 on open ground; the campaign lowers it on ice.
+ footing(){return 1;}
  answer(e,move){if(move.effect!=='roar'||e.exposed)return false;this.shake(e,move.posture);return true;}
  // Stance worn down without a cut; a full gauge breaks it as a hit would.
  shake(e,amount){if(e.exposed)return;e.posture+=amount;e.postureDelay=3;if(e.posture>=e.maxPosture){e.posture=0;e.exposed=true;e.stun=2.6;e.state='stagger';e.timer=e.total=2.6;e.comboLeft=0;this.emit('stagger',{x:e.x,z:e.z});}}
@@ -118,7 +120,7 @@ export class ArenaCombat {
  }
  launchProjectiles(){
   const e=this.enemy,m=e.moveData,shot=m.projectile;
-  for(const offset of shot.spread){const yaw=e.yaw+offset;this.projectiles.push({id:++this.projectileSerial,x:e.x+Math.sin(yaw)*.8,z:e.z+Math.cos(yaw)*.8,yaw,speed:shot.speed,radius:shot.radius,remaining:shot.range,style:shot.style,damage:m.damage,unblockable:!!m.unblockable});}
+  for(const offset of shot.spread){const yaw=e.yaw+offset;this.projectiles.push({id:++this.projectileSerial,x:e.x+Math.sin(yaw)*.8,z:e.z+Math.cos(yaw)*.8,yaw,speed:shot.speed,radius:shot.radius,remaining:shot.range,style:shot.style,damage:m.damage,unblockable:!!m.unblockable,push:shot.push||0,tint:shot.tint||null});}
   this.emit('projectile-release',{x:e.x,z:e.z,style:shot.style});
  }
  updateProjectiles(dt,playerBefore){
@@ -132,7 +134,9 @@ export class ArenaCombat {
    const u=clamp(-(ax*dx+az*dz)/(dx*dx+dz*dz||1),0,1),touch=Math.hypot(ax+u*dx,az+u*dz)<=shot.radius+p.radius;
    const origin=p.dodgeOrigin,sx=shot.x-from.x,sz=shot.z-from.z,t=origin?clamp(((origin.x-from.x)*sx+(origin.z-from.z)*sz)/(sx*sx+sz*sz||1),0,1):0;
    const nearOrigin=origin&&Math.hypot(from.x+sx*t-origin.x,from.z+sz*t-origin.z)<=shot.radius+p.radius;
-   if(touch){this.hitPlayer(shot.damage,{x:p.x-Math.sin(shot.yaw)*2,z:p.z-Math.cos(shot.yaw)*2},shot.unblockable,true);}
+   if(touch){const clear=p.invulnerable>0;this.hitPlayer(shot.damage,{x:p.x-Math.sin(shot.yaw)*2,z:p.z-Math.cos(shot.yaw)*2},shot.unblockable,true);
+    // A roar of snow drives the hero back `push` metres, guard or no guard; only a dodge slips it.
+    if(shot.push&&!clear&&p.hp>0){p.knockbackX=Math.sin(shot.yaw)*shot.push*8;p.knockbackZ=Math.cos(shot.yaw)*shot.push*8;this.emit('gust',{x:p.x,z:p.z});}}
    else if(nearOrigin&&this.rewardDodge(true)){this.stats.dodges++;}
    else if(shot.remaining>0&&(this.campaign||Math.hypot(shot.x,shot.z)<24))survivors.push(shot);
    if(this.status!=='playing')break;
@@ -152,7 +156,7 @@ export class ArenaCombat {
   if(['idle','guard'].includes(p.state)&&p.stun<=0){
    const guard=!!input.guard;p.guardAge=guard?(p.state==='guard'?p.guardAge+dt:0):0;p.state=guard?'guard':'idle';
    if(input.lock)p.yaw=turnTo(p.yaw,angleTo(p,e),dt*12);else if(m>.01)p.yaw=turnTo(p.yaw,Math.atan2(dx,dz),dt*12);
-   const sprint=input.sprint&&p.stamina>0&&!guard&&m>.01;const speed=guard?1.45:sprint?5.8:3.25;p.x+=dx*speed*dt;p.z+=dz*speed*dt;p.speed=m>.01?speed:0;
+   const sprint=input.sprint&&p.stamina>0&&!guard&&m>.01;const speed=(guard?1.45:sprint?5.8:3.25)*this.footing();p.x+=dx*speed*dt;p.z+=dz*speed*dt;p.speed=m>.01?speed:0;
    p.sprintTime=sprint?p.sprintTime+dt:0;if(sprint){p.stamina=Math.max(0,p.stamina-18*dt);p.regenDelay=.75;}
   }else if(p.state==='roll'){const before=p.total-p.timer;p.timer=Math.max(0,p.timer-dt);const travel=dodgeTravel(p.total-p.timer)-dodgeTravel(before);p.x+=p.rollX*travel;p.z+=p.rollZ*travel;p.speed=dt>0?travel/dt:0;if(p.timer<=0){p.state='idle';p.invulnerable=0;}}
   else if(p.state==='dash'){const before=p.total-p.timer;p.timer=Math.max(0,p.timer-dt);const travel=dashTravel(p.total-p.timer)-dashTravel(before);this.advancePlayer(travel,p.dashYaw);p.speed=travel/dt;if(p.queuedDashAttack&&p.actionAge>=DASH.linkAt&&p.stamina>=14){this.spend(14);const move=PLAYER_MOVES.dashCut;p.state='light';p.move='dashCut';p.timer=p.total=move.duration;p.actionAge=0;p.attackHit=false;p.queuedDashAttack=false;p.chain=1;p.chainWindow=1.25;this.emit('swing',{move:'dashCut',x:p.x,z:p.z});}else if(p.timer<=0){p.state='idle';p.queuedDashAttack=false;}}

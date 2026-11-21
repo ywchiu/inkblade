@@ -67,6 +67,14 @@ const masterMoves={
  lash:{kind:'slash',variant:'claw-left',name:'奪名',windup:.44,duration:.5,recovery:.9,range:3.4,damage:26},
  quake:{kind:'slam',variant:'slam',name:'無名震',windup:.86,recovery:1.2,range:4.4,damage:33}
 };
+// 寒聲嶺's troops: ice foxes nip and dart; frozen travellers swing late and hard; the howler roars a wall of snow from afar.
+const snowMoves={
+ iceSnap:{kind:'bite',variant:'bite',name:'冰牙',windup:.38,duration:.34,recovery:1.3,range:2.2,damage:15},
+ drift:{kind:'pounce',variant:'rush',name:'雪影撲',windup:.62,duration:.5,recovery:1.2,range:2.2,damage:18,speed:12,activeWindow:true,lane:8},
+ chop:{kind:'slash',variant:'slash-right',name:'凍臂劈',windup:.95,duration:.5,recovery:1.5,range:2.7,damage:26},
+ reel:{kind:'slash',variant:'slash-left',name:'踉蹌橫掃',windup:.7,duration:.5,recovery:1.6,range:2.8,damage:22},
+ gust:{kind:'projectile',variant:'fissure',name:'吼風',windup:1.1,duration:.6,recovery:1.5,range:0,damage:18,projectile:{style:'howl',tint:'#dfefff',speed:9,radius:1.4,range:14,spread:[0],push:3.2},lane:14}
+};
 const pick=(table,keys,enraged,quicken)=>keys.map(key=>({...table[key],windup:table[key].windup*(enraged?quicken:1)}));
 export function roleSequence(pattern,cycle,enraged,dist,rangedReady=true){
  switch(pattern){
@@ -89,6 +97,10 @@ export function roleSequence(pattern,cycle,enraged,dist,rangedReady=true){
    const chains=[['right','left','lash'],['quake','delayed'],['lash','right','quake'],['right','left','delayed']][cycle%4];
    return chains.map(key=>({...(masterMoves[key]||moves[key]),windup:(masterMoves[key]||moves[key]).windup*.9}));
   }
+  case 'fox':return pick(snowMoves,dist>3.6?['drift']:cycle%2?['iceSnap','drift']:['iceSnap'],enraged,.9);
+  case 'traveller':return pick(snowMoves,[['chop'],['reel','chop']][cycle%2],enraged,.92);
+  // Up close the howler fights with its big cousin's blows; from afar it roars the hero off their feet.
+  case 'howler':return dist>5&&rangedReady?pick(snowMoves,['gust'],enraged,.9):guardianSequence(cycle,enraged,dist);
   default:return null;
  }
 }

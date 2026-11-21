@@ -395,6 +395,7 @@ export const EN = {
   '秋娘': 'Qiu Niang', '阿聆的娘。上山要替女兒把聲音買回來，自己的也賠了進去。': 'A-Ling’s mother. She climbed up to buy back her daughter’s voice and lost her own as well.',
   '阿聆': 'A-Ling', '畫狀紙的啞女。她的聲音，是這口鈴裡最年輕的一個。': 'The mute girl who drew the petition. Hers is the youngest voice in any of these bells.',
   '冰聲': 'Frozen voices', '聲窟已靜': 'The cave is quiet',
+  '冰牙': 'Ice Fang', '雪影撲': 'Snow-Shadow Pounce', '凍臂劈': 'Frozen-Arm Chop', '踉蹌橫掃': 'Stumbling Sweep', '吼風': 'Howling Gale',
   '冰狐': 'Ice Fox', '從雪裡竄出來的狐魅': 'A fox spirit that bursts out of the snow',
   '凍旅人': 'Frozen Traveller', '死在山口又站起來的旅人': 'A traveller who died on the pass and stood up again',
   '吼風山魈': 'Wind-Howling Shanxiao', '替凍聲婆看守山口的山魈': 'The shanxiao that keeps the pass for the Frost-Voice Crone',

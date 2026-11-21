@@ -9,6 +9,7 @@ import { REALMS } from '../dist/realms.js';
 import * as campaign from '../dist/campaign3d.js';
 import * as combat from '../dist/combat3d.js';
 import { PLAYER_MOVES } from '../dist/attack-moves.js';
+import { roleSequence } from '../dist/enemy-patterns.js';
 
 const CJK = /[㐀-鿿]/;
 // Lettering that is part of the logo or painted on screen as a seal, kept in both languages.
@@ -107,7 +108,11 @@ test('the road is covered: stages, goals, zones and rubbings', () => {
 });
 
 test('the fight is covered: foes, their roles, hints and every move name', () => {
-  const list = [...strings(campaign, plaque), ...strings(combat), ...strings({ PLAYER_MOVES })];
+  // Every move a role can throw, at every range and in every cycle, temper up or down.
+  const thrown = [];
+  for (const role of Object.values(campaign.ROLES)) if (role.pattern) for (const dist of [1, 3, 5, 8, 12]) for (let cycle = 0; cycle < 4; cycle++) for (const enraged of [false, true])
+    for (const move of roleSequence(role.pattern, cycle, enraged, dist, true) || []) thrown.push([`${role.pattern}.${move.name}`, move.name]);
+  const list = [...strings(campaign, plaque), ...strings(combat), ...strings({ PLAYER_MOVES }), ...thrown.map(([path, name]) => [path + '.name', name])];
   assert.ok(list.length > 40);
   assert.deepEqual(untranslated(list), []);
   // A warning is composed around the move's name.

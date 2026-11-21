@@ -19,9 +19,9 @@ export const ROLES=Object.freeze({
  acolyte:{kind:'oni',name:'泥塑護法',title:'被偽神喚醒的山門塑像',hp:210,posture:105,scale:.62,speed:1.1,harm:.7,reach:.66,tint:'#c9a98a',bright:1.6,poise:true,pattern:'acolyte'},
  oni:{kind:'oni',name:'鎮祟山魈',title:'竊名拘魂的偽山神',hp:440,posture:150,poise:true,boss:true},
  // 寒聲嶺. The crone wears a body built on the swordsman's skeleton; the howler, a smaller cousin of the 山魈's.
- fox:{kind:'wolf',skin:'fox',name:'冰狐',title:'從雪裡竄出來的狐魅',hp:46,posture:30,scale:.8,speed:1.3,tint:'#d9e4ea'},
- traveller:{kind:'ronin',skin:'traveller',named:true,name:'凍旅人',title:'死在山口又站起來的旅人',hp:96,posture:56,speed:.75,tint:'#9fb2c2'},
- howler:{kind:'oni',skin:'howler',name:'吼風山魈',title:'替凍聲婆看守山口的山魈',hp:260,posture:120,scale:.85,harm:1.1,poise:true,elite:true,tint:'#c9d6de',bright:1.4},
+ fox:{kind:'wolf',skin:'fox',name:'冰狐',title:'從雪裡竄出來的狐魅',hp:46,posture:30,scale:.8,speed:1.3,tint:'#d9e4ea',pattern:'fox'},
+ traveller:{kind:'ronin',skin:'traveller',named:true,name:'凍旅人',title:'死在山口又站起來的旅人',hp:96,posture:56,speed:.75,tint:'#9fb2c2',pattern:'traveller',frost:{radius:2.6,time:9,slow:.55}},
+ howler:{kind:'oni',skin:'howler',name:'吼風山魈',title:'替凍聲婆看守山口的山魈',hp:260,posture:120,scale:.85,harm:1.1,poise:true,elite:true,tint:'#c9d6de',bright:1.4,pattern:'howler'},
  crone:{kind:'ronin',skin:'crone',name:'凍聲婆',title:'把山谷的聲音凍成冰甲的買主',hp:520,posture:160,harm:1.05,poise:true,boss:true,aura:'#bfe3ff',tint:'#bfe3ff'},
  nameless:{kind:'oni',name:'無名之主',title:'脫下神袍的吞名之物',hp:560,posture:175,scale:1.18,harm:1.1,reach:1.15,tint:'#8a78b0',aura:'#7b5cff',poise:true,boss:true,enraged:true,pattern:'nameless'}
 });
@@ -35,7 +35,7 @@ export class CampaignCombat extends ArenaCombat {
  saveCheckpoint(){const p=this.player;this.checkpoint={realm:this.realm.id,powers:[...this.powers],vigor:this.vigor,stage:this.stage,kills:this.kills,bestCombo:this.bestCombo,time:this.time,stats:{...this.stats},collected:[...this.collected],player:{x:p.x,z:p.z,yaw:Math.PI,hp:p.hp,stamina:100,qi:p.qi,flasks:p.flasks}};}
  retryCheckpoint(){return new CampaignCombat(structuredClone(this.checkpoint));}
  rubbings(){return this.realm.PICKUPS.filter(p=>p.kind==='rubbing'&&this.collected.has(p.id)).length;}
- spawnStage(){const stage=this.realm.STAGES[this.stage];this.cleared=false;this.interlude=0;this.projectiles=[];this.arts=[];this.bursts=[];this.enemies=[];this.pending=stage.groups.map((g,index)=>({...g,index}));
+ spawnStage(){const stage=this.realm.STAGES[this.stage];this.cleared=false;this.interlude=0;this.projectiles=[];this.arts=[];this.bursts=[];this.enemies=[];this.frosts=[];this.pending=stage.groups.map((g,index)=>({...g,index}));
   for(const g of [...this.pending])if(!g.when)this.deploy(g);
   this.enemy=this.enemies[0];this.spec=this.enemy.spec;this.index=ENEMIES.findIndex(s=>s.id===this.enemy.kindId);
   // Every name carried up the mountain is read out against the thing that ate them.
@@ -67,6 +67,8 @@ export class CampaignCombat extends ArenaCombat {
  }
  hitPlayer(damage,source,unblockable=false,projectile=false){super.hitPlayer(Math.max(1,Math.ceil(damage*this.realm.STAGES[this.stage].harm)),source,unblockable,projectile);}
  enemyDefeated(e){const def=ROLES[e.role];this.kills++;e.deadTime=0;this.player.qi=clamp(this.player.qi+(def.elite||def.boss?20:9),0,100);this.emit('troop-defeated',{x:e.x,z:e.z,kills:this.kills,role:e.role});
+  // A frozen traveller breaks into a ring of ice that drags at the hero's feet until it melts.
+  if(def.frost){this.frosts.push({x:e.x,z:e.z,radius:def.frost.radius,time:def.frost.time,slow:def.frost.slow});this.emit('frost-patch',{x:e.x,z:e.z,radius:def.frost.radius});}
   if(def.burst){this.bursts.push({id:e.id,x:e.x,z:e.z,time:def.burst.delay,total:def.burst.delay,radius:def.burst.radius,damage:def.burst.damage});this.emit('burst-warn',{x:e.x,z:e.z,radius:def.burst.radius});}
  }
  // A bound soul stops to listen when its name is called; 寒聲 holds any troop. Masters and elites only lose stance to 寒聲.
@@ -105,6 +107,7 @@ export class CampaignCombat extends ArenaCombat {
   const turn=dt*Math.min(.9,e.spec.speed*1.25/Math.max(1,currentRadius)),nextYaw=currentYaw+clamp(angleDiff(desiredYaw,currentYaw),-turn,turn),nextRadius=currentRadius+clamp(desiredRadius-currentRadius,-dt*2.5,dt*2.5),nx=this.player.x+Math.sin(nextYaw)*nextRadius,nz=this.player.z+Math.cos(nextYaw)*nextRadius;
   e.speed=Math.hypot(nx-e.x,nz-e.z)/dt;e.x=nx;e.z=nz;e.yaw=turnTo(e.yaw,angleTo(e,this.player),dt*5);e.cooldown=Math.max(.15,e.cooldown-dt);
  }
+ footing(){const p=this.player;let k=1;for(const f of this.frosts||[])if(Math.hypot(p.x-f.x,p.z-f.z)<=f.radius)k=Math.min(k,f.slow);return k;}
  updateBursts(dt){const p=this.player;this.bursts=this.bursts.filter(b=>{b.time-=dt;if(b.time>0)return true;this.emit('slam',{x:b.x,z:b.z,burst:true,radius:b.radius});if(Math.hypot(p.x-b.x,p.z-b.z)<=b.radius+p.radius)this.hitPlayer(b.damage,b,false,true);return false;});}
  collect(){const p=this.player;for(const item of this.realm.PICKUPS){if(this.collected.has(item.id)||Math.hypot(p.x-item.x,p.z-item.z)>REACH)continue;
    if(item.kind==='rubbing'){this.collected.add(item.id);p.qi=clamp(p.qi+12,0,100);p.hp=Math.min(p.maxHp,p.hp+8);this.emit('rubbing',{id:item.id,x:item.x,z:item.z,count:this.rubbings()});}
@@ -114,7 +117,7 @@ export class CampaignCombat extends ArenaCombat {
   // Between fights the road is long: the hero strides out, and running costs no breath.
   if(!fighting&&!hold&&['idle','guard'].includes(this.player.state)&&this.player.speed>0){const p=this.player,m=Math.hypot(input.x||0,input.z||0),extra=p.speed*TRAVEL;if(m>.01){p.x+=(input.x||0)/Math.max(1,m)*extra*Math.min(dt,.05);p.z+=(input.z||0)/Math.max(1,m)*extra*Math.min(dt,.05);p.speed+=extra;}p.stamina=Math.max(p.stamina,breath);this.constrain();}
   if(!hold){this.comboTimer=Math.max(0,this.comboTimer-dt);if(this.comboTimer===0)this.combo=0;}
-  if(!hold&&!gathering){this.updateBursts(dt);if(this.status!=='playing')return;}
+  if(!hold){this.frosts=this.frosts.filter(f=>(f.time-=dt)>0);}if(!hold&&!gathering){this.updateBursts(dt);if(this.status!=='playing')return;}
   const stage=this.realm.STAGES[this.stage],p=this.player;this.collect();
   for(const g of [...this.pending])if(g.when?.z!=null?p.z<=g.when.z:this.enemies.every(e=>e.hp<=0))this.deploy(g,true);
   if(!this.cleared&&!this.pending.length&&this.enemies.every(e=>e.hp<=0)){this.cleared=true;this.projectiles=[];if(stage.final){this.status='won';this.emit('victory');return;}p.hp=Math.min(p.maxHp,p.hp+35);p.stamina=100;p.flasks=Math.min(3,p.flasks+1);this.interlude=2.6;this.emit(stage.instant?'phase-break':'gate-open',{stage:this.stage,name:this.realm.STAGES[this.stage+1].name});}

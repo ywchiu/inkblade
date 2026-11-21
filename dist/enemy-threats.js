@@ -39,7 +39,7 @@ export class EnemyThreats {
   const e=game.enemy,m=e.moveData,warning=visible&&e.state==='windup'&&m?.lane,spread=m?.projectile?.spread||[0];
   this.lanes.forEach((lane,i)=>{lane.visible=!!warning&&i<spread.length;if(!lane.visible)return;const yaw=e.yaw+spread[i],width=m.projectile?.radius??.65;lane.position.set(e.x,.075,e.z);lane.rotation.y=yaw;lane.scale.set(width,1,m.lane);lane.material.color.set(m.unblockable?'#f08661':'#e1b579');lane.material.opacity=.25+(1-e.timer/e.total)*.55;});
   const shots=visible?game.projectiles:[];while(this.pool.length<shots.length)this.create();
-  this.pool.forEach((v,i)=>{const shot=shots[i];v.root.visible=!!shot;if(!shot)return;const blade=shot.style==='blade',howl=shot.style==='howl';v.blade.visible=v.echo.visible=blade;v.howl.visible=howl;v.fissure.visible=!blade&&!howl;v.root.position.set(shot.x,blade?1.1:howl?.85:.05,shot.z);v.root.rotation.y=shot.yaw;v.blade.rotation.z=shot.id%2?-.55:.55;v.echo.rotation.z=v.blade.rotation.z;v.howl.scale.setScalar(shot.radius*1.9);v.blade.scale.set(.8,1.15,1);});
+  this.pool.forEach((v,i)=>{const shot=shots[i];v.root.visible=!!shot;if(!shot)return;const blade=shot.style==='blade',howl=shot.style==='howl';v.blade.visible=v.echo.visible=blade;v.howl.visible=howl;v.fissure.visible=!blade&&!howl;v.root.position.set(shot.x,blade?1.1:howl?.85:.05,shot.z);v.root.rotation.y=shot.yaw;v.blade.rotation.z=shot.id%2?-.55:.55;v.echo.rotation.z=v.blade.rotation.z;v.howl.scale.setScalar(shot.radius*1.9);if(howl)v.howl.material.color.set(shot.tint||'#9fc5cc');v.blade.scale.set(.8,1.15,1);});
  }
  snapshot(){return{projectiles:this.pool.filter(v=>v.root.visible).length,lanes:this.lanes.filter(v=>v.visible).length};}
 }
