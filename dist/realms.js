@@ -9,8 +9,9 @@ export const REALMS = Object.freeze([
     id: 'mountain', name: '借名山', blurb: '山神借走了村民的名字',
     ...ROUTE, STAGES, PICKUPS,
     boss: 'nameless', reward: 'callName',
-    // The pages read after the master falls; the page for bringing back every hidden name goes in before the last.
-    ending: ['ending', 'epilogue', 'soldNames', 'coda'], trueName: 'trueName'
+    // The pages read after the master falls. Whoever brought back every hidden name also reads the mountain's own name,
+    // straight after the village wakes and before the talk turns to the names that were sold.
+    ending: ['ending', 'epilogue', 'soldNames', 'coda'], trueName: 'trueName', trueNameAfter: 'epilogue'
   })
 ]);
 

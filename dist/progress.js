@@ -4,7 +4,9 @@
 import { REALMS, realmById } from './realms.js';
 
 export const PROGRESS_KEY = 'inkblade.progress.v1', VIGOR_STEP = 20;
-const POWERS = ['callName', 'coldVoice'];
+// Each power's name and the key that calls it (the touch screen has a button of the same name).
+export const POWER_INFO = Object.freeze({ callName: { name: '喚名', key: 'G' }, coldVoice: { name: '寒聲', key: 'V' } });
+const POWERS = Object.keys(POWER_INFO);
 const JOURNAL_KEY = 'inkblade.journal.v1', NAMES_KEY = 'inkblade.names.v1';
 const REALM_IDS = REALMS.map(r => r.id);
 
@@ -43,4 +45,12 @@ export class Progress {
     this.complete.add(realm.id); this.save(); return true;
   }
   save() { try { this.storage?.setItem(PROGRESS_KEY, JSON.stringify({ v: 1, cleared: [...this.cleared], powers: [...this.powers], complete: [...this.complete] })); } catch {} }
+}
+
+// What the results screen says was earned by clearing a realm: a new power, and the health that every hidden name brought back adds.
+export function rewardLines({ power = null, vigor = false } = {}) {
+  const lines = [];
+  if (power) { const { name, key } = POWER_INFO[power]; lines.push(`得到本事：${name} · 按 ${key} 或「${name}」鈕`); }
+  if (vigor) lines.push(`血量上限 +${VIGOR_STEP}`);
+  return lines;
 }

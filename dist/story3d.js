@@ -108,6 +108,11 @@ export const SCENES=Object.freeze({
   line('鍾馗','「青崖君」。這座山的神，叫青崖君。'),
   line('青崖君','……有人在叫我。三百年了。判官，那些名字我都還得起；我自己欠的債，你押我去還。'),
   line('鍾馗','帶路的燈有了，走吧。從今以後，這座山有名有姓。') ]},
+ soldNames:{title:'賣出去的名字',chapter:'終 · 契上餘字',purpose:'有些名字，已經不在山上了',lines:[
+  line('鍾馗','契紙燒到最後，背面浮出一排字。不是名字，是價錢。'),
+  line('村中老婦','價錢？誰會買人的名字？'),
+  line('鍾馗','買主不只一個。最近的一筆，往北，寫著「寒聲嶺」。'),
+  line('鍾馗','剛才那些魂喊出自己名字的時候，這把刀跟著響了。以後叫一聲名字，被拘的魂就會停下來聽。') ]},
  coda:{title:'還有一行',chapter:'尾聲 · 無名狀',purpose:'山不止這一座',lines:[
   line('無塵','施主的簿子，貧僧幫你抄完了。只是那張無名狀，最後怎麼又多出一行空白？'),
   line('鍾馗','山不只這一座。'),
@@ -121,7 +126,7 @@ export const DUEL_SCENES=['wolf','ronin','oni'];
 export const STAGE_INTRO=Object.freeze({village:'village',bamboo:'wolf',alpha:'alpha',steles:'steles',bridge:'ronin',lanterns:'lanterns',forecourt:'forecourt',hall:'hall',oni:'oni',nameless:'nameless'});
 export const STAGE_CLEAR=Object.freeze({village:'villageClear',bamboo:'wolfClear',alpha:'alphaClear',steles:'stelesClear',bridge:'roninClear',lanterns:'lanternsClear',forecourt:'forecourtClear',hall:'hallClear'});
 // Reading order for the journal, whatever order the pages were found in.
-export const SCENE_ORDER=Object.freeze(['opening','village','villageClear','wolf','wolfClear','alpha','alphaClear','steles','stelesClear','ronin','roninClear','lanterns','lanternsClear','forecourt','forecourtClear','hall','hallClear','oni','nameless','ending','epilogue','trueName','coda','wolfEnd','roninEnd','oniEnd']);
+export const SCENE_ORDER=Object.freeze(['opening','village','villageClear','wolf','wolfClear','alpha','alphaClear','steles','stelesClear','ronin','roninClear','lanterns','lanternsClear','forecourt','forecourtClear','hall','hallClear','oni','nameless','ending','epilogue','trueName','soldNames','coda','wolfEnd','roninEnd','oniEnd']);
 // Lines that were recorded. Everything else is read, not heard.
 const VOICED=new Set(['opening','wolf','wolfClear','ronin','roninClear','oni','ending','wolfEnd','roninEnd','oniEnd','bark-oni-rage','bark-ronin-blade','bark-wolf-voice','bark-ronin-doubt','bark-hero-parry']);
 // Speech is switched off: only the first chapters were ever recorded, and every line has since been reworded
@@ -169,7 +174,7 @@ export class StoryDirector{
  // A page that falls due while another is being read follows it instead of being lost.
  event(event,game){if(!this.campaign||!['chapter','gate-open'].includes(event.type))return null;const id=this.realm.STAGES[event.stage??game.stage]?.id,scene=(event.type==='chapter'?STAGE_INTRO:STAGE_CLEAR)[id];if(!scene)return null;if(this.current){if(!this.seen.has(scene)&&!this.queue.includes(scene))this.queue.push(scene);return null;}return this.open(scene);}
  // The road's ending runs on into the village at dawn; whoever brought back every hidden name also learns the mountain's own.
- finish(won,game=null){if(!won||this.current)return null;if(!this.campaign)return this.open(['wolfEnd','roninEnd','oniEnd'][this.opponent]);this.queue=['ending','epilogue',...(game?.rubbings?.()>=Object.keys(NAMES).length?['trueName']:[]),'coda'];return this.openNext();}
+ finish(won,game=null){if(!won||this.current)return null;if(!this.campaign)return this.open(['wolfEnd','roninEnd','oniEnd'][this.opponent]);const {ending,trueName,trueNameAfter}=this.realm,all=game?.rubbings?.()>=Object.keys(NAMES).length;this.queue=ending.flatMap(id=>id===trueNameAfter&&all?[id,trueName]:[id]);return this.openNext();}
  // A name taken from a stele: kept in the journal, and read out once as a passing line.
  rubbing(id,count=this.names.size+1){const entry=NAMES[id];if(!entry)return null;this.names.add(id);try{this.storage?.setItem(NAMES_KEY,JSON.stringify([...this.names]));}catch{}return {id:`rubbing-${id}`,speaker:`名拓 · ${count} / ${Object.keys(NAMES).length}`,text:`「${entry.name}」${entry.text}`};}
  bark(event,game){if(this.current||game.status!=='playing'||game.time<this.nextBarkAt)return null;const actor=game.campaign?game.enemies.find(e=>e.id===event.enemyId):game.enemy;const kind=actor?.kindId||(!game.campaign?game.spec.id:null),role=actor?.role||event.role||kind;let key,text,speaker;

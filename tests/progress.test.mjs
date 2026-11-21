@@ -54,3 +54,12 @@ test('broken or missing storage starts a fresh run without throwing', () => {
   assert.deepEqual([...strange.powers], ['callName']);
   assert.equal(strange.complete.size, 0);
 });
+
+test('the results screen names what was earned, with the key or button that uses it', async () => {
+  const { rewardLines } = await import('../dist/progress.js');
+  const { toEnglish } = await import('../dist/i18n.js');
+  assert.deepEqual(rewardLines({ power: 'callName', vigor: true }), ['得到本事：喚名 · 按 G 或「喚名」鈕', `血量上限 +${VIGOR_STEP}`]);
+  assert.deepEqual(rewardLines({ power: 'coldVoice', vigor: false }), ['得到本事：寒聲 · 按 V 或「寒聲」鈕']);
+  assert.deepEqual(rewardLines({ power: null, vigor: false }), [], 'a second clear earns nothing new');
+  for (const line of [...rewardLines({ power: 'callName', vigor: true }), ...rewardLines({ power: 'coldVoice' })]) assert.doesNotMatch(toEnglish(line), /[㐀-鿿]/, line);
+});

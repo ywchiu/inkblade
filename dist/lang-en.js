@@ -187,6 +187,7 @@ export const EN = {
   // ── The hero's moves ──
   '墨破山河': 'Ink Sunders the Mountains', '雙燕迴翔': 'Twin Swallows', '躍淵斬': 'Leaping Cut', '敕令 · 鎮': 'Edict: Seal', '疾風拔斬': 'Gale Draw',
   '斜斬': 'Diagonal Cut', '反手橫斬': 'Backhand Sweep', '迴身落刃': 'Turning Chop', '崩山斷': 'Mountain Breaker', '飛墨斬': 'Flying Ink', '喚名': 'Call the Name', '寒聲': 'Cold Voice',
+  '得到本事：喚名 · 按 G 或「喚名」鈕': 'Power gained: Call the Name · press G or the Call the Name button', '得到本事：寒聲 · 按 V 或「寒聲」鈕': 'Power gained: Cold Voice · press V or the Cold Voice button', '血量上限 +#': 'Max health +#',
   '挑月斬': 'Moon Riser', '迴風掃蕩': 'Whirlwind Sweep', '蓄勢破甲': 'Armor Breaker', '乘隙反斬': 'Riposte', '鎮魂處決': 'Soul-Quelling Execution',
 
   // ── Foes' moves ──
@@ -230,13 +231,13 @@ export const EN = {
   '伍 · 燃名香道': 'V · The Lantern Road', '伍 · 燈下': 'V · Under the Lanterns', '陸 · 山門前庭': 'VI · Temple Forecourt', '陸 · 泥身碎盡': 'VI · The Clay Lies Broken',
   '柒 · 借名殿': 'VII · Hall of Borrowed Names', '柒 · 名冊末頁': 'VII · The Last Page of the Register', '捌 · 鎮祟寺': 'VIII · Temple of Bound Spirits',
   '終 · 無名之主': 'Finale · The Nameless Lord', '終 · 雨歇天明': 'Finale · The Rain Stops at Dawn',
-  '尾聲 · 無名村': 'Epilogue · Nameless Village', '尾聲 · 十二拓全': 'Epilogue · All Twelve Rubbings', '尾聲 · 無名狀': 'Epilogue · The Petition',
+  '尾聲 · 無名村': 'Epilogue · Nameless Village', '尾聲 · 十二拓全': 'Epilogue · All Twelve Rubbings', '尾聲 · 無名狀': 'Epilogue · The Petition', '終 · 契上餘字': 'The End · What Was Left on the Contract',
   '斷章 · 墨狼': 'Fragment · Ink Wolf', '斷章 · 劍客': 'Fragment · The Swordsman', '斷章 · 山魈': 'Fragment · The Mountain Demon',
   // ── Story: scene titles ──
   '狼腹有人聲': 'A Voice inside the Wolf', '一枚空名牌': 'A Blank Name Tag', '守橋的亡魂': 'The Dead Man on the Bridge', '七年一場騙局': 'Seven Years of a Lie',
   '山神無名': 'A God with No Name', '門上無字': 'Nothing on the Doors', '狼不吃人': 'Wolves That Don’t Eat People', '獵戶的手印': 'The Hunter’s Handprint',
   '千碑無字': 'A Thousand Blank Steles', '碑陰': 'The Back of the Stele', '燈油': 'Lamp Oil', '不能吹熄': 'Not to Be Blown Out', '護法': 'Guardians', '空神座': 'The Empty Seat',
-  '今夜到期': 'Due Tonight', '神袍之下': 'Under the Robe', '天明': 'Dawn', '山神有名': 'The God Has a Name', '還有一行': 'One More Line',
+  '今夜到期': 'Due Tonight', '神袍之下': 'Under the Robe', '天明': 'Dawn', '山神有名': 'The God Has a Name', '還有一行': 'One More Line', '賣出去的名字': 'The Names That Were Sold',
   '獸腹咒散': 'The Curse Leaves the Beast', '斷刃的囑託': 'What the Broken Blade Asked', '偽神伏誅': 'The False God Falls',
   // ── Story: what each scene asks ──
   '接下無名狀 · 先看看這座村子': 'Take the nameless petition · look over the village first',
@@ -245,7 +246,7 @@ export const EN = {
   '穿過無名坊，入山尋人': 'Through the nameless arch, up the mountain after the missing',
   '出林向北，進千名碑林': 'North out of the forest, into the Forest of a Thousand Steles',
   '向斷魂橋尋守橋人 · 沿路留意發光的碑陰': 'On to the bridge and its keeper · watch for glowing steles along the way',
-  '名字回到了喊它的人口中': 'The names are back in the mouths that call them',
+  '名字回到了喊它的人口中': 'The names are back in the mouths that call them', '有些名字，已經不在山上了': 'Some of the names have already left the mountain',
   '十二張名拓，拼出了最老的一個名字': 'Twelve rubbings spell out the oldest name of all',
   '山不止這一座': 'This is not the only mountain',
   '線索已記入志怪錄': 'The lead is written in the Journal',
@@ -338,6 +339,10 @@ export const EN = {
   '帶路的燈有了，走吧。從今以後，這座山有名有姓。': 'We have a lamp to lead the way. Come. From today, this mountain has a name.',
   '施主的簿子，貧僧幫你抄完了。只是那張無名狀，最後怎麼又多出一行空白？': 'I have finished copying out your ledger. But that nameless petition: why is there a new blank line at the end of it?',
   '山不只這一座。': 'This is not the only mountain.',
+  '契紙燒到最後，背面浮出一排字。不是名字，是價錢。': 'As the last of the contract burned, a row of words came up on the back. Not names. Prices.',
+  '價錢？誰會買人的名字？': 'Prices? Who would buy a person’s name?',
+  '買主不只一個。最近的一筆，往北，寫著「寒聲嶺」。': 'There was more than one buyer. The nearest is to the north. It says “Cold Voice Ridge.”',
+  '剛才那些魂喊出自己名字的時候，這把刀跟著響了。以後叫一聲名字，被拘的魂就會停下來聽。': 'When those souls cried out their own names just now, this blade rang with them. From now on, call a name and a bound soul will stop to listen.',
   '雨停了，天亮了。有人回了家，有魂入了土。判官收起簿子，往下一座山走去。': 'The rain stopped and the sun came up. Some went home; some souls went to their rest. The Judge closed his ledger and set off for the next mountain.',
   '名牌……在鎮祟寺。求求你，別再讓別人上山了。': 'The tags… are at the Temple of Bound Spirits. Please, don’t let anyone else go up the mountain.',
   '這一縷魂，我先送出林子。剩下的債，我沿著古道去討。': 'I will see this soul out of the forest first. The rest of the debt, I will collect along the old road.',

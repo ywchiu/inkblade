@@ -191,3 +191,5 @@ h1{font-size:58px;margin-top:4px}
 .cover::before{top:120px;height:calc(100% - 130px)}
 .cover::after{background:linear-gradient(180deg,#0a1016 0,#0a1016d0 110px,#0a101600 190px),linear-gradient(0deg,#0a1016f5 0,#0a1016c0 150px,#0a101600 250px)}
 }
+/* What a cleared realm gave the hero, on the results screen. */
+.result-earned{color:#f0ca82;letter-spacing:.08em}

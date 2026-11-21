@@ -27,11 +27,11 @@ test('the whole road reveals its pages in order, and the ending runs on to dawn 
   feed();}
  assert.equal(g.status,'won');
  const expected=CHAPTERS.flatMap((c,i)=>[...(i?[STAGE_INTRO[c.id]]:[]),...(STAGE_CLEAR[c.id]?[STAGE_CLEAR[c.id]]:[])]);assert.deepEqual(read,expected);
- assert.equal(s.finish(true,g).id,'ending');readScene(s);assert.equal(s.current,'epilogue');readScene(s);assert.equal(s.current,'coda','the mountain keeps its own name without every rubbing');readScene(s);assert.equal(s.current,null);assert.equal(s.finish(true,g),null);
+ assert.equal(s.finish(true,g).id,'ending');readScene(s);assert.equal(s.current,'epilogue');readScene(s);assert.equal(s.current,'soldNames','the names that were sold, and 喚名');readScene(s);assert.equal(s.current,'coda','the mountain keeps its own name without every rubbing');readScene(s);assert.equal(s.current,null);assert.equal(s.finish(true,g),null);
 });
 test('bringing back every hidden name adds the page that names the mountain',()=>{
  const s=new StoryDirector();s.start({campaign:true});s.skip();
- const all={rubbings:()=>Object.keys(NAMES).length};assert.equal(s.finish(true,all).id,'ending');s.advance();s.advance();s.advance();s.advance();assert.equal(s.current,'epilogue');readScene(s);assert.equal(s.current,'trueName');readScene(s);assert.equal(s.current,'coda');
+ const all={rubbings:()=>Object.keys(NAMES).length};assert.equal(s.finish(true,all).id,'ending');s.advance();s.advance();s.advance();s.advance();assert.equal(s.current,'epilogue');readScene(s);assert.equal(s.current,'trueName');readScene(s);assert.equal(s.current,'soldNames');readScene(s);assert.equal(s.current,'coda');
 });
 test('a page that falls due while another is open follows it instead of being lost',()=>{
  const s=new StoryDirector();s.start({campaign:true});s.skip();
@@ -87,4 +87,13 @@ test('on the road each foe shows its own name; a duel shows the story identity',
  const g=new CampaignCombat();assert.equal(identityFor(g).name,'墨狼');g.stage=CHAPTERS.findIndex(c=>c.id==='bridge');g.spawnStage();
  assert.deepEqual(g.enemies.map(e=>identityFor({...g,campaign:true,enemy:e,spec:e.spec}).name),['沈寒舟','寒舟劍影','寒舟劍影']);
  assert.equal(identityFor({campaign:false,spec:{id:'ronin'},enemy:g.enemies[1]}).name,'沈寒舟');
+});
+
+test('the mountain’s ending tells where the names went, and leads into the last line',()=>{
+ const s=new StoryDirector();s.start({campaign:true});s.skip();
+ s.finish(true,{rubbings:()=>0});
+ assert.deepEqual([s.current,...s.queue],['ending','epilogue','soldNames','coda']);
+ assert.equal(SCENES.soldNames.lines.length,4);
+ assert.ok(SCENES.soldNames.lines.some(l=>l.text.includes('寒聲嶺')),'the next buyer’s road is named');
+ assert.ok(SCENE_ORDER.indexOf('soldNames')>SCENE_ORDER.indexOf('trueName')&&SCENE_ORDER.indexOf('soldNames')<SCENE_ORDER.indexOf('coda'));
 });
