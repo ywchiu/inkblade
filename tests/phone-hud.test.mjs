@@ -27,3 +27,13 @@ test('on an upright phone a spoken line sits just above the buttons, under the f
   assert.ok(bark >= utilities && bark <= utilities + 16, `the line rests ${bark}px up; the buttons end ${utilities}px up`);
   assert.match(phone, /#hud:has\(~#story-bark:not\(\[hidden\]\)\) \.combo-hint\{bottom:calc\(\d+px/, 'the combo prompt moves above the line');
 });
+
+// With 喚名 and 寒聲 the support row holds four buttons. On an upright phone the row sits wholly above the stick,
+// so its width never matters to the stick, and the spoken line moves up to sit above the row.
+test('on an upright phone the support row clears the stick, however many buttons it holds', () => {
+  const css = read('style3d.css');
+  const phone = css.match(/@media\(max-width:700px\) and \(min-height:541px\)\{([\s\S]*?)\n\}/)[1];
+  const stickTop = Number(phone.match(/#joystick\{bottom:calc\((\d+)px/)[1]) + 104;
+  const row = Number(phone.match(/\.combat-utilities\{[^}]*bottom:calc\((\d+)px/)[1]);
+  assert.ok(row >= stickTop + 4, `the support row starts ${row}px up; the stick ends ${stickTop}px up`);
+});

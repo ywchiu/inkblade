@@ -54,3 +54,6 @@ export function rewardLines({ power = null, vigor = false } = {}) {
   if (vigor) lines.push(`血量上限 +${VIGOR_STEP}`);
   return lines;
 }
+
+// The start screen's cards: one per open realm. A first-time player has only the first, shown as the journey card they know.
+export function realmCards(progress) { return progress.unlocked().map((r, i) => ({ id: r.id, name: r.name, blurb: r.blurb, first: i === 0 })); }

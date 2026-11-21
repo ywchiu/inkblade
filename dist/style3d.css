@@ -142,7 +142,7 @@ html[lang="en"] .scene-note{display:none}
 @media(max-width:700px) and (min-height:541px){
 #joystick{bottom:calc(30px + env(safe-area-inset-bottom))}
 .touch-actions{bottom:calc(30px + env(safe-area-inset-bottom))}
-.combat-utilities{left:auto;right:4%;bottom:calc(122px + env(safe-area-inset-bottom))}
+.combat-utilities{left:auto;right:4%;bottom:calc(140px + env(safe-area-inset-bottom))}
 .combo-hint{bottom:calc(196px + env(safe-area-inset-bottom))}
 .boss-status{top:196px;bottom:auto;left:5%;right:170px}
 #battle-map.folded~.boss-status{right:5%}
@@ -151,8 +151,8 @@ html[lang="en"] .scene-note{display:none}
 .boss-status>p>span{margin-left:auto}
 .boss-caption{margin-top:5px}
 .enemy-warning{top:max(37%,262px)}
-.story-bark{bottom:calc(178px + env(safe-area-inset-bottom))}
-#hud:has(~#story-bark:not([hidden])) .combo-hint{bottom:calc(270px + env(safe-area-inset-bottom))}
+.story-bark{bottom:calc(196px + env(safe-area-inset-bottom))}
+#hud:has(~#story-bark:not([hidden])) .combo-hint{bottom:calc(288px + env(safe-area-inset-bottom))}
 .message{top:53%}
 }
 /* The fight is in the middle of an upright phone, so the foe's bar stays in the top column under the player's own bars.
@@ -193,3 +193,6 @@ h1{font-size:58px;margin-top:4px}
 }
 /* What a cleared realm gave the hero, on the results screen. */
 .result-earned{color:#f0ca82;letter-spacing:.08em}
+/* A realm opened by clearing the one before: a quieter card under the journey card. */
+.mode-card.realm{min-height:0;padding:12px 20px;background:linear-gradient(115deg,#2f4350f0,#1d2a33eb);border-color:#8fb0c4aa}
+.mode-card.realm:hover{background:#3a5566}
