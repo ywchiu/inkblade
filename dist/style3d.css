@@ -192,7 +192,7 @@ h1{font-size:58px;margin-top:4px}
 .cover::after{background:linear-gradient(180deg,#0a1016 0,#0a1016d0 110px,#0a101600 190px),linear-gradient(0deg,#0a1016f5 0,#0a1016c0 150px,#0a101600 250px)}
 }
 /* What a cleared realm gave the hero, on the results screen. */
-.result-earned{color:#f0ca82;letter-spacing:.08em}
+#modal-body .result-earned{color:#f0ca82;letter-spacing:.08em}
 /* A realm opened by clearing the one before: a quieter card under the journey card. */
 .mode-card.realm{min-height:0;padding:12px 20px;background:linear-gradient(115deg,#2f4350f0,#1d2a33eb);border-color:#8fb0c4aa}
 .mode-card.realm:hover{background:#3a5566}
