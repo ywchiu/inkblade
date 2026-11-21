@@ -22,10 +22,12 @@ export const ROLES=Object.freeze({
  fox:{kind:'wolf',skin:'fox',name:'冰狐',title:'從雪裡竄出來的狐魅',hp:46,posture:30,scale:.8,speed:1.3,tint:'#d9e4ea',pattern:'fox'},
  traveller:{kind:'ronin',skin:'traveller',named:true,name:'凍旅人',title:'死在山口又站起來的旅人',hp:96,posture:56,speed:.75,tint:'#9fb2c2',pattern:'traveller',frost:{radius:2.6,time:9,slow:.55}},
  howler:{kind:'oni',skin:'howler',name:'吼風山魈',title:'替凍聲婆看守山口的山魈',hp:260,posture:120,scale:.85,harm:1.1,poise:true,elite:true,tint:'#c9d6de',bright:1.4,pattern:'howler'},
- crone:{kind:'ronin',skin:'crone',name:'凍聲婆',title:'把山谷的聲音凍成冰甲的買主',hp:520,posture:160,harm:1.05,poise:true,boss:true,aura:'#bfe3ff',tint:'#bfe3ff'},
+ crone:{kind:'ronin',skin:'crone',name:'凍聲婆',title:'把山谷的聲音凍成冰甲的買主',hp:520,posture:160,harm:1.05,poise:true,boss:true,aura:'#bfe3ff',tint:'#bfe3ff',pattern:'crone',armour:true},
  nameless:{kind:'oni',name:'無名之主',title:'脫下神袍的吞名之物',hp:560,posture:175,scale:1.18,harm:1.1,reach:1.15,tint:'#8a78b0',aura:'#7b5cff',poise:true,boss:true,enraged:true,pattern:'nameless'}
 });
 const AGGRO=15,ENGAGED=22,REACH=1.4,TRAVEL=.4;
+// How near the hero must stand for a bell to hear a name called (喚名), whichever way the hero faces.
+export const BELL_REACH=4.5;
 // Shared combat rules, individual enemies, one long road and one player.
 export class CampaignCombat extends ArenaCombat {
  constructor(checkpoint=null,{realm='mountain',powers=[],vigor=0}={}){super(0);this.campaign=true;
@@ -35,7 +37,7 @@ export class CampaignCombat extends ArenaCombat {
  saveCheckpoint(){const p=this.player;this.checkpoint={realm:this.realm.id,powers:[...this.powers],vigor:this.vigor,stage:this.stage,kills:this.kills,bestCombo:this.bestCombo,time:this.time,stats:{...this.stats},collected:[...this.collected],player:{x:p.x,z:p.z,yaw:Math.PI,hp:p.hp,stamina:100,qi:p.qi,flasks:p.flasks}};}
  retryCheckpoint(){return new CampaignCombat(structuredClone(this.checkpoint));}
  rubbings(){return this.realm.PICKUPS.filter(p=>p.kind==='rubbing'&&this.collected.has(p.id)).length;}
- spawnStage(){const stage=this.realm.STAGES[this.stage];this.cleared=false;this.interlude=0;this.projectiles=[];this.arts=[];this.bursts=[];this.enemies=[];this.frosts=[];this.pending=stage.groups.map((g,index)=>({...g,index}));
+ spawnStage(){const stage=this.realm.STAGES[this.stage];this.cleared=false;this.interlude=0;this.projectiles=[];this.arts=[];this.bursts=[];this.enemies=[];this.frosts=[];this.bells=(stage.bells||[]).map(b=>({...b,broken:false}));this.armourTold=false;this.pending=stage.groups.map((g,index)=>({...g,index}));
   for(const g of [...this.pending])if(!g.when)this.deploy(g);
   this.enemy=this.enemies[0];this.spec=this.enemy.spec;this.index=ENEMIES.findIndex(s=>s.id===this.enemy.kindId);
   // Every name carried up the mountain is read out against the thing that ate them.
@@ -49,7 +51,7 @@ export class CampaignCombat extends ArenaCombat {
    e.id=++this.serial;e.kindId=def.kind;e.role=role;e.group=g.index;e.scale=scale;e.identity={name:def.name,title:def.title};
    e.spec={...base,speed:base.speed*(def.speed||1),radius:base.radius*scale,range:base.range*(def.reach||1)};e.radius=e.spec.radius;
    if(ambush){const a=i/n*Math.PI*2+g.index;e.x=g.x+Math.sin(a)*3.6;e.z=g.z+Math.cos(a)*3.6;}else if(n===1){e.x=g.x;e.z=g.z;}else{const row=Math.floor(i/3),col=i%3,width=Math.min(n-row*3,3);e.x=g.x+(col-(width-1)/2)*3.1;e.z=g.z+1.6-row*3.2;}
-   e.hp=e.maxHp=def.hp;e.maxPosture=def.posture;e.cooldown=(ambush?1.3:1)+i*.24;e.alert=ambush;e.enraged=!!def.enraged;e.arrived=ambush?this.time:null;this.enemies.push(e);});
+   e.hp=e.maxHp=def.hp;e.maxPosture=def.posture;e.cooldown=(ambush?1.3:1)+i*.24;e.alert=ambush;e.enraged=!!def.enraged;if(def.armour)e.armour=e.armourMax=this.bells.filter(b=>!b.broken).length;e.arrived=ambush?this.time:null;this.enemies.push(e);});
   this.constrain();if(ambush)this.emit('ambush',{x:g.x,z:g.z,count:n,enemyId:this.enemies.at(-1).id});
  }
  targets(){return this.enemies||[this.enemy];}
@@ -61,7 +63,8 @@ export class CampaignCombat extends ArenaCombat {
  cycleTarget(){const living=this.enemies.filter(e=>e.hp>0);if(living.length<2)return;this.enemy=living[(living.indexOf(this.enemy)+1)%living.length];this.spec=this.enemy.spec;this.index=ENEMIES.findIndex(s=>s.id===this.enemy.kindId);}
  action(name,dx=0,dz=0){if(name==='target'){this.cycleTarget();return true;}if(['light','heavy','dash'].includes(name)&&this.player.state==='idle')this.selectTarget();return super.action(name,dx,dz);}
  strike(move,special){let hits=0;const selected=this.enemy;for(const e of this.enemies){if(e.hp<=0||this.player.move==='execute'&&e!==selected)continue;if(!withinArc(this.player,e,move.range+e.radius*.3,move.arc))continue;this.withEnemy(e,()=>{this.hitEnemy(move.damage,move.posture,this.strikeKind(move,special));if(this.player.move==='execute')this.stats.executions++;if(this.player.move==='riposte')this.stats.counters++;});hits++;}if(!hits)this.emit('miss');}
- hitEnemy(damage,posture=0,kind='hit'){const e=this.enemy;if(e.hp<=0)return;this.rouse(e);super.hitEnemy(damage,posture,kind);this.combo++;this.comboTimer=3;this.bestCombo=Math.max(this.bestCombo,this.combo);
+ hitEnemy(damage,posture=0,kind='hit'){const e=this.enemy;if(e.hp<=0)return;this.rouse(e);
+  if(e.armour>0){super.hitEnemy(0,0,kind);const first=!this.armourTold;this.armourTold=true;this.emit('armour-turn',{x:e.x,z:e.z,enemyId:e.id,first});return;}super.hitEnemy(damage,posture,kind);this.combo++;this.comboTimer=3;this.bestCombo=Math.max(this.bestCombo,this.combo);
   // Ordinary troops flinch on a clean hit; elites and the mountain's masters keep their poise.
   if(e.hp>0&&!ROLES[e.role].poise&&!e.exposed){e.stun=Math.max(e.stun,this.player.state==='special'?.85:.32);e.state='stagger';e.comboLeft=0;}
  }
@@ -73,11 +76,21 @@ export class CampaignCombat extends ArenaCombat {
  }
  // A bound soul stops to listen when its name is called; 寒聲 holds any troop. Masters and elites only lose stance to 寒聲.
  answer(e,move){const def=ROLES[e.role],master=def.boss||def.elite;
+  // Frozen voices do not tremble at 寒聲; only their names undo them.
+  if(e.armour>0)return false;
   // A foe whose stance is already broken is waiting to be finished; a call must not hold its window open.
   if(e.exposed)return false;
   if(master)return super.answer(e,move);
   if(move.effect!=='roar'&&!def.named)return false;
   this.rouse(e);e.stun=Math.max(e.stun,move.stun);e.state='stagger';e.comboLeft=0;return true;}
+ // 喚名 beside a bell: the voice inside answers to its name, the bell breaks, and every armoured foe loses one layer.
+ invoke(move){super.invoke(move);if(move.effect!=='call')return;const p=this.player;
+  for(const b of this.bells){if(b.broken||Math.hypot(p.x-b.x,p.z-b.z)>BELL_REACH)continue;b.broken=true;
+   this.emit('bell-break',{id:b.id,x:b.x,z:b.z,name:b.name,text:b.text,broken:this.bells.filter(v=>v.broken).length,total:this.bells.length});
+   for(const e of this.enemies)if(e.hp>0&&e.armour>0&&--e.armour===0)this.dropArmour(e);}
+ }
+ // The last layer falls: she reels for a breath, then fights on bare and angry.
+ dropArmour(e){e.enraged=true;e.posture=0;e.exposed=false;e.stun=2;e.state='stagger';e.timer=e.total=2;e.comboLeft=0;this.emit('armour-fall',{x:e.x,z:e.z,enemyId:e.id});}
  rouse(e){if(e.alert)return;for(const mate of this.enemies)if(mate.group===e.group&&!mate.alert){mate.alert=true;mate.cooldown=Math.max(mate.cooldown,.5);}this.emit('roused',{x:e.x,z:e.z,group:e.group,enemyId:e.id});}
  // The base rules choose a move by body; a role with its own way of fighting swaps in its sequence,
  // and every move is sized to the foe that throws it.
@@ -90,14 +103,14 @@ export class CampaignCombat extends ArenaCombat {
   for(const e of this.enemies){if(e.hp<=0){e.deadTime=(e.deadTime||0)+dt;continue;}const def=ROLES[e.role];
    if(!e.alert){if(distance(e,p)<=AGGRO||e.hp<e.maxHp)this.rouse(e);else{e.state='idle';e.yaw=turnTo(e.yaw,angleTo(e,p),dt*1.5);continue;}}
    this.withEnemy(e,()=>{const idle=e.state==='idle',limited=idle&&committed>=2;if(limited&&e.stun<=0){this.encircle(e,living,dt);return;}
-    if(def.keep&&idle&&e.stun<=0&&this.standOff(e,def,dt))return;
+    const keep=def.keep||(e.armour>0?7:0);if(keep&&idle&&e.stun<=0&&this.standOff(e,keep,dt))return;
     const before=e.state;this.stepEnemy(dt);if(idle&&e.state==='windup')committed++;if(def.rest&&before==='recover'&&e.state==='idle')e.cooldown+=def.rest;});
   }
  }
  // Casters hold their distance: back away when crowded, drift in when left alone, and loose when ready.
- standOff(e,def,dt){const p=this.player,dist=distance(e,p);e.cooldown=Math.max(0,e.cooldown-dt);e.yaw=turnTo(e.yaw,angleTo(e,p),dt*5);if(dist<3)return false;
+ standOff(e,keep,dt){const p=this.player,dist=distance(e,p);e.cooldown=Math.max(0,e.cooldown-dt);e.yaw=turnTo(e.yaw,angleTo(e,p),dt*5);if(dist<3)return false;
   if(e.cooldown<=0&&dist<=18){this.enemyBegin();return true;}
-  const dir=dist<def.keep-1.5?-1:dist>def.keep+2?1:0,speed=e.spec.speed*(dir<0?1.25:1);e.x+=Math.sin(e.yaw)*dir*speed*dt;e.z+=Math.cos(e.yaw)*dir*speed*dt;e.speed=dir?speed:0;return true;
+  const dir=dist<keep-1.5?-1:dist>keep+2?1:0,speed=e.spec.speed*(dir<0?1.25:1);e.x+=Math.sin(e.yaw)*dir*speed*dt;e.z+=Math.cos(e.yaw)*dir*speed*dt;e.speed=dir?speed:0;return true;
  }
  encircle(e,living,dt){
   // Stable slots avoid every waiting troop chasing the same point. Active attacks keep their trajectories.
@@ -132,6 +145,7 @@ export class CampaignCombat extends ArenaCombat {
  constrain(){const lower=this.floor();for(const a of [this.player,...this.enemies]){a.z=clamp(a.z,lower+a.radius,this.realm.JOURNEY.south-a.radius);const edge=this.realm.bounds(a.z),half=Math.min(a.radius,(edge.max-edge.min)/2);a.x=clamp(a.x,edge.min+half,edge.max-half);}}
  // Where the road leads next: the nearest foe still standing, the mark a hidden group waits behind, or the open gate.
  waypoint(){const p=this.player,stage=this.realm.STAGES[this.stage];if(this.status!=='playing')return null;if(this.cleared)return stage.instant||stage.final?null:{x:this.realm.centre(stage.gate),z:stage.gate,kind:'gate'};
+  if(this.enemies.some(e=>e.hp>0&&e.armour>0)){const whole=this.bells.filter(b=>!b.broken);if(whole.length){const b=whole.reduce((a,c)=>distance(p,a)<distance(p,c)?a:c);return{x:b.x,z:b.z,kind:'bell',id:b.id};}}
   const living=this.enemies.filter(e=>e.hp>0);if(living.length){const e=living.reduce((a,b)=>distance(p,a)<distance(p,b)?a:b);return{x:e.x,z:e.z,kind:'foe'};}
   const next=this.pending.find(g=>g.when?.z!=null);return next?{x:this.realm.centre(next.when.z),z:next.when.z,kind:'mark'}:null;
  }

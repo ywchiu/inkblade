@@ -75,6 +75,12 @@ const snowMoves={
  reel:{kind:'slash',variant:'slash-left',name:'踉蹌橫掃',windup:.7,duration:.5,recovery:1.6,range:2.8,damage:22},
  gust:{kind:'projectile',variant:'fissure',name:'吼風',windup:1.1,duration:.6,recovery:1.5,range:0,damage:18,projectile:{style:'howl',tint:'#dfefff',speed:9,radius:1.4,range:14,spread:[0],push:3.2},lane:14}
 };
+// The crone rings a stolen voice across the cave, stamps the floor to ice, and screams from inside the frozen choir.
+const croneMoves={
+ bellCast:{kind:'projectile',variant:'bell-cast',name:'鈴聲',windup:1,duration:.55,recovery:1.3,range:0,damage:20,projectile:{style:'howl',tint:'#bfe3ff',speed:8,radius:.9,range:16,spread:[0]},lane:16},
+ frostSlam:{kind:'slam',variant:'frost-slam',name:'凍地',windup:1.05,recovery:1.5,range:4.2,damage:30},
+ wail:{kind:'slam',variant:'wail',name:'寒嘯',windup:1.35,recovery:1.8,range:5.6,damage:26}
+};
 const pick=(table,keys,enraged,quicken)=>keys.map(key=>({...table[key],windup:table[key].windup*(enraged?quicken:1)}));
 export function roleSequence(pattern,cycle,enraged,dist,rangedReady=true){
  switch(pattern){
@@ -96,6 +102,12 @@ export function roleSequence(pattern,cycle,enraged,dist,rangedReady=true){
    if(dist>4.5)return[...guardianSequence(cycle,true,dist),...pick(masterMoves,['lash'],true,.92)];
    const chains=[['right','left','lash'],['quake','delayed'],['lash','right','quake'],['right','left','delayed']][cycle%4];
    return chains.map(key=>({...(masterMoves[key]||moves[key]),windup:(masterMoves[key]||moves[key]).windup*.9}));
+  }
+  // Bare of her armour she is angrier: every tell is shorter, every chain longer, and the bell rings three ways.
+  case 'crone':{
+   if(dist>6&&rangedReady){const cast=pick(croneMoves,['bellCast'],enraged,.88);return enraged?[{...cast[0],projectile:{...cast[0].projectile,spread:[-.3,0,.3]}}]:cast;}
+   const chains=enraged?[['frostSlam','wail'],['bellCast','frostSlam'],['wail','frostSlam','bellCast']]:[['frostSlam'],['wail'],['frostSlam','bellCast']];
+   return pick(croneMoves,chains[cycle%3],enraged,.88);
   }
   case 'fox':return pick(snowMoves,dist>3.6?['drift']:cycle%2?['iceSnap','drift']:['iceSnap'],enraged,.9);
   case 'traveller':return pick(snowMoves,[['chop'],['reel','chop']][cycle%2],enraged,.92);
