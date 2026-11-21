@@ -64,6 +64,11 @@ export class CampaignCombat extends ArenaCombat {
  enemyDefeated(e){const def=ROLES[e.role];this.kills++;e.deadTime=0;this.player.qi=clamp(this.player.qi+(def.elite||def.boss?20:9),0,100);this.emit('troop-defeated',{x:e.x,z:e.z,kills:this.kills,role:e.role});
   if(def.burst){this.bursts.push({id:e.id,x:e.x,z:e.z,time:def.burst.delay,total:def.burst.delay,radius:def.burst.radius,damage:def.burst.damage});this.emit('burst-warn',{x:e.x,z:e.z,radius:def.burst.radius});}
  }
+ // A bound soul stops to listen when its name is called; 寒聲 holds any troop. Masters and elites only lose stance to 寒聲.
+ answer(e,move){const def=ROLES[e.role],master=def.boss||def.elite;
+  if(master)return super.answer(e,move);
+  if(move.effect!=='roar'&&!def.named)return false;
+  this.rouse(e);e.stun=Math.max(e.stun,move.stun);e.state='stagger';e.comboLeft=0;return true;}
  rouse(e){if(e.alert)return;for(const mate of this.enemies)if(mate.group===e.group&&!mate.alert){mate.alert=true;mate.cooldown=Math.max(mate.cooldown,.5);}this.emit('roused',{x:e.x,z:e.z,group:e.group,enemyId:e.id});}
  // The base rules choose a move by body; a role with its own way of fighting swaps in its sequence,
  // and every move is sized to the foe that throws it.

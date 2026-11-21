@@ -44,6 +44,9 @@ export const HERO_RIG = {
   // `tilt` turns the sword in the hand for that step (Euler, radians) where the library grip points it the wrong way.
   // `aim` points the blade along a direction in the character's own frame instead (x right, y up, z ahead).
   sequences: {
+    // 喚名 and 寒聲: the blade raised to the sky while the hero calls out.
+    callName: [{ clip: 'shout', range: [1.02, 1.55] }],
+    coldVoice: [{ clip: 'shout', range: [1.02, 1.55] }],
     // Blade across the face while ink gathers, then thrust to the sky; a flurry of turning cuts and chops
     // run at several times its authored speed; then a leap and a downward cut that lands on the last hit.
     spin: [{ to: .52, clip: 'guard', range: [.1, .6] }, { to: .9, clip: 'shout', range: [1.02, 1.55], tilt: [-1.4, 0, 0] }, { to: 1.4, clip: 'flurry', range: [.6, 3] }, { clip: 'judgment', range: [.62, 2.2], hit: 1.22, at: 1.75 }],

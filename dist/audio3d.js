@@ -18,6 +18,9 @@ export function cueFor(e){
   case 'special-release':return {family:'ultimate',sample:'stone',gain:.7,rate:1.12,cooldown:.2,duck:true};
   // The hero's ground-shaking moves and ink arts, from samples already shipped: stone for what hits the ground, a drawn blade for the crescent.
   case 'art':return e.art==='inkWave'?{family:'art',sample:'draw',gain:.5,rate:1.3,cooldown:.1}:e.art==='seal'?{family:'art',sample:'stone',gain:.74,rate:.9,cooldown:.2,duck:true}:{family:'art',sample:'stone',gain:e.art==='leap'?.56:.46,rate:e.art==='leap'?1.15:1.32,cooldown:.15};
+  // The earned powers: a bell for a name called out, struck stone for the cold voice.
+  case 'call-name':return {family:'power',sample:'bell',gain:.62,rate:1.2,cooldown:.3,duck:true};
+  case 'cold-voice':return {family:'power',sample:'stone',gain:.8,rate:.65,cooldown:.3,duck:true};
   case 'slam':return {family:'stone',sample:'stone',gain:.78,rate:.75,cooldown:.18,duck:true};
   case 'projectile-release':return e.style==='howl'?{family:'wolf',sample:'wolf-growl',gain:.48,rate:.82,cooldown:.6}:{family:'projectile',sample:'whoosh',gain:.4,rate:.7,cooldown:.12};
   case 'stagger':case 'guard-break':return {family:'break',sample:'metal',gain:.45,rate:.7,cooldown:.15};

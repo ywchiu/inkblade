@@ -77,6 +77,12 @@ export class HeroArts {
     const p = game.player, fx = world.combatVFX, ult = world.ultimate, shake = v => { if (world.shake != null) world.shake = Math.max(world.shake, v); };
     if (e.type === 'swing' && e.art === 'seal') { this.sealing = { x: p.x, z: p.z, radius: 4.5, released: false }; this.casts++; return; }
     if (e.type === 'art-end') { for (let i = 0; i < 10; i++) fx?.smoke.emit(new THREE.Vector3(e.x, FLIGHT * (.6 + Math.random() * .6), e.z), new THREE.Vector3((Math.random() - .5) * 2 + Math.sin(e.yaw) * 2, .2 + Math.random() * .8, (Math.random() - .5) * 2 + Math.cos(e.yaw) * 2), i % 3 ? '#1b2a2e' : '#566a6c', .22 + Math.random() * .25, .3 + Math.random() * .3); return; }
+    // 喚名 and 寒聲: a ring runs out to the reach of the call, gold for a name called, pale ice for the cold voice.
+    if (e.type === 'call-name' || e.type === 'cold-voice') {
+      const roar = e.type === 'cold-voice'; this.shocks++;
+      ult?.wave(e.x, e.z, .5, e.radius / .88, roar ? .5 : .36); fx?.ring?.(e.x, e.z, e.radius, roar ? '#bfe3ff' : GOLD); if (roar) shake(.12);
+      return;
+    }
     if (e.type !== 'art') return;
     const fwdX = Math.sin(e.yaw), fwdZ = Math.cos(e.yaw);
     if (e.art === 'inkWave') { this.casts++; fx?.dust(e.x + fwdX * .8, e.z + fwdZ * .8, 12, 1, fwdX * 2.4, fwdZ * 2.4); return; }

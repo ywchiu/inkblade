@@ -186,7 +186,7 @@ export const EN = {
 
   // ── The hero's moves ──
   '墨破山河': 'Ink Sunders the Mountains', '雙燕迴翔': 'Twin Swallows', '躍淵斬': 'Leaping Cut', '敕令 · 鎮': 'Edict: Seal', '疾風拔斬': 'Gale Draw',
-  '斜斬': 'Diagonal Cut', '反手橫斬': 'Backhand Sweep', '迴身落刃': 'Turning Chop', '崩山斷': 'Mountain Breaker', '飛墨斬': 'Flying Ink',
+  '斜斬': 'Diagonal Cut', '反手橫斬': 'Backhand Sweep', '迴身落刃': 'Turning Chop', '崩山斷': 'Mountain Breaker', '飛墨斬': 'Flying Ink', '喚名': 'Call the Name', '寒聲': 'Cold Voice',
   '挑月斬': 'Moon Riser', '迴風掃蕩': 'Whirlwind Sweep', '蓄勢破甲': 'Armor Breaker', '乘隙反斬': 'Riposte', '鎮魂處決': 'Soul-Quelling Execution',
 
   // ── Foes' moves ──

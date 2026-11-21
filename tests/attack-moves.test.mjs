@@ -11,7 +11,8 @@ test('heavy resets the light chain and hurt clears queued follow-up',()=>{
  const g=safe();g.action('light');idle(g);g.action('heavy');assert.equal(g.player.move,'heavy');idle(g);g.action('light');assert.equal(g.player.chain,1);tick(g,48);g.action('light');assert.equal(g.player.queuedLight,true);g.hitPlayer(20,g.enemy);assert.equal(g.player.queuedLight,false);idle(g);assert.equal(g.player.move,'diagonal');
 });
 test('each move damages only at its shared animation impact time and only once',()=>{
- for(const move of Object.values(PLAYER_MOVES)){const g=new ArenaCombat(2);g.player.z=2;g.player.yaw=Math.PI;g.enemy.z=0;g.enemy.state='recover';g.enemy.timer=100;
+ // The earned powers (喚名, 寒聲) cut nothing; what they do on landing is tested in powers.test.mjs.
+ for(const move of Object.values(PLAYER_MOVES)){if(move.effect)continue;const g=new ArenaCombat(2);g.player.z=2;g.player.yaw=Math.PI;g.enemy.z=0;g.enemy.state='recover';g.enemy.timer=100;
   const link=LIGHT_CHAIN.indexOf(move.id);if(link>0){g.player.chain=link;g.player.chainWindow=1;}
   if(move.id==='leap')g.player.sprintTime=1;if(move.art)g.player.state='guard';
   if(move.id==='riposte')g.player.counterWindow=1.4;if(move.id==='execute'){g.enemy.exposed=true;g.enemy.state='stagger';g.enemy.stun=2.6;}

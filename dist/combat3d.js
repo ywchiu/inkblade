@@ -18,7 +18,8 @@ export const turnTo=(from,to,speed)=>from+clamp(angleDiff(to,from),-speed,speed)
 export function withinArc(attacker,target,range,halfAngle){return distance(attacker,target)<=range&&Math.abs(angleDiff(angleTo(attacker,target),attacker.yaw))<=halfAngle;}
 const base=(x,z,hp,radius)=>({x,z,yaw:0,hp,maxHp:hp,radius,state:'idle',timer:0,total:0,flash:0,speed:0,stun:0,attackHit:false,invulnerable:0,actionAge:0,impact:null,impactSerial:0,knockbackX:0,knockbackZ:0});
 export class ArenaCombat {
- constructor(index=1){this.reset(index);}
+ // `powers` are what the hero has taken from the realms' masters (喚名, 寒聲); a campaign hands them in.
+ constructor(index=1){this.powers=new Set();this.reset(index);}
  reset(index=1){this.index=clamp(index,0,2);this.spec=ENEMIES[this.index];this.player={...base(0,4.8,140,.5),yaw:Math.PI,stamina:100,maxStamina:100,regenDelay:0,qi:0,flasks:3,guardAge:0,chain:0,chainWindow:0,queuedLight:false,queuedFinisher:null,move:null,counterWindow:0,perfectDodged:false,dodgeOrigin:null,inputBuffer:null,dashCooldown:0,queuedDashAttack:false,dashYaw:Math.PI,rollX:0,rollZ:-1,sprintTime:0,hitIndex:0};this.enemy={...base(0,-3.5,this.spec.hp,this.spec.radius),yaw:0,cooldown:.9,rangedCooldown:0,chaseSpeed:0,posture:0,maxPosture:this.spec.posture,phase:0,kind:'slash',comboLeft:0,targetYaw:0,enraged:false,exposed:false,postureDelay:0,sequence:[],sequenceIndex:0,cycle:0,moveData:null};this.projectiles=[];this.arts=[];this.striking=null;this.projectileSerial=0;this.time=0;this.hitStop=0;this.status='playing';this.events=[];this.stats={hits:0,damageTaken:0,parries:0,dodges:0,perfectDodges:0,counters:0,executions:0,heals:0};}
  emit(type,data={}){this.events.push({type,...data});}
  drainEvents(){const v=this.events;this.events=[];return v;}
@@ -29,6 +30,7 @@ export class ArenaCombat {
  // Which ink art an attack from the guard would be, if there is qi for it; otherwise the ordinary cut.
  guardArt(name){const p=this.player,id=name==='heavy'?'seal':'inkWave';return p.state==='guard'&&p.stun<=0&&p.qi>=PLAYER_MOVES[id].qiCost?id:null;}
  action(name,dx=0,dz=0){if(this.status!=='playing')return false;const p=this.player,e=this.enemy;
+  if(name==='callName'||name==='coldVoice')return this.startPower(name);
   // A heavy input branches from a light cut; contact must occur before the finisher starts.
   if(name==='heavy'&&p.state==='light'&&p.stun<=0&&!playerMove(p).art){const id=p.chain>=2?'sweep':'rising';if(p.stamina<PLAYER_MOVES[id].cost){this.emit('exhausted');return false;}p.queuedFinisher=id;p.queuedLight=false;p.inputBuffer=null;return true;}
   // A single short buffer makes a near-end press reliable without queuing whole combos.
@@ -63,6 +65,15 @@ export class ArenaCombat {
   if(name==='special'){if(p.qi<100)return false;p.qi=0;p.state='special';p.move='spin';p.queuedLight=false;p.queuedFinisher=null;p.chain=0;p.chainWindow=0;p.timer=p.total=PLAYER_MOVES.spin.duration;p.actionAge=0;p.attackHit=false;p.hitIndex=0;p.invulnerable=1.15;p.yaw=angleTo(p,e);this.emit('special',{x:p.x,z:p.z});return true;}
   return false;
  }
+ // A power the hero has earned (喚名, 寒聲): refused, with the reason told, unless it is known, paid for and the hero is free.
+ startPower(id){const p=this.player,move=PLAYER_MOVES[id];const reason=!this.powers.has(id)?'locked':p.qi<move.qiCost?'qi':p.stun>0||!['idle','guard'].includes(p.state)?'busy':null;
+  if(reason){this.emit('power-unavailable',{power:id,reason});return false;}return this.startArt(id);}
+ // The call lands: every foe in reach answers it or does not. A duel's foe is a master, so only 寒聲 reaches it.
+ invoke(move){const p=this.player,hits=[];for(const e of this.targets()){if(e.hp<=0||!withinArc(p,e,move.range+e.radius*.3,move.arc))continue;if(this.withEnemy(e,()=>this.answer(e,move)))hits.push(e.id);}
+  this.emit(move.effect==='call'?'call-name':'cold-voice',{x:p.x,z:p.z,yaw:p.yaw,radius:move.range,hits});}
+ answer(e,move){if(move.effect!=='roar')return false;this.shake(e,move.posture);return true;}
+ // Stance worn down without a cut; a full gauge breaks it as a hit would.
+ shake(e,amount){if(e.exposed)return;e.posture+=amount;e.postureDelay=3;if(e.posture>=e.maxPosture){e.posture=0;e.exposed=true;e.stun=2.6;e.state='stagger';e.timer=e.total=2.6;e.comboLeft=0;this.emit('stagger',{x:e.x,z:e.z});}}
  // 飛墨斬 and 敕令 · 鎮 are paid for in qi, not stamina, and give none back.
  startArt(id){const p=this.player,e=this.enemy,move=PLAYER_MOVES[id];p.qi-=move.qiCost;p.move=id;p.state=move.projectile?'light':'heavy';p.timer=p.total=move.duration;p.actionAge=0;p.attackHit=false;p.hitIndex=0;p.queuedLight=false;p.queuedFinisher=null;p.inputBuffer=null;p.chain=0;p.chainWindow=0;
   if(move.ward)p.invulnerable=Math.max(p.invulnerable,move.ward);if(e.hp>0&&distance(p,e)<(move.projectile?move.projectile.range+2:6))p.yaw=angleTo(p,e);
@@ -169,7 +180,7 @@ export class ArenaCombat {
  withEnemy(e,fn){return fn();}
  // One scheduled contact of the hero's current move. `striking` tells hitEnemy what landed
  // (its weight, the qi it returns) however many foes the strike reaches.
- land(move,special){const p=this.player;this.striking=move;try{this.strike(move,special);}finally{this.striking=null;}if(move.shock)this.emit('art',{art:move.id,x:p.x,z:p.z,yaw:p.yaw,radius:move.shock});}
+ land(move,special){const p=this.player;if(move.effect){this.invoke(move);return;}this.striking=move;try{this.strike(move,special);}finally{this.striking=null;}if(move.shock)this.emit('art',{art:move.id,x:p.x,z:p.z,yaw:p.yaw,radius:move.shock});}
  // 飛墨斬 leaves the blade as a crescent of ink: a shot of the hero's own, kept apart from the enemies' projectiles.
  launchArt(move){const p=this.player,s=move.projectile,fx=Math.sin(p.yaw),fz=Math.cos(p.yaw),lead=.6;
   this.arts.push({id:++this.projectileSerial,move:move.id,x:p.x+fx*lead,z:p.z+fz*lead,yaw:p.yaw,speed:s.speed,radius:s.radius,remaining:s.range-lead,pierce:s.pierce,struck:[],damage:move.damage,posture:move.posture});

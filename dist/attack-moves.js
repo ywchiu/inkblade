@@ -95,7 +95,19 @@ function seal(){
  return{id:'seal',name:'敕令 · 鎮',duration:1.15,impact:.55,art:true,qiCost:40,gain:0,heavy:true,ward:.62,damage:22,posture:60,range:4.5,arc:Math.PI,shock:4.5,lungeSpeed:0,lungeUntil:0,trailStart:.4,trailEnd:.6,
   frames:[[0,pose({})],[.2,lift],[.42,lift],[.55,plant],[.86,plant],[1.05,settle],[1.15,pose({})]]};
 }
+// 喚名 and 寒聲, the powers taken from the realms' masters. Nothing is cut: the blade is levelled at the bound soul
+// while the hero calls its name (or roars the cold voice), and the call lands at `impact`. Paid for in ink, like the other arts.
+function power(id,name,{duration,impact,roar=false,...extra}){
+ const raise=pose({hips:[-.04,0,0],chest:[-.3,0,0],head:[-.22,0,0],rightArm:[-1.55,.55,.1],rightForearm:[-.4,0,0],rightHand:[.3,0,0],leftArm:[-.4,-.2,-.6],leftForearm:[-.9,0,0],rightLeg:[-.18,0,-.05],rightKnee:[.22,0,0],leftLeg:[.2,0,.05],leftKnee:[.18,0,0],offset:[0,-.04,0]});
+ const call=pose({hips:[-.1,0,0],chest:[-.45,0,0],head:[-.4,0,0],rightArm:[-1.7,.7,.05],rightForearm:[-.15,0,0],rightHand:[.2,0,0],leftArm:[-.2,-.3,-.9],leftForearm:[-.5,0,0],rightLeg:[-.25,0,-.05],rightKnee:[.3,0,0],leftLeg:[.25,0,.05],leftKnee:[.25,0,0],offset:[0,-.08,0]});
+ // The cold voice is roared, not called: feet set wide, the blade swung down and back, the chest thrown forward.
+ const shout=roar?pose({hips:[.12,0,0],chest:[.35,0,0],head:[.25,0,0],rightArm:[.4,.3,.6],rightForearm:[-.3,0,0],rightHand:[.2,0,0],leftArm:[.3,-.3,-.9],leftForearm:[-.3,0,0],rightLeg:[-.45,0,-.2],rightKnee:[.6,0,0],leftLeg:[.35,0,.2],leftKnee:[.55,0,0],offset:[0,-.28,0]}):call;
+ return{id,name,duration,impact,art:true,gain:0,heavy:false,damage:0,roar,lungeSpeed:0,lungeUntil:0,trailStart:0,trailEnd:0,...extra,
+  frames:[[0,pose({})],[impact*.6,raise],[impact,shout],[impact+.2,shout],[duration-.1,mix(pose({}),raise,.3)],[duration,pose({})]]};
+}
 export const PLAYER_MOVES={
+ callName:power('callName','喚名',{duration:.8,impact:.45,qiCost:30,posture:0,range:6.5,arc:2.1,effect:'call',stun:1.6}),
+ coldVoice:power('coldVoice','寒聲',{duration:.9,impact:.5,roar:true,qiCost:40,posture:30,range:4.8,arc:Math.PI*2,effect:'roar',stun:1.2}),
  dashCut:move('dashCut','疾風拔斬',.72,.23,
   {hips:[.08,-.32,0],chest:[.22,-.6,-.08],rightArm:[-.5,-.9,-.5],rightForearm:[-.9,0,0],rightHand:[-.3,0,-.3],leftArm:[.35,0,-.6],rightLeg:[-.5,0,0],leftLeg:[.32,0,0]},
   {hips:[.08,.2,0],chest:[.12,.35,.08],rightArm:[-1.2,.35,.35],rightForearm:[-.08,0,0],rightHand:[-.4,0,.2],leftArm:[-.65,0,-.6]},
