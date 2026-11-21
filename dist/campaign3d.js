@@ -18,6 +18,11 @@ export const ROLES=Object.freeze({
  hanzhou:{kind:'ronin',name:'沈寒舟',title:'誤信還魂之約的亡魂',hp:300,posture:120,poise:true,elite:true},
  acolyte:{kind:'oni',name:'泥塑護法',title:'被偽神喚醒的山門塑像',hp:210,posture:105,scale:.62,speed:1.1,harm:.7,reach:.66,tint:'#c9a98a',bright:1.6,poise:true,pattern:'acolyte'},
  oni:{kind:'oni',name:'鎮祟山魈',title:'竊名拘魂的偽山神',hp:440,posture:150,poise:true,boss:true},
+ // 寒聲嶺. The crone wears a body built on the swordsman's skeleton; the howler, a smaller cousin of the 山魈's.
+ fox:{kind:'wolf',skin:'fox',name:'冰狐',title:'從雪裡竄出來的狐魅',hp:46,posture:30,scale:.8,speed:1.3,tint:'#d9e4ea'},
+ traveller:{kind:'ronin',skin:'traveller',named:true,name:'凍旅人',title:'死在山口又站起來的旅人',hp:96,posture:56,speed:.75,tint:'#9fb2c2'},
+ howler:{kind:'oni',skin:'howler',name:'吼風山魈',title:'替凍聲婆看守山口的山魈',hp:260,posture:120,scale:.85,harm:1.1,poise:true,elite:true,tint:'#c9d6de',bright:1.4},
+ crone:{kind:'ronin',skin:'crone',name:'凍聲婆',title:'把山谷的聲音凍成冰甲的買主',hp:520,posture:160,harm:1.05,poise:true,boss:true,aura:'#bfe3ff',tint:'#bfe3ff'},
  nameless:{kind:'oni',name:'無名之主',title:'脫下神袍的吞名之物',hp:560,posture:175,scale:1.18,harm:1.1,reach:1.15,tint:'#8a78b0',aura:'#7b5cff',poise:true,boss:true,enraged:true,pattern:'nameless'}
 });
 const AGGRO=15,ENGAGED=22,REACH=1.4,TRAVEL=.4;

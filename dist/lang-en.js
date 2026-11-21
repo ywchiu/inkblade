@@ -381,6 +381,25 @@ export const EN = {
   '沒有俗家的名字。背面只刻了一個木魚，和一句「師父說我叫小沙彌」。': 'He had no name from before the temple. The back shows only a wooden fish and the words “Master says I am called Little Novice.”',
   '山下的老婆婆。借出自己的名字，替兒子換了七年。': 'The old woman from the village. She lent her own name and bought her son seven years.',
   '碑林裡最老的一塊。背面只有兩個字，不像人的名字。': 'The oldest stele in the forest. Two characters on the back, and they do not read like a person’s name.',
+
+  // ── 寒聲嶺: the road, its chapters and its bells ──
+  '寒聲嶺': 'Frost-Voice Ridge', '有人把山谷裡的聲音凍了起來': 'Someone has frozen the valley’s voices',
+  '啞村': 'The Mute Village', '風雪坡道': 'Blizzard Slope', '冰湖': 'The Ice Lake', '聲窟前': 'Before the Voice Cave', '聲窟': 'The Voice Cave',
+  '啞村狐影': 'Foxes in the Mute Village', '擊退從雪裡竄出的冰狐': 'Drive off the ice foxes bursting from the snow', '出村上坡 · 去找阿聆的娘': 'Up the slope · find A-Ling’s mother',
+  '坡上凍客': 'Frozen Travellers on the Slope', '放倒擋路的凍旅人': 'Bring down the frozen travellers in the way', '下坡向冰湖 · 湖底有人聲': 'Down to the ice lake · there are voices under it',
+  '冰湖吼風': 'Howling on the Ice Lake', '渡過冰湖 · 擊退吼風山魈': 'Cross the ice lake · drive off the wind-howling shanxiao', '沿湖向北 · 聲窟就在前面': 'North along the lake · the Voice Cave is ahead',
+  '聲窟門前': 'At the Voice Cave’s Door', '清開聲窟門前的守衛': 'Clear the guards from the cave mouth', '入聲窟 · 鈴聲在等名字': 'Into the cave · the bells are waiting for names',
+  '凍聲婆': 'The Frost-Voice Crone', '叫碎冰鈴 · 擊倒凍聲婆': 'Call the ice bells apart · bring down the Frost-Voice Crone', '冰鈴盡碎 · 聲音回到山谷': 'Every bell broken · the voices go home to the valley',
+  '老周': 'Old Zhou', '村長。每天天亮前敲梆子報時，敲了三十年。': 'The headman. Every day before dawn he beat the watch clapper to call the hour, for thirty years.',
+  '石生': 'Shi Sheng', '過山的貨郎。腰上的名牌還在坡上，聲音卻掛在這裡。': 'A pedlar crossing the pass. His name tag is still on the slope; his voice hangs here.',
+  '秋娘': 'Qiu Niang', '阿聆的娘。上山要替女兒把聲音買回來，自己的也賠了進去。': 'A-Ling’s mother. She climbed up to buy back her daughter’s voice and lost her own as well.',
+  '阿聆': 'A-Ling', '畫狀紙的啞女。她的聲音，是這口鈴裡最年輕的一個。': 'The mute girl who drew the petition. Hers is the youngest voice in any of these bells.',
+  '冰聲': 'Frozen voices', '聲窟已靜': 'The cave is quiet',
+  '冰狐': 'Ice Fox', '從雪裡竄出來的狐魅': 'A fox spirit that bursts out of the snow',
+  '凍旅人': 'Frozen Traveller', '死在山口又站起來的旅人': 'A traveller who died on the pass and stood up again',
+  '吼風山魈': 'Wind-Howling Shanxiao', '替凍聲婆看守山口的山魈': 'The shanxiao that keeps the pass for the Frost-Voice Crone',
+  '把山谷的聲音凍成冰甲的買主': 'The buyer who froze the valley’s voices into armour',
+  '聲音回到山谷': 'The Voices Go Home', '冰鈴盡碎。被凍住的聲音，回到了每一個人的喉嚨裡。': 'Every ice bell is broken. The frozen voices are back in the throats they came from.',
 };
 
 // Lines that carry something through: a name, a key, an error from the browser.

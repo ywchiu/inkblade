@@ -5,6 +5,7 @@ import { toEnglish, misses, t, getLang } from '../dist/i18n.js';
 import { EN, EN_PATTERNS } from '../dist/lang-en.js';
 import * as story from '../dist/story3d.js';
 import * as journey from '../dist/journey3d.js';
+import { REALMS } from '../dist/realms.js';
 import * as campaign from '../dist/campaign3d.js';
 import * as combat from '../dist/combat3d.js';
 import { PLAYER_MOVES } from '../dist/attack-moves.js';
@@ -98,8 +99,10 @@ test('the story is covered: every scene, line, bark, name and source', () => {
 });
 
 test('the road is covered: stages, goals, zones and rubbings', () => {
-  const list = strings(journey, plaque);
+  // Every realm's road: its chapters, zones and bells, and the realm's own words for its finds and its win.
+  const list = [...strings(journey, plaque), ...strings({ REALMS }, plaque)];
   assert.ok(list.length > 40);
+  assert.ok(list.some(([, text]) => text === '冰湖吼風'), 'the snow road was walked');
   assert.deepEqual(untranslated(list), []);
 });
 
