@@ -4,10 +4,10 @@
 
 | 角色 | id | 參考圖 | 圖轉 3D | 綁骨 | 遊戲內檔案 |
 | --- | --- | --- | --- | --- | --- |
-| 凍聲婆 | `crone` | `crone-reference.png`（3:4，工作 `5ed05264-c094-4776-9afa-0e26db31d9aa`） | `tripo_h3_1_image_to_3d`，工作 `8604987e-ec0e-4996-927d-8998664b16d1` | | |
-| 冰狐 | `fox` | `fox-reference.png`（4:3，工作 `e26a354d-9c18-4470-b0c1-364e7e927098`） | `tripo_h3_1_image_to_3d`，工作 `71bdc6f5-5fb9-408f-bf0a-164dd8df855a` | 不送綁骨，四足程式蒙皮 | |
-| 凍旅人 | `traveller` | `traveller-reference.png`（3:4，工作 `133cf45a-e448-453e-850b-a15b7f08f3da`） | `tripo_h3_1_image_to_3d`，工作 `8a98fcf9-86a4-45c9-bc10-f845b202d0ac` | | |
-| 吼風山魈 | `howler` | `howler-reference.png`（3:4，工作 `22773e09-0944-444f-8351-10202441bbb1`） | `tripo_h3_1_image_to_3d`，工作 `b6dd7e48-4752-4990-97ff-56b01e8b3a0b` | | |
+| 凍聲婆 | `crone` | `crone-reference.png`（3:4，工作 `5ed05264-c094-4776-9afa-0e26db31d9aa`） | `tripo_h3_1_image_to_3d`，工作 `8604987e-ec0e-4996-927d-8998664b16d1` | `3d_rigging`（不含動畫），工作 `18d22416-9500-4201-9e0d-3c7c8a64ea81` | `dist/assets/snow/crone/rig/crone.glb`（4.1 MB）＋ `cast`／`slam`／`wail` | |
+| 冰狐 | `fox` | `fox-reference.png`（4:3，工作 `e26a354d-9c18-4470-b0c1-364e7e927098`） | `tripo_h3_1_image_to_3d`，工作 `71bdc6f5-5fb9-408f-bf0a-164dd8df855a` | 不送綁骨，四足程式蒙皮（`FOX_SHAPE`） | `dist/assets/snow/fox.glb`（3.0 MB） |
+| 凍旅人 | `traveller` | `traveller-reference.png`（3:4，工作 `133cf45a-e448-453e-850b-a15b7f08f3da`） | `tripo_h3_1_image_to_3d`，工作 `8a98fcf9-86a4-45c9-bc10-f845b202d0ac` | `3d_rigging`（不含動畫），工作 `34e12885-7afe-4c5c-8bdc-c709a3c379c0` | `dist/assets/snow/traveller/rig/traveller.glb`（4.5 MB） | |
+| 吼風山魈 | `howler` | `howler-reference.png`（3:4，工作 `22773e09-0944-444f-8351-10202441bbb1`） | `tripo_h3_1_image_to_3d`，工作 `b6dd7e48-4752-4990-97ff-56b01e8b3a0b` | `3d_rigging`（不含動畫），工作 `1552538e-fc82-4ab8-a6c6-65913cedbc92` | `dist/assets/snow/howler/rig/howler.glb`（4.8 MB） | |
 
 ## 配色原則
 
@@ -56,6 +56,29 @@
 
 三個人形轉正後在 `motion-lab.html?rig=…&view=front` 正面看得到臉，`prepare-rig-input` 沒有 warning。原始檔與全尺寸貼圖的綁骨輸入放在 `local/`（不進 git，各 13–17 MB）；送綁骨用全尺寸貼圖那份，綁好後再壓縮。
 
+## 綁骨與動作
+
+- 三個人形都用 `3d_rigging`（`height_meters` 分別是 2.3、1.95、2.4），送的是 `local/` 裡全尺寸貼圖的輸入，綁好後再 `compress-textures.mjs`。
+- 綁出來的骨架與劍客、山魈完全相同（24 根，名稱一致）。所以凍旅人直接用劍客的片段（`TRAVELLER_RIG`），吼風山魈直接用山魈的片段（`HOWLER_RIG`）。
+- 凍聲婆的待機、跑、受擊、倒地也借劍客的；另外買了三個自己的動作，每個 8 點，由使用者從預覽挑選：
+
+| 片段 | 動畫庫 | 工作 | 長度 | 出手區間／接觸格 |
+| --- | --- | --- | --- | --- |
+| `cast` | Charged_Spell_Cast（125） | `759f98d9-7cae-4d63-8a42-794cb7a2f625` | 2.70 s | 0.5–2.3 s，1.85 s 雙手上推 |
+| `slam` | Charged_Ground_Slam（127） | `321c8d7a-e99a-4334-9c08-d7d9e330ce15` | 3.03 s | 0.3–2.4 s，1.75 s 右手拍地 |
+| `wail` | Zombie_Scream（386） | `53084130-74ab-4324-ab07-2c0dbe02d314` | 2.83 s | 0.4–2.2 s，1.15 s 前傾尖嘯 |
+
+接觸格是在 node 裡用 `AnimationMixer` 逐 0.1 秒取手與頭的位置量出來的（手最高、手落地、頭最前）。片段用 `extract-clip.mjs` 取出，每個約 100 KB。
+
+綁骨後的檔案比綁骨前大：骨架多了權重，頂點也比劍客多（吼風山魈 53,111 個，劍客 37,757 個）。貼圖只佔 0.9 MB，所以降低貼圖品質省不了多少。每個模型的預算因此從 4.5 MB 放寬到 5 MB。
+
+## 檢視
+
+- `/motion-lab.html?who=crone&clip=atk&kind=slash&variant=frost-slam&windup=1.4&duration=1&view=quarter&cols=4&rows=2`
+- `/motion-lab.html?who=traveller&clip=chase&view=quarter&cols=4&rows=1`
+- `/motion-lab.html?who=howler&clip=atk&kind=slash&variant=slam&windup=.9&duration=.8&view=quarter&cols=4&rows=1`
+- `/motion-lab.html?who=fox&clip=chase&view=side&cols=3&rows=2`（也可用 `clip=dead`、`clip=atk&kind=slash`）
+
 ## 花費
 
-Higgsfield 點數：參考圖 0.75 × 4 = 3（第一次就全數採用，無重做）；圖轉 3D 12 × 4 = 48。
+Higgsfield 點數：參考圖 0.75 × 4 = 3（第一次就全數採用，無重做）；圖轉 3D 12 × 4 = 48；綁骨 5 × 3 = 15；凍聲婆動作 8 × 3 = 24。合計 90。

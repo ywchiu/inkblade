@@ -105,7 +105,28 @@ export const ONI_RIG = {
 // The registry clerk wears its own body on the swordsman's skeleton (same auto-rig, same bone names),
 // so it plays the swordsman's clips. It carries a judge's brush instead of a sword: 點名 is the thrust.
 export const SCRIBE_RIG = { ...RONIN_RIG, rig: './assets/scribe/rig/scribe.glb', height: 2.1, moves: { ...RONIN_RIG.moves, 'sword-cross': 'thrust' } };
-export const RIGS = { hero: HERO_RIG, ronin: RONIN_RIG, oni: ONI_RIG, scribe: SCRIBE_RIG };
+// 寒聲嶺. The three walk on the same auto-rig as the swordsman and the 山魈, so they borrow their clips;
+// only the crone, the realm's master, brings moves of her own. None of them carries a weapon.
+export const TRAVELLER_RIG = { ...RONIN_RIG, rig: './assets/snow/traveller/rig/traveller.glb', height: 1.95, weaponBone: null, flash: '#8fb0c4' };
+export const HOWLER_RIG = { ...ONI_RIG, rig: './assets/snow/howler/rig/howler.glb', height: 2.4, flash: '#8fb0c4' };
+export const CRONE_RIG = {
+  rig: './assets/snow/crone/rig/crone.glb',
+  height: 2.3,
+  yaw: 0,
+  weaponBone: null,
+  flash: '#bfe3ff',
+  moves: { 'bell-cast': 'cast', 'frost-slam': 'slam', wail: 'wail' },
+  clips: {
+    idle: RONIN_RIG.clips.idle,
+    run: RONIN_RIG.clips.run,
+    hurt: RONIN_RIG.clips.hurt,
+    death: RONIN_RIG.clips.death,
+    cast: { src: './assets/snow/crone/rig/cast.glb', range: [.5, 2.3], hit: 1.85 }, // gathers low, then throws both hands up
+    slam: { src: './assets/snow/crone/rig/slam.glb', range: [.3, 2.4], hit: 1.75 }, // right hand raised, then struck flat on the ground
+    wail: { src: './assets/snow/crone/rig/wail.glb', range: [.4, 2.2], hit: 1.15 }, // leans in and screams from 1.15 s to 1.9 s
+  },
+};
+export const RIGS = { hero: HERO_RIG, ronin: RONIN_RIG, oni: ONI_RIG, scribe: SCRIBE_RIG, crone: CRONE_RIG, traveller: TRAVELLER_RIG, howler: HOWLER_RIG };
 
 const ATTACKS = new Set(['light', 'heavy', 'special']);
 const TELEGRAPHED = new Set(['windup', 'attack']);

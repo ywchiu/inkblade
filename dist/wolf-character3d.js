@@ -18,6 +18,14 @@ export const BEAST_SHAPE={asset:'./assets/beast/stone-beast.glb',height:1.5,yaw:
  front:[[.3,.76,.68],[.33,.4,.67],[.39,.1,.74]],hind:[[.28,.8,-.42],[.31,.42,-.55],[.4,.1,-.48]],
  bands:{tailZ:[-.76,-.66],tailY:[.7,.9],tailRun:[.7,.55],leg:[.5,.82],knee:[.25,.55],paw:[.1,.2],head:[.82,1.05],neck:[.55,.8],hips:[-.5,-.1],chest:[-.05,.4],inner:[.1,.2]},
  lie:[.5,.85]};
+// The ice fox of 寒聲嶺: small and long-legged, its three tails swept low behind (they hang below the hips,
+// so the tail band reaches down to the hocks' height but only behind them). Faces -Z like the wolf.
+export const FOX_SHAPE={asset:'./assets/snow/fox.glb',height:1.05,yaw:Math.PI,
+ spine:{Pelvis:[0,.62,-.15],Spine:[0,.64,.12],Chest:[0,.66,.42],Neck:[0,.8,.62],Head:[0,.88,.76]},
+ tail:[[0,.6,-.33],[0,.55,-.55],[0,.52,-.78]],
+ front:[[.13,.6,.5],[.15,.3,.5],[.16,.06,.55]],hind:[[.14,.6,-.1],[.16,.3,-.14],[.2,.06,-.12]],
+ bands:{tailZ:[-.42,-.32],tailY:[.18,.28],tailRun:[.33,.5],leg:[.42,.58],knee:[.22,.38],paw:[.05,.12],head:[.62,.72],neck:[.45,.62],hips:[-.15,.1],chest:[.15,.4]},
+ lie:[.27,.7]};
 export function createWolfCharacter(gltf,shape=WOLF_SHAPE){
  const height=shape.height,B=shape.bands,root=new THREE.Group(),body=new THREE.Group();root.add(body);
  gltf.scene.updateMatrixWorld(true);const rotate=new THREE.Matrix4().makeRotationY(shape.yaw),parts=[],bounds=new THREE.Box3();

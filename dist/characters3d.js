@@ -2,7 +2,7 @@ import { dashPose } from './dash3d.js';
 import { applyFootwork } from './footwork3d.js';
 import { transitionPose } from './motion-transition3d.js';
 import { locomotionPose, gaitTiming } from './locomotion3d.js';
-import { createWolfCharacter, animateWolf, BEAST_SHAPE } from './wolf-character3d.js';
+import { createWolfCharacter, animateWolf, BEAST_SHAPE, FOX_SHAPE } from './wolf-character3d.js';
 import { dodgePose } from './dodge3d.js';
 import * as THREE from './vendor/three.module.js';
 import { samplePlayerAttack, sampleMonsterAttack, sampleSwordsmanAttack } from './attack-moves.js';
@@ -27,6 +27,7 @@ export async function loadCharacter(kind){
 // The clerk is always a rigged model: it has no procedural rig of its own.
 const skins={
  beast:async()=>createWolfCharacter(await loader.loadAsync(BEAST_SHAPE.asset),BEAST_SHAPE),
+ fox:async()=>createWolfCharacter(await loader.loadAsync(FOX_SHAPE.asset),FOX_SHAPE),
  scribe:()=>loadRiggedCharacter(RIGS.scribe,{loader,createWeapon:createBrush,kind:'ronin'})
 };
 export const SKINS=Object.keys(skins);
