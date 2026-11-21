@@ -13,6 +13,8 @@ const canvas=document.querySelector('canvas'),renderer=new THREE.WebGLRenderer({
 const W=innerWidth,H=innerHeight;renderer.setSize(W,H);renderer.setScissorTest(true);renderer.outputColorSpace=THREE.SRGBColorSpace;
 const scene=new THREE.Scene();scene.add(new THREE.HemisphereLight('#ffffff','#40444c',2.2));const sun=new THREE.DirectionalLight('#fff1dc',2.6);sun.position.set(3,6,4);scene.add(sun);
 const grid=new THREE.GridHelper(60,120,'#5c6570','#343a42');scene.add(grid);
+// &ground=snow: a bright snowfield and pale sky, to check a body still stands apart from the 寒聲嶺 ground.
+if(new URLSearchParams(location.search).get('ground')==='snow'){grid.visible=false;scene.background=new THREE.Color('#c9d3da');const snow=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.MeshStandardMaterial({color:'#e8edf0',roughness:.95}));snow.rotation.x=-Math.PI/2;scene.add(snow);}
 const camera=new THREE.PerspectiveCamera(30,(W/cols)/(H/rows),.1,100);
 
 const views={front:[0,.12,1],back:[0,.25,-1],quarter:[.75,.3,.75],side:[1,.08,0],top:[0,1,.001]};

@@ -79,6 +79,18 @@
 - `/motion-lab.html?who=howler&clip=atk&kind=slash&variant=slam&windup=.9&duration=.8&view=quarter&cols=4&rows=1`
 - `/motion-lab.html?who=fox&clip=chase&view=side&cols=3&rows=2`（也可用 `clip=dead`、`clip=atk&kind=slash`）
 
+## 雪地上看得清楚嗎
+
+`snow-lineup.png`：上排是暗色地面，下排是 `&ground=snow`（雪地 `#e8edf0`、天空 `#c9d3da`）。凍聲婆、凍旅人、吼風山魈在雪地上都很清楚。冰狐的身體是淺灰，主要靠黑腿、黑尾尖和紅繩跟雪地分開，做場景時要在實際遊戲光線下再確認，必要時用角色的 `tint` 壓暗。
+
+在任何檢視網址後面加 `&ground=snow` 就會換成雪地。
+
+## 載入
+
+`dist/characters3d.js` 的 `REALM_SKINS` 列出每一關要的身體：借名山 `beast`、`scribe`，寒聲嶺 `fox`、`traveller`、`howler`、`crone`。`SkinShelf` 每個名字一次造訪只抓一次；抓不到就一直是 null，角色穿原本的身體。開場只要借名山的；開始寒聲嶺的路程時才要寒聲嶺的（`world.prepareRealm`）。
+
+瀏覽器驗證（2026-11-21）：只玩借名山時沒有任何 `/assets/snow/` 請求；要求寒聲嶺後四個身體都到，每個檔案只抓一次，重複要求不會再抓；把 `/assets/snow/` 擋掉時四個都是 null，借名山的兩個照常，頁面沒有錯誤。
+
 ## 花費
 
 Higgsfield 點數：參考圖 0.75 × 4 = 3（第一次就全數採用，無重做）；圖轉 3D 12 × 4 = 48；綁骨 5 × 3 = 15；凍聲婆動作 8 × 3 = 24。合計 90。
